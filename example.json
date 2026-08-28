@@ -1,0 +1,25 @@
+{
+  "stacks": [
+    {
+      "id": "stack_xdc5kckgh2ln6",
+      "title": "LexiRead",
+      "description": "LexiRead words",
+      "libraryId": null,
+      "cards": [
+        {
+          "id": "c_y0fu80txw3w7v",
+          "q": "to go",
+          "a": "gitmek"
+        },
+        {
+          "id": "c_mcwwfltuo3w7v",
+          "q": "to swim",
+          "a": "yüzmek"
+        }
+      ],
+      "correctBox": [],
+      "wrongBox": []
+    }
+  ],
+  "libraries": []
+}
