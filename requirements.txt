@@ -1,0 +1,3 @@
+# LexiRead Backend Dependencies
+# The backend uses Python's built-in standard library (http.server, urllib, json).
+# This file is provided for Render.com build compatibility.
