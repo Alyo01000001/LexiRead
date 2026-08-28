@@ -1,0 +1,425 @@
+/* =============================================================
+   LexiRead Stylesheet — Themes, Reader, Gestures & Modals
+   ============================================================= */
+
+:root {
+    --reader-font: Georgia, "Iowan Old Style", Palatino, serif;
+}
+
+body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+/* Native selection disabled inside the reader: the custom drag
+   engine drives all word/phrase selection. */
+#reader, #reader * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- WORD TOKEN ----------
+   text-transform:none is mandatory — no CSS may alter extracted
+   text casing, because DeepL is case-sensitive. */
+.word {
+    cursor: pointer;
+    border-radius: 3px;
+    padding: 0 1px;
+    transition: background-color 110ms ease, color 110ms ease;
+    text-transform: none !important;
+}
+.word:hover     { background-color: rgba(99, 102, 241, .28); }
+.word.selected  { background-color: rgba(251, 146, 60, .85); color: #1c1917; } /* orange box */
+.word.active    { background-color: rgba(99, 102, 241, .95); color: #fff; }
+.word.selected.active { background-color: #6366f1; color: #fff; }
+body.dragging             { cursor: grabbing; }
+body.dragging .word:hover { background-color: transparent; }
+
+/* ---------- PDF ---------- */
+#reader.pdf-mode {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+}
+#readerShell {
+    overflow-x: auto;
+}
+.pdf-page {
+    position: relative;
+    margin: 0 auto 1.5rem;
+    background: #fff;
+    box-shadow: 0 10px 35px -10px rgba(0,0,0,.5);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.pdf-page canvas {
+    display: block;
+}
+.pdf-page .textLayer {
+    opacity: 1 !important;
+    z-index: 2;
+}
+.pdf-page .textLayer > span {
+    color: transparent;
+}
+/* Word tokens flow INLINE inside pdf.js-positioned spans so they
+   inherit exact left/top/font-size/scaleX. Casing untouched. */
+.pdf-page .textLayer span.word {
+    position: static !important;
+    display: inline;
+    transform: none;
+    color: transparent;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 2px;
+    white-space: pre;
+    text-transform: none !important;
+}
+.pdf-page .textLayer span.word:hover {
+    background-color: rgba(99, 102, 241, .32);
+}
+.pdf-page .textLayer span.word.selected {
+    background-color: rgba(251, 146, 60, .55);
+    box-shadow: 0 0 0 1.5px rgba(234, 88, 12, .9);
+    color: transparent !important;
+}
+.pdf-page .textLayer span.word.active {
+    background-color: rgba(99, 102, 241, .45);
+    box-shadow: 0 0 0 1.5px rgba(79, 70, 229, .9);
+    color: transparent !important;
+}
+.pdf-page .textLayer span.word.selected.active {
+    background-color: rgba(251, 146, 60, .6);
+    box-shadow: 0 0 0 1.5px rgba(234, 88, 12, 1);
+}
+.pdf-page .textLayer div.pdf-crop-excluded,
+.pdf-page .textLayer span.pdf-crop-excluded {
+    opacity: 0.25 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    cursor: default !important;
+}
+
+/* ---------- DOCX ---------- */
+#reader.docx-mode {
+    color: #e2e8f0;
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+#reader.docx-mode h1, #reader.docx-mode h2, #reader.docx-mode h3, #reader.docx-mode h4 {
+    color: #f8fafc;
+    font-weight: 700;
+    margin: 1.6em 0 .6em;
+    line-height: 1.3;
+}
+#reader.docx-mode h1 { font-size: 1.8rem; }
+#reader.docx-mode h2 { font-size: 1.5rem; }
+#reader.docx-mode h3 { font-size: 1.25rem; }
+#reader.docx-mode p  { margin: 0 0 1em; }
+#reader.docx-mode ul, #reader.docx-mode ol { margin: 0 0 1em 1.4em; }
+#reader.docx-mode li { margin-bottom: .35em; }
+#reader.docx-mode strong { color: #f1f5f9; }
+#reader.docx-mode em     { color: #cbd5e1; }
+#reader.docx-mode a      { color: #818cf8; text-decoration: underline; }
+#reader.docx-mode table  { border-collapse: collapse; width: 100%; margin: 1em 0; }
+#reader.docx-mode th, #reader.docx-mode td { border: 1px solid #334155; padding: .4em .6em; }
+#reader.docx-mode blockquote { border-left: 3px solid #475569; padding-left: 1em; color: #94a3b8; margin: 1em 0; }
+
+/* ---------- TXT ---------- */
+#reader.txt-mode { display: block; }
+.reader-text {
+    font-family: var(--reader-font);
+    font-size: 1.2rem;
+    line-height: 1.95;
+    letter-spacing: .01em;
+    color: #e6ecf5;
+}
+
+/* ---------- TOOLTIP ---------- */
+#tooltip {
+    position: absolute;
+    z-index: 60;
+    min-width: 150px;
+    max-width: 340px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 110ms ease, transform 110ms ease;
+}
+#tooltip.visible { opacity: 1; transform: translateY(0); }
+#tooltip::after { content: ""; position: absolute; left: 24px; border: 6px solid transparent; }
+#tooltip.below::after { top: -12px; border-bottom-color: #1e293b; }
+#tooltip.above::after { bottom: -12px; border-top-color: #1e293b; }
+
+/* ---------- MODALS / TOASTS ---------- */
+.modal-card { animation: modalIn 160ms ease-out; }
+@keyframes modalIn { from { opacity:0; transform:translateY(10px) scale(.98);} to { opacity:1; transform:none; } }
+@keyframes slideIn { from { opacity:0; transform:translateY(-8px);} to {opacity:1; transform:translateY(0);} }
+.toast { animation: slideIn 180ms ease-out; }
+@keyframes pulseSoft { 0%,100% { box-shadow:0 0 0 0 rgba(251,146,60,.5);} 50% { box-shadow:0 0 0 5px rgba(251,146,60,0);} }
+.attention { animation: pulseSoft 1.6s ease-in-out 3; }
+
+::-webkit-scrollbar { width:10px; height:10px; }
+::-webkit-scrollbar-track { background:#0f172a; }
+::-webkit-scrollbar-thumb { background:#334155; border-radius:5px; }
+::-webkit-scrollbar-thumb:hover { background:#475569; }
+
+input[type="range"].zoom-slider-vertical {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    vertical-align: middle;
+}
+
+/* ---------- LIGHT MODE THEME ---------- */
+html.light body {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+html.light header {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: #e2e8f0;
+}
+html.light #readerShell {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 20px 50px -25px rgba(0, 0, 0, 0.08);
+    ring-color: rgba(0, 0, 0, 0.05);
+}
+html.light #dropZone {
+    border-color: #cbd5e1;
+    background-color: #f1f5f9;
+    color: #475569;
+}
+html.light #dropZone:hover {
+    border-color: #6366f1;
+    background-color: #eef2ff;
+    color: #4338ca;
+}
+html.light #dropZone p.text-slate-200 { color: #1e293b; }
+html.light #dropZone p.text-slate-400 { color: #64748b; }
+html.light #welcomeState h2 { color: #0f172a; }
+html.light #welcomeState p { color: #64748b; }
+html.light #reader.txt-mode .reader-text { color: #1e293b; }
+html.light #reader.docx-mode { color: #1e293b; }
+html.light #reader.docx-mode h1,
+html.light #reader.docx-mode h2,
+html.light #reader.docx-mode h3,
+html.light #reader.docx-mode h4 { color: #0f172a; }
+html.light #reader.docx-mode strong { color: #0f172a; }
+html.light #reader.docx-mode em { color: #334155; }
+html.light #reader.docx-mode blockquote { border-left-color: #cbd5e1; color: #475569; }
+html.light #headerUploadBtn,
+html.light #keyBtn,
+html.light #themeToggleBtn {
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+html.light #headerUploadBtn:hover,
+html.light #keyBtn:hover,
+html.light #themeToggleBtn:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+html.light #savedBtn {
+    background-color: #eef2ff;
+    border-color: #c7d2fe;
+    color: #4338ca;
+}
+html.light #savedBtn:hover {
+    background-color: #e0e7ff;
+}
+html.light #savedCount {
+    background-color: #c7d2fe;
+    color: #3730a3;
+}
+html.light #leftControlWidget {
+    background-color: rgba(255, 255, 255, 0.94);
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12);
+}
+html.light #leftControlWidget button {
+    background-color: #f1f5f9;
+    color: #334155;
+}
+html.light #leftControlWidget button:hover {
+    background-color: #6366f1;
+    color: #ffffff;
+}
+html.light #zoomSlider {
+    background-color: #e2e8f0;
+}
+html.light #zoomLabel,
+html.light #navCurPage {
+    color: #4f46e5;
+}
+html.light .modal-card {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    color: #0f172a;
+}
+html.light .modal-card h2,
+html.light .modal-card h3 {
+    color: #0f172a;
+}
+html.light .modal-card p,
+html.light .modal-card label span {
+    color: #475569;
+}
+html.light .modal-card select,
+html.light .modal-card input[type="text"],
+html.light .modal-card input[type="password"] {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+html.light .modal-card select option {
+    background-color: #ffffff;
+    color: #0f172a;
+}
+html.light #cropPreviewOuter {
+    background-color: #e2e8f0;
+}
+html.light #savedModal .modal-card,
+html.light #keyModal .modal-card,
+html.light #langModal .modal-card,
+html.light #pdfCropModal .modal-card,
+html.light #outlineModal .modal-card,
+html.light #typographyModal .modal-card {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+}
+html.light .border-slate-800,
+html.light .border-slate-700 {
+    border-color: #e2e8f0;
+}
+html.light ::-webkit-scrollbar-track { background:#f1f5f9; }
+html.light ::-webkit-scrollbar-thumb { background:#cbd5e1; }
+html.light ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+
+/* ---------- SEPIA MODE THEME ---------- */
+html.sepia body {
+    background-color: #f4ebd9;
+    color: #382818;
+}
+html.sepia header {
+    background-color: rgba(244, 235, 217, 0.92);
+    border-color: #e6d7b9;
+}
+html.sepia #readerShell {
+    background-color: #fbf5e8;
+    border-color: #e6d7b9;
+    box-shadow: 0 20px 50px -25px rgba(60, 40, 20, 0.08);
+    ring-color: rgba(60, 40, 20, 0.05);
+}
+html.sepia #dropZone {
+    border-color: #d8c8a8;
+    background-color: #ede2cd;
+    color: #5d4630;
+}
+html.sepia #dropZone:hover {
+    border-color: #b45309;
+    background-color: #e7dac1;
+    color: #78350f;
+}
+html.sepia #dropZone p.text-slate-200 { color: #382818; }
+html.sepia #dropZone p.text-slate-400 { color: #6d543c; }
+html.sepia #welcomeState h2 { color: #2c1a0e; }
+html.sepia #welcomeState p { color: #6d543c; }
+html.sepia #reader.txt-mode .reader-text { color: #2e2012; }
+html.sepia #reader.docx-mode { color: #2e2012; }
+html.sepia #reader.docx-mode h1,
+html.sepia #reader.docx-mode h2,
+html.sepia #reader.docx-mode h3,
+html.sepia #reader.docx-mode h4 { color: #2c1a0e; }
+html.sepia #headerUploadBtn,
+html.sepia #keyBtn,
+html.sepia #themeToggleBtn {
+    background-color: #fbf5e8;
+    border-color: #d8c8a8;
+    color: #4a3725;
+}
+html.sepia #headerUploadBtn:hover,
+html.sepia #keyBtn:hover,
+html.sepia #themeToggleBtn:hover {
+    background-color: #ede2cd;
+    color: #2c1a0e;
+}
+html.sepia #savedBtn {
+    background-color: #fde68a;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+html.sepia #savedBtn:hover {
+    background-color: #fcd34d;
+}
+html.sepia #savedCount {
+    background-color: #f59e0b;
+    color: #ffffff;
+}
+html.sepia #leftControlWidget {
+    background-color: rgba(251, 245, 232, 0.94);
+    border-color: #e6d7b9;
+    box-shadow: 0 10px 30px -10px rgba(60, 40, 20, 0.12);
+}
+html.sepia #leftControlWidget button {
+    background-color: #ede2cd;
+    color: #4a3725;
+}
+html.sepia #leftControlWidget button:hover {
+    background-color: #d97706;
+    color: #ffffff;
+}
+html.sepia #zoomSlider {
+    background-color: #d8c8a8;
+}
+html.sepia #zoomLabel,
+html.sepia #navCurPage {
+    color: #b45309;
+}
+html.sepia .modal-card {
+    background-color: #fbf5e8;
+    border-color: #e6d7b9;
+    color: #382818;
+}
+html.sepia .modal-card h2,
+html.sepia .modal-card h3 {
+    color: #2c1a0e;
+}
+html.sepia .modal-card p,
+html.sepia .modal-card label span {
+    color: #6d543c;
+}
+html.sepia .modal-card select,
+html.sepia .modal-card input[type="text"],
+html.sepia .modal-card input[type="password"] {
+    background-color: #f4ebd9;
+    border-color: #d8c8a8;
+    color: #382818;
+}
+html.sepia .modal-card select option {
+    background-color: #fbf5e8;
+    color: #382818;
+}
+html.sepia #cropPreviewOuter {
+    background-color: #ede2cd;
+}
+html.sepia #savedModal .modal-card,
+html.sepia #keyModal .modal-card,
+html.sepia #langModal .modal-card,
+html.sepia #pdfCropModal .modal-card,
+html.sepia #outlineModal .modal-card,
+html.sepia #typographyModal .modal-card {
+    background-color: #fbf5e8;
+    border-color: #e6d7b9;
+}
+html.sepia .border-slate-800,
+html.sepia .border-slate-700 {
+    border-color: #e6d7b9;
+}
+html.sepia ::-webkit-scrollbar-track { background:#ede2cd; }
+html.sepia ::-webkit-scrollbar-thumb { background:#d8c8a8; }
+html.sepia ::-webkit-scrollbar-thumb:hover { background:#bfa884; }
