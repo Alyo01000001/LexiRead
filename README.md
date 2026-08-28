@@ -1,2 +1,2 @@
 # LexiRead
-Text-Translation
+Text-Translation site that use Gemini and DeepL API
