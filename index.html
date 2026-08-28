@@ -1084,16 +1084,20 @@
         };
     }
 
+    function buildCardlyoText() {
+        const arr = loadSaved();
+        return arr.map(i => `${i.original}:${i.translation}`).join('\n');
+    }
+
     savedSyncCardlyo.addEventListener('click', async () => {
         const arr = loadSaved();
         if (!arr.length) { showToast('No saved words to copy.', 'warn'); return; }
-        const payload = buildCardlyoPayload();
-        const jsonStr = JSON.stringify(payload, null, 2);
+        const textToCopy = buildCardlyoText();
 
         let copied = false;
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(jsonStr);
+                await navigator.clipboard.writeText(textToCopy);
                 copied = true;
             }
         } catch (_) {}
@@ -1101,7 +1105,7 @@
         if (!copied) {
             try {
                 const ta = document.createElement('textarea');
-                ta.value = jsonStr;
+                ta.value = textToCopy;
                 ta.style.position = 'fixed';
                 ta.style.opacity = '0';
                 document.body.appendChild(ta);
@@ -1112,8 +1116,9 @@
             } catch (_) {}
         }
 
-        // Silent broadcast to any active tab if exists on same origin
+        // Silent broadcast payload if any active tab is listening
         try {
+            const payload = buildCardlyoPayload();
             const bc = new BroadcastChannel('cardlyo_sync');
             bc.postMessage({
                 type: 'IMPORT_DECK',
@@ -1125,7 +1130,7 @@
             bc.close();
         } catch (_) {}
 
-        showToast(`📋 Copied ${arr.length} cards! Paste (Ctrl+V) in Cardlyo.`, 'success', 3500);
+        showToast(`📋 Copied ${arr.length} words (word:translation)! Paste in Cardlyo.`, 'success', 3500);
     });
 
     savedExport.addEventListener('click', () => {

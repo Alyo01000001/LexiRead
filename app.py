@@ -5,8 +5,9 @@ import urllib.parse
 import urllib.error
 import json
 import sys
+import os
 
-PORT = 8000
+PORT = int(os.environ.get('PORT', 8000))
 
 class LexiReadHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
