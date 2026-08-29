@@ -45,7 +45,7 @@ const LANGS = [
     {code:'ja',name:'Japanese'},{code:'ko',name:'Korean'},{code:'zh',name:'Chinese'}
 ];
 const LANG_BY_CODE = Object.fromEntries(LANGS.map(l => [l.code, l]));
-const langName = c => (LANG_BY_CODE[c] ? LANG_BY_CODE[c].name : c);
+const langName = c => (typeof getLocalizedLangName === 'function' ? getLocalizedLangName(c) : (LANG_BY_CODE[c] ? LANG_BY_CODE[c].name : c));
 const srcCode = c => String(c).toUpperCase();
 const tgtCode = c => ({ en:'EN-US', pt:'PT-PT' }[c] || String(c).toUpperCase());
 
@@ -74,6 +74,8 @@ const logoBtn             = $('logoBtn');
 const headerUploadBtn     = $('headerUploadBtn');
 const themeToggleBtn      = $('themeToggleBtn');
 const themeIcon           = $('themeIcon');
+const appLangToggleBtn    = $('appLangBtn');
+const appLangLabel        = $('appLangLabel');
 const leftControlWidget   = $('leftControlWidget');
 
 const zoomInBtn           = $('zoomInBtn');
@@ -121,9 +123,32 @@ const outlineModal        = $('outlineModal');
 const outlineClose        = $('outlineClose');
 const outlineList         = $('outlineList');
 
+const langChangeBtn     = $('langChangeBtn');
 const typographyBtn       = $('typographyBtn');
 const typographyModal     = $('typographyModal');
 const typographyClose     = $('typographyClose');
+
+// Mobile Bottom Reading & Action Bar Elements
+const bottomMobileBar      = $('bottomMobileBar');
+const mobilePdfNav         = $('mobilePdfNav');
+const mobileNavPrevPage    = $('mobileNavPrevPage');
+const mobileNavNextPage    = $('mobileNavNextPage');
+const mobileNavCurPage     = $('mobileNavCurPage');
+const mobileNavTotalPages  = $('mobileNavTotalPages');
+
+const mobileZoomOutBtn     = $('mobileZoomOutBtn');
+const mobileZoomResetBtn   = $('mobileZoomResetBtn');
+const mobileZoomLabel      = $('mobileZoomLabel');
+const mobileZoomInBtn      = $('mobileZoomInBtn');
+
+const mobileLangChangeBtn  = $('mobileLangChangeBtn');
+const mobileTypographyBtn  = $('mobileTypographyBtn');
+const mobileNavOutlineBtn  = $('mobileNavOutlineBtn');
+const mobileDocUploadBtn   = $('mobileDocUploadBtn');
+
+function isMobile() {
+    return window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth < 1024);
+}
 
 const resumeBanner        = $('resumeBanner');
 const resumePageNum       = $('resumePageNum');
@@ -144,6 +169,8 @@ const cropNextPage        = $('cropNextPage');
 const cropPageIndicator   = $('cropPageIndicator');
 const cropConfirmBtn      = $('cropConfirmBtn');
 const cropSkipBtn         = $('cropSkipBtn');
+const cropBackBtn         = $('cropBackBtn');
+const cropCloseBtn        = $('cropCloseBtn');
 
 // Initialize Language Dropdowns
 [langSrc, langTgt].forEach(sel => {

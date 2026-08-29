@@ -25,7 +25,7 @@
     <header class="sticky top-0 z-40 backdrop-blur bg-slate-950/85 border-b border-slate-800 transition-colors">
         <div class="max-w-5xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-3">
             <!-- Modern Logo with LexiReadIcon.png and reload action -->
-            <a href="javascript:void(0)" id="logoBtn" title="Reload &amp; Return Home" class="flex items-center gap-2.5 group cursor-pointer select-none">
+            <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-2.5 group cursor-pointer select-none">
                 <img src="LexiReadIcon.png" alt="LexiRead" class="h-8 w-8 object-contain rounded-lg shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition" />
                 <span class="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-100 to-indigo-200 text-lg sm:text-xl">
                     Lexi<span class="text-indigo-400">Read</span>
@@ -38,16 +38,16 @@
             <button id="headerUploadBtn"
                     class="hidden items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
                 <span>📁</span>
-                <span class="hidden sm:inline">Open Document</span>
-                <span class="sm:hidden">Open</span>
+                <span class="hidden sm:inline" data-i18n="openDocument">Open Document</span>
+                <span class="sm:hidden" data-i18n="openDocShort">Open</span>
             </button>
 
             <!-- Refined Saved-items manager -->
             <button id="savedBtn"
                     class="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-950/50 px-3 py-1.5 text-xs sm:text-sm font-medium text-indigo-200 hover:bg-indigo-900/50 hover:border-indigo-500/60 shadow-sm transition">
                 <span>🔖</span>
-                <span class="hidden sm:inline">Saved Words</span>
-                <span class="sm:hidden">Saved</span>
+                <span class="hidden sm:inline" data-i18n="savedWords">Saved Words</span>
+                <span class="sm:hidden" data-i18n="savedShort">Saved</span>
                 <span id="savedCount" class="rounded-full bg-indigo-500/30 px-1.5 py-0.5 text-[10px] tabular-nums font-mono text-indigo-300">0</span>
             </button>
 
@@ -55,11 +55,18 @@
             <button id="keyBtn"
                     class="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 transition shadow-sm">
                 <span id="keyDot" class="h-2 w-2 rounded-full bg-amber-400"></span>
-                <span>API Key</span>
+                <span data-i18n="apiKey">API Key</span>
+            </button>
+
+            <!-- UI Language Switcher (TR / EN) -->
+            <button id="appLangBtn" data-i18n-title="appLangBtnTitle" title="Dili Değiştir / Change Language (TR / EN)"
+                    class="flex items-center justify-center gap-1 px-2.5 h-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm select-none">
+                <span>🌐</span>
+                <span id="appLangLabel">EN</span>
             </button>
 
             <!-- Theme Toggle Button (Light / Sepia / Dark) -->
-            <button id="themeToggleBtn" title="Toggle Theme (Dark / Light / Sepia)"
+            <button id="themeToggleBtn" data-i18n-title="toggleThemeGeneral" title="Toggle Theme (Dark / Light / Sepia)"
                     class="flex items-center justify-center h-8 w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-sm text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
                 <span id="themeIcon">☀️</span>
             </button>
@@ -70,7 +77,7 @@
     <aside id="leftControlWidget" class="hidden fixed left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-2.5 p-2 rounded-2xl border border-slate-800/90 bg-slate-900/90 backdrop-blur-md shadow-2xl transition-all duration-200 select-none">
         <!-- Zoom Controls -->
         <div class="flex flex-col items-center gap-1.5">
-            <button id="zoomInBtn" title="Zoom In (+)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
+            <button id="zoomInBtn" data-i18n-title="zoomIn" title="Zoom In (+)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
                 +
             </button>
 
@@ -79,38 +86,95 @@
                        class="zoom-slider-vertical h-20 w-1.5 accent-indigo-500 bg-slate-700 rounded-lg cursor-pointer appearance-none" />
             </div>
 
-            <button id="zoomOutBtn" title="Zoom Out (−)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
+            <button id="zoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out (−)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
                 −
             </button>
 
-            <button id="zoomResetBtn" title="Reset Zoom (100%)" class="text-[10px] font-mono font-medium text-slate-400 hover:text-indigo-300 transition mt-0.5">
+            <button id="zoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom (100%)" class="text-[10px] font-mono font-medium text-slate-400 hover:text-indigo-300 transition mt-0.5">
                 <span id="zoomLabel">100%</span>
             </button>
         </div>
 
+        <!-- Translation Languages Switcher Button (Changes active translation pair anytime) -->
+        <button id="langChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 text-xs transition">
+            🌐
+        </button>
+
         <!-- Typography Customizer for TXT & DOCX -->
-        <button id="typographyBtn" title="Typography &amp; Layout" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 font-serif text-xs font-bold transition">
+        <button id="typographyBtn" data-i18n-title="typography" title="Typography &amp; Layout" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 font-serif text-xs font-bold transition">
             Aa
         </button>
 
         <!-- PDF Table of Contents (Outline) Button -->
-        <button id="navOutlineBtn" title="Table of Contents / Chapters" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 text-xs transition">
+        <button id="navOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 text-xs transition">
             📑
         </button>
 
         <!-- PDF Page Navigator (visible for PDF) -->
         <div id="pdfNavSection" class="hidden flex-col items-center gap-1 pt-2 border-t border-slate-800 w-full">
-            <button id="navPrevPage" title="Previous Page (K / ▲)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
+            <button id="navPrevPage" data-i18n-title="prevPage" title="Previous Page (K / ▲)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
                 ▲
             </button>
             <div class="text-center font-mono text-[10px] text-slate-400 py-0.5">
                 <span id="navCurPage" class="text-indigo-400 font-semibold">1</span>/<span id="navTotalPages">1</span>
             </div>
-            <button id="navNextPage" title="Next Page (J / ▼)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
+            <button id="navNextPage" data-i18n-title="nextPage" title="Next Page (J / ▼)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
                 ▼
             </button>
         </div>
     </aside>
+
+    <!-- ============ MOBILE BOTTOM ACTION & READING BAR (Visible on screens < 768px when doc is open) ============ -->
+    <nav id="bottomMobileBar" class="hidden fixed bottom-0 left-0 right-0 z-40 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-3 py-2 select-none shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-transform duration-300">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-1 text-xs">
+            
+            <!-- Mobile PDF Page Navigator (visible for PDF) -->
+            <div id="mobilePdfNav" class="hidden items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner">
+                <button id="mobileNavPrevPage" data-i18n-title="prevPage" title="Previous Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition disabled:opacity-30">
+                    ▲
+                </button>
+                <span class="font-mono text-[11px] px-1 text-slate-300">
+                    <strong id="mobileNavCurPage" class="text-indigo-400">1</strong>/<span id="mobileNavTotalPages">1</span>
+                </span>
+                <button id="mobileNavNextPage" data-i18n-title="nextPage" title="Next Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition disabled:opacity-30">
+                    ▼
+                </button>
+            </div>
+
+            <!-- Mobile Zoom Controller -->
+            <div class="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner">
+                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition">
+                    −
+                </button>
+                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1 text-[11px] font-mono font-medium text-slate-300 hover:text-indigo-300 transition">
+                    <span id="mobileZoomLabel">100%</span>
+                </button>
+                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition">
+                    +
+                </button>
+            </div>
+
+            <!-- Mobile Translation Languages Button -->
+            <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-sm shadow-sm transition">
+                🌐
+            </button>
+
+            <!-- Mobile Typography (TXT/DOCX) -->
+            <button id="mobileTypographyBtn" data-i18n-title="typography" title="Typography & Layout" class="hidden w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center font-serif text-xs font-bold shadow-sm transition">
+                Aa
+            </button>
+
+            <!-- Mobile PDF TOC / Chapters -->
+            <button id="mobileNavOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition">
+                📑
+            </button>
+
+            <!-- Mobile Document Upload Button -->
+            <button id="mobileDocUploadBtn" data-i18n-title="openDocument" title="Open Document" class="w-8 h-8 rounded-xl bg-indigo-950 border border-indigo-500/40 hover:bg-indigo-600 text-indigo-200 hover:text-white flex items-center justify-center text-sm shadow-sm transition">
+                📁
+            </button>
+        </div>
+    </nav>
 
     <!-- ================= MAIN ================= -->
     <main class="max-w-5xl mx-auto px-3 sm:px-4 py-6">
@@ -121,8 +185,8 @@
             <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl text-indigo-400">
                 📁
             </div>
-            <p class="text-lg font-medium mb-1 text-slate-200">Drop a document here, or tap to choose a file</p>
-            <p class="text-sm text-slate-400">Supports <code class="text-indigo-400 font-mono">.pdf</code>, <code class="text-indigo-400 font-mono">.txt</code>, <code class="text-indigo-400 font-mono">.docx</code> documents</p>
+            <p class="text-lg font-medium mb-1 text-slate-200" data-i18n="dropTitle">Drop a document here, or tap to choose a file</p>
+            <p class="text-sm text-slate-400" data-i18n="dropSubtitle">Supports <code class="text-indigo-400 font-mono">.pdf</code>, <code class="text-indigo-400 font-mono">.txt</code>, <code class="text-indigo-400 font-mono">.docx</code> documents</p>
             <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
         </div>
 
@@ -132,20 +196,20 @@
 
             <!-- Resume Reading Toast/Banner -->
             <div id="resumeBanner" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 items-center gap-3 px-4 py-2 rounded-xl border border-indigo-500/40 bg-indigo-950/95 text-indigo-100 text-xs shadow-2xl backdrop-blur-md transition-all">
-                <span>📌 You were on <strong id="resumePageNum" class="text-white">Page 1</strong></span>
-                <button id="resumeJumpBtn" class="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition">Resume</button>
+                <span>📌 <span data-i18n="resumeText">You were on</span> <strong id="resumePageNum" class="text-white">Page 1</strong></span>
+                <button id="resumeJumpBtn" data-i18n="resumeBtn" class="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition">Resume</button>
                 <button id="resumeDismissBtn" class="text-slate-400 hover:text-white text-xs">✕</button>
             </div>
             <div id="welcomeState" class="flex min-h-[340px] flex-col items-center justify-center px-6 py-16 text-center sm:px-12">
                 <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-400/20 bg-indigo-400/10 text-2xl text-indigo-300">✦</div>
-                <h2 class="text-xl font-semibold tracking-tight text-slate-100">Welcome to the Reader.</h2>
-                <p class="mt-2 max-w-md text-sm leading-6 text-slate-400">Please upload a file to begin...</p>
-                <p class="mt-5 text-xs uppercase tracking-[0.18em] text-slate-600">Runs entirely in your browser</p>
+                <h2 class="text-xl font-semibold tracking-tight text-slate-100" data-i18n="welcomeHeading">Welcome to the Reader.</h2>
+                <p class="mt-2 max-w-md text-sm leading-6 text-slate-400" data-i18n="welcomeSub">Please upload a file to begin...</p>
+                <p class="mt-5 text-xs uppercase tracking-[0.18em] text-slate-600" data-i18n="welcomeBadge">Runs entirely in your browser</p>
             </div>
 
             <div id="loader" class="hidden min-h-[340px] flex-col items-center justify-center py-10 text-indigo-300">
                 <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
-                <p class="mt-3 text-sm" id="loaderText">Working…</p>
+                <p class="mt-3 text-sm" id="loaderText" data-i18n="loaderWorking">Working…</p>
             </div>
 
             <article id="reader" class="hidden px-4 py-6 sm:px-10 sm:py-10" aria-label="Document text"></article>
@@ -157,7 +221,7 @@
         <div class="flex items-start gap-3">
             <div id="tooltipBody" class="min-w-0 flex-1 break-words text-lg font-semibold leading-snug text-slate-50"></div>
             <div class="flex shrink-0 items-center gap-1">
-                <button id="tooltipSave" title="Save to Saved Words &amp; Phrases"
+                <button id="tooltipSave" data-i18n-title="saveBookmark" title="Save to Saved Words &amp; Phrases"
                         class="rounded-md px-1.5 py-1 text-base leading-none text-slate-400 hover:bg-slate-700 hover:text-amber-300">☆</button>
                 <button id="tooltipClose" class="rounded-md px-1.5 py-1 text-xs leading-none text-slate-500 hover:bg-slate-700 hover:text-slate-200">✕</button>
             </div>
@@ -171,23 +235,23 @@
         <div class="keyBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         <div class="modal-card relative w-[460px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
             <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-bold text-slate-100">🔑 Translation API Key</h2>
+                <h2 class="text-base font-bold text-slate-100" data-i18n="apiKeyModalTitle">🔑 Translation API Key</h2>
                 <span id="activeProviderBadge" class="rounded bg-indigo-500/20 px-2 py-0.5 text-[11px] font-medium text-indigo-300">Active: Gemini</span>
             </div>
             
             <!-- Tabs: Left Gemini, Right DeepL -->
             <div class="mb-4 flex border-b border-slate-800">
-                <button id="tabGemini" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-indigo-500 text-indigo-400">
+                <button id="tabGemini" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-indigo-500 text-indigo-400" data-i18n="tabGemini">
                     Google Gemini
                 </button>
-                <button id="tabDeepl" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200">
+                <button id="tabDeepl" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200" data-i18n="tabDeepl">
                     DeepL API
                 </button>
             </div>
 
             <!-- Tab: Gemini Description -->
             <div id="geminiDescBlock" class="mb-3">
-                <p class="text-xs leading-relaxed text-slate-400">
+                <p class="text-xs leading-relaxed text-slate-400" data-i18n="geminiDesc">
                     Directly uses <strong class="text-indigo-300">Gemini 3.5 Flash-Lite</strong> (low-latency mode). Get a free API key from
                     <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" class="text-indigo-400 underline">Google AI Studio</a>.
                 </p>
@@ -195,7 +259,7 @@
 
             <!-- Tab: DeepL Description -->
             <div id="deeplDescBlock" class="mb-3 hidden">
-                <p class="text-xs leading-relaxed text-slate-400">
+                <p class="text-xs leading-relaxed text-slate-400" data-i18n="deeplDesc">
                     Supports Free &amp; Pro keys. Get a key from
                     <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noreferrer" class="text-indigo-400 underline">DeepL Free / Pro API</a>.
                 </p>
@@ -204,13 +268,13 @@
             <input id="keyInput" type="text" spellcheck="false" autocomplete="off"
                    placeholder="e.g. AIzaSyB..."
                    class="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <p id="keyHint" class="mt-1.5 hidden text-[11px] text-amber-400">Please paste a non-empty API key.</p>
+            <p id="keyHint" class="mt-1.5 hidden text-[11px] text-amber-400" data-i18n="keyHintEmpty">Please paste a non-empty API key.</p>
             
             <div class="mt-4 flex items-center justify-between">
-                <span class="text-[11px] text-slate-500">Keys are cached locally</span>
+                <span class="text-[11px] text-slate-500" data-i18n="keysCachedLocally">Keys are cached locally</span>
                 <div class="flex items-center gap-2">
-                    <button id="keyCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white">Close</button>
-                    <button id="keySave" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-indigo-500">Save &amp; Activate</button>
+                    <button id="keyCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="closeBtn">Close</button>
+                    <button id="keySave" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-indigo-500" data-i18n="saveActivateBtn">Save &amp; Activate</button>
                 </div>
             </div>
         </div>
@@ -220,25 +284,25 @@
     <div id="langModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="langBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         <div class="modal-card relative w-[440px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
-            <h2 class="text-base font-bold text-slate-100">🌐 Select Source and Target Language</h2>
+            <h2 class="text-base font-bold text-slate-100" data-i18n="langModalTitle">🌐 Select Source and Target Language</h2>
             <p id="langFileName" class="mt-1 mb-4 truncate text-xs text-slate-400"></p>
 
             <div class="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
                 <label class="block">
-                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500">From</span>
+                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langFrom">From</span>
                     <select id="langSrc" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                 </label>
-                <button id="langSwap" title="Swap" class="mb-1 rounded-md border border-slate-700 bg-slate-800 px-2 py-2 text-sm hover:bg-slate-700">⇄</button>
+                <button id="langSwap" data-i18n-title="langSwapTitle" title="Swap" class="mb-1 rounded-md border border-slate-700 bg-slate-800 px-2 py-2 text-sm hover:bg-slate-700">⇄</button>
                 <label class="block">
-                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500">To</span>
+                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langTo">To</span>
                     <select id="langTgt" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                 </label>
             </div>
-            <p id="langHint" class="mt-2 hidden text-[11px] text-amber-400">Source and target must be different.</p>
+            <p id="langHint" class="mt-2 hidden text-[11px] text-amber-400" data-i18n="langHintSame">Source and target must be different.</p>
 
             <div class="mt-5 flex items-center justify-end gap-2">
-                <button id="langCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white">Cancel</button>
-                <button id="langConfirm" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium hover:bg-indigo-500">Confirm</button>
+                <button id="langCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="cancelBtn">Cancel</button>
+                <button id="langConfirm" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium hover:bg-indigo-500" data-i18n="confirmBtn">Confirm</button>
             </div>
         </div>
     </div>
@@ -251,16 +315,19 @@
             <div class="border-b border-slate-800 px-5 py-3 flex items-center justify-between bg-slate-900/90 shrink-0">
                 <div>
                     <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                        <span>✂️</span> PDF Reading Area &amp; Margins
+                        <span>✂️</span> <span data-i18n="pdfCropTitle">PDF Reading Area &amp; Margins</span>
                     </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">
+                    <p class="text-xs text-slate-400 mt-0.5" data-i18n="pdfCropDesc">
                         Drag the top and bottom red exclusion lines directly on the page to exclude headers and footers.
                     </p>
                 </div>
-                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
-                    <button id="cropPrevPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">◀</button>
-                    <span id="cropPageIndicator" class="text-slate-200 font-mono text-xs">1 / 1</span>
-                    <button id="cropNextPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">▶</button>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
+                        <button id="cropPrevPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">◀</button>
+                        <span id="cropPageIndicator" class="text-slate-200 font-mono text-xs">1 / 1</span>
+                        <button id="cropNextPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">▶</button>
+                    </div>
+                    <button id="cropCloseBtn" class="rounded-lg p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition" data-i18n-title="cancelTitle" title="Cancel">✕</button>
                 </div>
             </div>
 
@@ -273,7 +340,7 @@
                     <div id="cropTopOverlay" class="absolute top-0 left-0 right-0 bg-red-500/25 border-b-2 border-red-500 transition-none pointer-events-none flex items-end justify-center">
                         <div id="cropTopHandle" class="absolute -bottom-3.5 left-0 right-0 h-7 cursor-ns-resize flex items-center justify-center pointer-events-auto z-20 group">
                             <span class="px-3 py-0.5 rounded-full bg-red-600 group-hover:bg-red-500 text-white text-[11px] font-semibold tracking-wide shadow-lg border border-red-400/50 flex items-center gap-1.5 transition select-none">
-                                <span>↕</span> Exclude Header: <strong id="cropTopVal">7%</strong>
+                                <span>↕</span> <span data-i18n="excludeHeaderBadge">Exclude Header:</span> <strong id="cropTopVal">7%</strong>
                             </span>
                         </div>
                     </div>
@@ -282,7 +349,7 @@
                     <div id="cropBottomOverlay" class="absolute bottom-0 left-0 right-0 bg-red-500/25 border-t-2 border-red-500 transition-none pointer-events-none flex items-start justify-center">
                         <div id="cropBottomHandle" class="absolute -top-3.5 left-0 right-0 h-7 cursor-ns-resize flex items-center justify-center pointer-events-auto z-20 group">
                             <span class="px-3 py-0.5 rounded-full bg-red-600 group-hover:bg-red-500 text-white text-[11px] font-semibold tracking-wide shadow-lg border border-red-400/50 flex items-center gap-1.5 transition select-none">
-                                <span>↕</span> Exclude Footer: <strong id="cropBottomVal">7%</strong>
+                                <span>↕</span> <span data-i18n="excludeFooterBadge">Exclude Footer:</span> <strong id="cropBottomVal">7%</strong>
                             </span>
                         </div>
                     </div>
@@ -292,14 +359,17 @@
             <!-- Footer Bar -->
             <div class="border-t border-slate-800 bg-slate-900 px-5 py-3.5 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3 text-xs text-slate-400">
-                    <span>💡 <strong class="text-slate-300">Tip:</strong> Drag the red badges up and down over the preview</span>
+                    <span data-i18n="cropTip">💡 <strong class="text-slate-300">Tip:</strong> Drag the red badges up and down over the preview</span>
                 </div>
 
                 <div class="flex items-center gap-2.5">
-                    <button id="cropSkipBtn" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white">
+                    <button id="cropBackBtn" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white flex items-center gap-1.5 transition">
+                        <span>◀</span> <span data-i18n="backBtn">Back</span>
+                    </button>
+                    <button id="cropSkipBtn" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="noCropBtn">
                         No Crop (0%)
                     </button>
-                    <button id="cropConfirmBtn" class="rounded-md bg-indigo-600 px-5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20">
+                    <button id="cropConfirmBtn" class="rounded-md bg-indigo-600 px-5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20" data-i18n="applyOpenBtn">
                         Apply &amp; Open Document
                     </button>
                 </div>
@@ -313,7 +383,7 @@
         <div class="modal-card relative flex max-h-[80vh] w-[460px] max-w-full flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 p-4">
                 <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                    <span>📑</span> Table of Contents
+                    <span>📑</span> <span data-i18n="outlineTitle">Table of Contents</span>
                 </h2>
                 <button id="outlineClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
             </div>
@@ -327,25 +397,25 @@
         <div class="modal-card relative w-[380px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                    <span>🔤</span> Font &amp; Layout
+                    <span>🔤</span> <span data-i18n="typographyTitle">Font &amp; Layout</span>
                 </h2>
                 <button id="typographyClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
             </div>
             <div>
-                <span class="block text-xs text-slate-400 mb-1.5 font-medium">Font Family</span>
+                <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="fontFamilyLabel">Font Family</span>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif">Serif (Georgia)</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif">Sans (Modern)</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace">Monospace</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif">Dyslexic Friendly</button>
+                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif" data-i18n="fontSerif">Serif (Georgia)</button>
+                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif" data-i18n="fontSans">Sans (Modern)</button>
+                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace" data-i18n="fontMono">Monospace</button>
+                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
                 </div>
             </div>
             <div>
-                <span class="block text-xs text-slate-400 mb-1.5 font-medium">Line Spacing</span>
+                <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="lineSpacingLabel">Line Spacing</span>
                 <div class="grid grid-cols-3 gap-2 text-xs">
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6">Compact</button>
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95">Default</button>
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4">Relaxed</button>
+                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6" data-i18n="spacingCompact">Compact</button>
+                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95" data-i18n="spacingDefault">Default</button>
+                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4" data-i18n="spacingRelaxed">Relaxed</button>
                 </div>
             </div>
         </div>
@@ -357,7 +427,7 @@
         <div class="modal-card relative flex max-h-[80vh] w-[580px] max-w-full flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 p-4">
                 <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                    <span>🔖</span> Saved Words &amp; Phrases
+                    <span>🔖</span> <span data-i18n="savedModalTitle">Saved Words &amp; Phrases</span>
                 </h2>
                 <button id="savedClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
             </div>
@@ -366,7 +436,7 @@
             <div class="px-4 pt-3 pb-1 border-b border-slate-800/60">
                 <div class="relative">
                     <span class="absolute left-3 top-2 text-slate-500 text-xs">🔍</span>
-                    <input id="savedSearchInput" type="text" placeholder="Search saved words or translations..."
+                    <input id="savedSearchInput" type="text" data-i18n-placeholder="searchSavedPlaceholder" placeholder="Search saved words or translations..."
                            class="w-full rounded-lg border border-slate-700 bg-slate-800/80 pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                 </div>
             </div>
@@ -374,12 +444,12 @@
             <div id="savedList" class="min-h-[120px] flex-1 overflow-y-auto p-4 space-y-2"></div>
 
             <div class="flex items-center justify-between gap-2 border-t border-slate-800 p-4">
-                <button id="savedClear" class="rounded-md border border-red-900/80 px-3 py-1.5 text-xs text-red-400 hover:bg-red-900/30 transition">Delete all</button>
+                <button id="savedClear" class="rounded-md border border-red-900/80 px-3 py-1.5 text-xs text-red-400 hover:bg-red-900/30 transition" data-i18n="deleteAllBtn">Delete all</button>
                 <div class="flex items-center gap-2">
-                    <button id="savedSyncCardlyo" title="Copy flashcard deck to clipboard to paste (Ctrl+V) in Cardlyo" class="rounded-md bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition">
-                        <span>📋</span> Copy for Cardlyo
+                    <button id="savedSyncCardlyo" data-i18n-title="copyCardlyoBtn" title="Copy flashcard deck to clipboard to paste (Ctrl+V) in Cardlyo" class="rounded-md bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition">
+                        <span>📋</span> <span data-i18n="copyCardlyoBtn">Copy for Cardlyo</span>
                     </button>
-                    <button id="savedExport" class="rounded-md bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition">
+                    <button id="savedExport" class="rounded-md bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20 transition" data-i18n="exportJsonBtn">
                         ⬇ Export JSON
                     </button>
                 </div>
@@ -389,6 +459,7 @@
 
     <!-- LexiRead Modular Scripts -->
     <script src="js/state.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/api.js"></script>
     <script src="js/parsers.js"></script>
     <script src="js/reader.js"></script>

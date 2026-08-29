@@ -36,8 +36,7 @@ body {
 .word.selected  { background-color: rgba(251, 146, 60, .85); color: #1c1917; } /* orange box */
 .word.active    { background-color: rgba(99, 102, 241, .95); color: #fff; }
 .word.selected.active { background-color: #6366f1; color: #fff; }
-body.dragging             { cursor: grabbing; }
-body.dragging .word:hover { background-color: transparent; }
+#reader.is-dragging       { cursor: grabbing; }
 
 /* ---------- PDF ---------- */
 #reader.pdf-mode {
@@ -55,6 +54,8 @@ body.dragging .word:hover { background-color: transparent; }
     box-shadow: 0 10px 35px -10px rgba(0,0,0,.5);
     border-radius: 4px;
     overflow: hidden;
+    content-visibility: auto;
+    contain-intrinsic-size: 800px 1100px;
 }
 .pdf-page canvas {
     display: block;
@@ -423,3 +424,101 @@ html.sepia .border-slate-700 {
 html.sepia ::-webkit-scrollbar-track { background:#ede2cd; }
 html.sepia ::-webkit-scrollbar-thumb { background:#d8c8a8; }
 html.sepia ::-webkit-scrollbar-thumb:hover { background:#bfa884; }
+
+/* ---------- MOBILE RESPONSIVE ADAPTATIONS (<768px) ---------- */
+@media (max-width: 768px) {
+    #leftControlWidget {
+        display: none !important;
+    }
+
+    #readerShell {
+        padding-bottom: 5.5rem;
+    }
+
+    .pdf-page {
+        margin: 0 auto 1rem;
+        border-radius: 3px;
+        box-shadow: 0 4px 15px -4px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Bottom-sheet mobile presentation for all modals */
+    .modal-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        border-bottom: none !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin: 0 !important;
+        max-height: 88vh !important;
+        animation: mobileSheetIn 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    @keyframes mobileSheetIn {
+        from { opacity: 0; transform: translateY(100%); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    #pdfCropModal .modal-card {
+        height: 94vh !important;
+        max-height: 94vh !important;
+    }
+
+    /* Mobile Bottom Translation Sheet Card */
+    #tooltip {
+        position: fixed !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 70px !important;
+        top: auto !important;
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        transform: translateY(120%) !important;
+        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease !important;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.25) !important;
+        border-radius: 1rem !important;
+        z-index: 60 !important;
+    }
+    #tooltip.visible {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+    #tooltip::after {
+        display: none !important;
+    }
+}
+
+/* Light Theme overrides for Mobile Bar */
+html.light #bottomMobileBar {
+    background-color: rgba(255, 255, 255, 0.94);
+    border-color: #e2e8f0;
+    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.08);
+}
+html.light #bottomMobileBar button {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+html.light #bottomMobileBar button:hover {
+    background-color: #6366f1;
+    color: #ffffff;
+}
+
+/* Sepia Theme overrides for Mobile Bar */
+html.sepia #bottomMobileBar {
+    background-color: rgba(251, 245, 232, 0.94);
+    border-color: #e6d7b9;
+    box-shadow: 0 -10px 25px rgba(60, 40, 20, 0.08);
+}
+html.sepia #bottomMobileBar button {
+    background-color: #ede2cd;
+    border-color: #d8c8a8;
+    color: #4a3725;
+}
+html.sepia #bottomMobileBar button:hover {
+    background-color: #d97706;
+    color: #ffffff;
+}

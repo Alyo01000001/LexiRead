@@ -5,21 +5,21 @@
 'use strict';
 
 async function processDocument(file, ext, cropTop = 0, cropBottom = 0) {
-    if (pipelineRunning) { showToast('Already processing a document…', 'warn'); return; }
+    if (pipelineRunning) { showToast(t('alreadyProcessingMsg'), 'warn'); return; }
     pipelineRunning = true;
     currentDocKey = file.name + '_' + (file.size || 0);
     currentDocKind = ext;
     try {
-        showLoader(`Reading ${labelExt(ext)} file…`);
+        showLoader(t('loaderReadingFile', { ext: labelExt(ext) }));
         let parsed;
         if      (ext === 'txt')  parsed = await parseTxt(file);
         else if (ext === 'pdf')  parsed = await parsePdf(file, cropTop, cropBottom);
         else                     parsed = await parseDocx(file);
 
-        if (!parsed.docText || !parsed.docText.trim()) throw new Error('No readable text found in this document.');
+        if (!parsed.docText || !parsed.docText.trim()) throw new Error(t('noReadableTextMsg'));
 
         parsed = initDocument(parsed);
-        showLoader('Rendering document…');
+        showLoader(t('loaderRendering'));
         if      (parsed.kind === 'txt')  renderTxt(parsed);
         else if (parsed.kind === 'pdf')  await renderPdf(parsed);
         else                             renderDocx(parsed);
@@ -29,8 +29,8 @@ async function processDocument(file, ext, cropTop = 0, cropBottom = 0) {
 
         showToast(
             getKey()
-                ? `Loaded "${file.name}" — ${langName(currentSrc)} → ${langName(currentTgt)}`
-                : `Loaded "${file.name}" — add an API Key to translate.`,
+                ? t('loadedWithKey', { name: file.name, src: langName(currentSrc), tgt: langName(currentTgt) })
+                : t('loadedNoKey', { name: file.name }),
             getKey() ? 'success' : 'info'
         );
     } catch (err) {
@@ -52,7 +52,7 @@ function checkAndShowResumeBanner(docKey, parsed) {
         if (!raw) return;
         const prog = JSON.parse(raw);
         if (prog && ((prog.page && prog.page > 1) || (prog.scrollTop && prog.scrollTop > 200))) {
-            resumePageNum.textContent = prog.page ? `Page ${prog.page}` : `Saved Position`;
+            resumePageNum.textContent = prog.page ? `Page ${prog.page}` : t('resumeSavedPos');
             resumeBanner.classList.remove('hidden');
             resumeBanner.classList.add('flex');
             
@@ -114,6 +114,7 @@ function showWelcomeState() {
     dropZone.classList.remove('hidden');
     headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex');
     leftControlWidget.classList.add('hidden'); leftControlWidget.classList.remove('flex');
+    if (bottomMobileBar) { bottomMobileBar.classList.add('hidden'); bottomMobileBar.classList.remove('flex'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
 }
 function showReaderState(mode = 'txt') {
@@ -122,15 +123,18 @@ function showReaderState(mode = 'txt') {
     dropZone.classList.add('hidden');
     headerUploadBtn.classList.remove('hidden'); headerUploadBtn.classList.add('flex');
     leftControlWidget.classList.remove('hidden'); leftControlWidget.classList.add('flex');
+    if (bottomMobileBar) { bottomMobileBar.classList.remove('hidden'); bottomMobileBar.classList.add('flex'); }
     reader.classList.remove('hidden');
     
     // Show typography button for text documents
     if (mode === 'txt' || mode === 'docx') {
         typographyBtn.classList.remove('hidden');
         typographyBtn.classList.add('flex');
+        if (mobileTypographyBtn) { mobileTypographyBtn.classList.remove('hidden'); mobileTypographyBtn.classList.add('flex'); }
     } else {
         typographyBtn.classList.add('hidden');
         typographyBtn.classList.remove('flex');
+        if (mobileTypographyBtn) { mobileTypographyBtn.classList.add('hidden'); mobileTypographyBtn.classList.remove('flex'); }
     }
 }
 
@@ -139,8 +143,10 @@ function renderTxt(parsed) {
     currentParsedDoc = parsed;
     pdfNavSection.classList.add('hidden');
     pdfNavSection.classList.remove('flex');
+    if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
+    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
     wordSpans = []; wordIndex = new Map();
     reader.className = 'reader-text txt-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
@@ -159,8 +165,10 @@ function renderDocx(parsed) {
     currentParsedDoc = parsed;
     pdfNavSection.classList.add('hidden');
     pdfNavSection.classList.remove('flex');
+    if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
+    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
     wordSpans = []; wordIndex = new Map();
     reader.className = 'docx-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
@@ -177,6 +185,13 @@ async function renderPdf(parsed) {
     wordSpans = []; wordIndex = new Map();
     reader.className = 'pdf-mode px-2 py-6 sm:px-6 sm:py-10';
     reader.innerHTML = '';
+    pdfNavSection.classList.remove('hidden');
+    pdfNavSection.classList.add('flex');
+    if (mobilePdfNav) { mobilePdfNav.classList.remove('hidden'); mobilePdfNav.classList.add('flex'); }
+    navCurPage.textContent = '1';
+    navTotalPages.textContent = String(parsed.pageCount);
+    if (mobileNavCurPage) mobileNavCurPage.textContent = '1';
+    if (mobileNavTotalPages) mobileNavTotalPages.textContent = String(parsed.pageCount);
 
     if (pdfPageObserver) {
         pdfPageObserver.disconnect();
@@ -195,7 +210,7 @@ async function renderPdf(parsed) {
     // Create lightweight page containers and tokenized textLayers
     for (let i = 1; i <= parsed.pageCount; i++) {
         if (i % 10 === 0 || i === parsed.pageCount) {
-            loaderText.textContent = `Preparing page structure ${i} / ${parsed.pageCount}…`;
+            loaderText.textContent = t('loaderPrepPages', { cur: i, total: parsed.pageCount });
         }
         const page = await parsed.pdf.getPage(i);
         const viewport = page.getViewport({ scale });
@@ -246,13 +261,23 @@ async function renderPdf(parsed) {
     if (parsed.outline && parsed.outline.length) {
         navOutlineBtn.classList.remove('hidden');
         navOutlineBtn.classList.add('flex');
-        navOutlineBtn.onclick = () => {
+        if (mobileNavOutlineBtn) {
+            mobileNavOutlineBtn.classList.remove('hidden');
+            mobileNavOutlineBtn.classList.add('flex');
+        }
+        const openOutline = () => {
             renderOutlineModal(parsed.outline, parsed.pdf);
             openModal(outlineModal);
         };
+        navOutlineBtn.onclick = openOutline;
+        if (mobileNavOutlineBtn) mobileNavOutlineBtn.onclick = openOutline;
     } else {
         navOutlineBtn.classList.add('hidden');
         navOutlineBtn.classList.remove('flex');
+        if (mobileNavOutlineBtn) {
+            mobileNavOutlineBtn.classList.add('hidden');
+            mobileNavOutlineBtn.classList.remove('flex');
+        }
     }
 
     finishRender();
@@ -350,7 +375,7 @@ async function resolveOutlineDestination(dest, pdf) {
 async function renderOutlineModal(outline, pdf) {
     outlineList.innerHTML = '';
     if (!outline || !outline.length) {
-        outlineList.innerHTML = '<p class="text-center text-slate-500 py-6">No table of contents available for this PDF.</p>';
+        outlineList.innerHTML = `<p class="text-center text-slate-500 py-6">${t('noOutlineMsg')}</p>`;
         return;
     }
 
@@ -362,7 +387,7 @@ async function renderOutlineModal(outline, pdf) {
 
             const label = document.createElement('span');
             label.className = 'truncate text-xs font-medium';
-            label.textContent = it.title || 'Untitled Chapter';
+            label.textContent = it.title || t('untitledChapter');
             row.appendChild(label);
 
             row.addEventListener('click', async () => {
@@ -416,14 +441,14 @@ document.querySelectorAll('.font-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const f = btn.dataset.font;
         applyTypography(f, null);
-        showToast(`Font updated: ${btn.textContent}`, 'info', 1600);
+        showToast(t('fontUpdatedToast', { font: btn.textContent }), 'info', 1600);
     });
 });
 document.querySelectorAll('.spacing-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const lh = btn.dataset.lh;
         applyTypography(null, lh);
-        showToast(`Line spacing: ${btn.textContent}`, 'info', 1600);
+        showToast(t('spacingUpdatedToast', { spacing: btn.textContent }), 'info', 1600);
     });
 });
 
@@ -433,15 +458,55 @@ function setZoom(val) {
     currentZoomRatio = clamped / 100;
     zoomSlider.value = clamped;
     zoomLabel.textContent = clamped + '%';
+    if (mobileZoomLabel) mobileZoomLabel.textContent = clamped + '%';
     applyCurrentZoom();
 }
 
 function applyCurrentZoom() {
     if (reader.classList.contains('txt-mode') || reader.classList.contains('docx-mode')) {
+        const viewportTargetY = window.innerHeight * 0.40;
+        const oldReaderRect = reader.getBoundingClientRect();
+        const offsetRatio = (viewportTargetY - oldReaderRect.top) / (oldReaderRect.height || 1);
+
         reader.style.fontSize = (1.2 * currentZoomRatio) + 'rem';
+
+        const newReaderRect = reader.getBoundingClientRect();
+        const newReaderAbsTop = window.scrollY + newReaderRect.top;
+        const desiredScrollTop = newReaderAbsTop + (newReaderRect.height * offsetRatio) - viewportTargetY;
+        window.scrollTo({ top: Math.max(0, desiredScrollTop), behavior: 'instant' });
     }
+
     if (reader.classList.contains('pdf-mode')) {
-        document.querySelectorAll('.pdf-page').forEach(pageWrap => {
+        const pages = document.querySelectorAll('.pdf-page');
+        if (!pages.length) return;
+
+        // 1. Capture the active reading anchor before resizing
+        const viewportTargetY = window.innerHeight * 0.40;
+        let anchorPage = null;
+        let anchorOffsetRatio = 0;
+
+        for (const p of pages) {
+            const rect = p.getBoundingClientRect();
+            if (rect.top <= viewportTargetY && rect.bottom >= viewportTargetY) {
+                anchorPage = p;
+                anchorOffsetRatio = (viewportTargetY - rect.top) / (rect.height || 1);
+                break;
+            }
+        }
+
+        if (!anchorPage) {
+            for (const p of pages) {
+                const rect = p.getBoundingClientRect();
+                if (rect.bottom > 0) {
+                    anchorPage = p;
+                    anchorOffsetRatio = Math.max(0, Math.min(1, -rect.top / (rect.height || 1)));
+                    break;
+                }
+            }
+        }
+
+        // 2. Resize all pages to new zoom level
+        pages.forEach(pageWrap => {
             const baseW = Number(pageWrap.dataset.baseWidth);
             const baseH = Number(pageWrap.dataset.baseHeight);
             const baseScale = Number(pageWrap.dataset.baseScale);
@@ -463,6 +528,14 @@ function applyCurrentZoom() {
                 textLayer.style.setProperty('--scale-factor', String(baseScale * currentZoomRatio));
             }
         });
+
+        // 3. Immediately lock scroll position to the exact anchor point (zero drift)
+        if (anchorPage) {
+            const newPageRect = anchorPage.getBoundingClientRect();
+            const newPageAbsTop = window.scrollY + newPageRect.top;
+            const desiredScrollTop = newPageAbsTop + (newPageRect.height * anchorOffsetRatio) - viewportTargetY;
+            window.scrollTo({ top: Math.max(0, desiredScrollTop), behavior: 'instant' });
+        }
     }
 }
 
@@ -470,6 +543,10 @@ if (zoomSlider) zoomSlider.addEventListener('input', () => setZoom(Number(zoomSl
 if (zoomInBtn) zoomInBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) + 10));
 if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) - 10));
 if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => setZoom(100));
+
+if (mobileZoomInBtn) mobileZoomInBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) + 10));
+if (mobileZoomOutBtn) mobileZoomOutBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) - 10));
+if (mobileZoomResetBtn) mobileZoomResetBtn.addEventListener('click', () => setZoom(100));
 
 if (navPrevPage) {
     navPrevPage.addEventListener('click', () => {
@@ -492,25 +569,45 @@ if (navNextPage) {
     });
 }
 
+if (mobileNavPrevPage) mobileNavPrevPage.addEventListener('click', () => navPrevPage?.click());
+if (mobileNavNextPage) mobileNavNextPage.addEventListener('click', () => navNextPage?.click());
+
+if (mobileLangChangeBtn) mobileLangChangeBtn.addEventListener('click', () => langChangeBtn?.click());
+if (mobileTypographyBtn) mobileTypographyBtn.addEventListener('click', () => typographyBtn?.click());
+if (mobileDocUploadBtn) mobileDocUploadBtn.addEventListener('click', () => fileInput?.click());
+
+let scrollTicking = false;
 let scrollProgressTimer = null;
+
 window.addEventListener('scroll', () => {
-    if (!reader.classList.contains('pdf-mode') || !currentParsedDoc) return;
-    const pages = document.querySelectorAll('.pdf-page');
-    if (!pages.length) return;
-    const midY = window.innerHeight * 0.35;
-    let cur = 1;
-    for (const p of pages) {
-        const rect = p.getBoundingClientRect();
-        if (rect.top <= midY && rect.bottom >= midY) {
-            cur = Number(p.dataset.page);
-            break;
-        } else if (rect.top > midY) {
-            break;
-        }
+    if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            scrollTicking = false;
+            if (!reader.classList.contains('pdf-mode') || !currentParsedDoc) return;
+            const pages = document.querySelectorAll('.pdf-page');
+            if (!pages.length) return;
+            const midY = window.innerHeight * 0.35;
+            let cur = 1;
+            for (const p of pages) {
+                const rect = p.getBoundingClientRect();
+                if (rect.top <= midY && rect.bottom >= midY) {
+                    cur = Number(p.dataset.page);
+                    break;
+                } else if (rect.top > midY) {
+                    break;
+                }
+            }
+            if (navCurPage && navCurPage.textContent !== String(cur)) {
+                navCurPage.textContent = String(cur);
+                if (mobileNavCurPage) mobileNavCurPage.textContent = String(cur);
+                if (navPrevPage) navPrevPage.disabled = (cur <= 1);
+                if (mobileNavPrevPage) mobileNavPrevPage.disabled = (cur <= 1);
+                if (navNextPage) navNextPage.disabled = (cur >= currentParsedDoc.pageCount);
+                if (mobileNavNextPage) mobileNavNextPage.disabled = (cur >= currentParsedDoc.pageCount);
+            }
+        });
     }
-    navCurPage.textContent = String(cur);
-    navPrevPage.disabled = (cur <= 1);
-    navNextPage.disabled = (cur >= currentParsedDoc.pageCount);
 
     clearTimeout(scrollProgressTimer);
     scrollProgressTimer = setTimeout(saveCurrentProgress, 400);

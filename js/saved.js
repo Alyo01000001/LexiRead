@@ -43,11 +43,11 @@ function renderSavedList(filter = '') {
     savedList.innerHTML = '';
     if (!all.length) {
         savedList.innerHTML =
-            '<p class="py-10 text-center text-sm text-slate-500">No saved items yet.<br/>Tap the ☆ in a tooltip or Middle-Click any word to save it.</p>';
+            `<p class="py-10 text-center text-sm text-slate-500">${t('noSavedItems')}</p>`;
         return;
     }
     if (!arr.length && f) {
-        savedList.innerHTML = `<p class="py-8 text-center text-xs text-slate-500">No saved words match "<strong>${filter}</strong>"</p>`;
+        savedList.innerHTML = `<p class="py-8 text-center text-xs text-slate-500">${t('noMatchingWords', { query: filter })}</p>`;
         return;
     }
     for (const item of arr) {
@@ -67,7 +67,7 @@ function renderSavedList(filter = '') {
         info.append(orig, tr, meta);
         const del = document.createElement('button');
         del.className = 'shrink-0 rounded-md border border-red-900/60 px-2 py-1 text-[11px] text-red-300 hover:bg-red-900/40 transition';
-        del.textContent = 'Delete';
+        del.textContent = t('deleteBtn');
         del.addEventListener('click', () => deleteSaved(item.id));
         row.append(info, del);
         savedList.appendChild(row);
@@ -89,7 +89,7 @@ savedClear.addEventListener('click', () => {
     if (!loadSaved().length) return;
     persistSaved([]);
     renderSavedList();
-    showToast('All saved items deleted.', 'info');
+    showToast(t('allSavedDeleted'), 'info');
 });
 
 savedSearchInput.addEventListener('input', () => {
@@ -130,7 +130,7 @@ function buildCardlyoText() {
 
 savedSyncCardlyo.addEventListener('click', async () => {
     const arr = loadSaved();
-    if (!arr.length) { showToast('No saved words to copy.', 'warn'); return; }
+    if (!arr.length) { showToast(t('noSavedToCopy'), 'warn'); return; }
     const textToCopy = buildCardlyoText();
 
     let copied = false;
@@ -169,12 +169,12 @@ savedSyncCardlyo.addEventListener('click', async () => {
         bc.close();
     } catch (_) {}
 
-    showToast(`📋 Copied ${arr.length} words (word:translation)! Paste in Cardlyo.`, 'success', 3500);
+    showToast(t('copiedToClipboard', { count: arr.length }), 'success', 3500);
 });
 
 savedExport.addEventListener('click', () => {
     const arr = loadSaved();
-    if (!arr.length) { showToast('Nothing to export yet.', 'warn'); return; }
+    if (!arr.length) { showToast(t('noSavedToCopy'), 'warn'); return; }
     
     const exportData = buildCardlyoPayload();
 
@@ -188,7 +188,7 @@ savedExport.addEventListener('click', () => {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast('Exported to JSON (cards format).', 'success');
+    showToast(t('exportedJson'), 'success');
 });
 
 // Initialize saved counter on load

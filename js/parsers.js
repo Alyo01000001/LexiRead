@@ -156,7 +156,7 @@ async function parsePdf(file, cropTop = 0, cropBottom = 0) {
     const pageCount = pdf.numPages, pagesText = [], pageViewports = [];
     for (let i = 1; i <= pageCount; i++) {
         if (i % 5 === 0 || i === pageCount) {
-            loaderText.textContent = `Reading text layer — page ${i} / ${pageCount}`;
+            loaderText.textContent = t('loaderReadingLayer', { cur: i, total: pageCount });
         }
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale: 1.0 });
@@ -354,6 +354,32 @@ if (cropNextPage) {
     });
 }
 
+if (cropBackBtn) {
+    cropBackBtn.addEventListener('click', () => {
+        closeModal(pdfCropModal);
+        const f = currentCropFile;
+        if (f) {
+            pendingFile = f;
+            pendingExt = 'pdf';
+            langFileName.textContent = f.name;
+            langSrc.value = currentSrc;
+            langTgt.value = currentTgt;
+            langHint.classList.add('hidden');
+            openModal(langModal);
+        }
+    });
+}
+
+if (cropCloseBtn) {
+    cropCloseBtn.addEventListener('click', () => {
+        closeModal(pdfCropModal);
+        currentCropFile = null;
+        pendingFile = null;
+        const hadDoc = wordSpans.length > 0 && !reader.classList.contains('hidden');
+        if (!hadDoc) showWelcomeState();
+    });
+}
+
 if (cropConfirmBtn) {
     cropConfirmBtn.addEventListener('click', () => {
         const topRatio = currentTopPct / 100;
@@ -363,6 +389,7 @@ if (cropConfirmBtn) {
         closeModal(pdfCropModal);
         const f = currentCropFile;
         currentCropFile = null;
+        pendingFile = null;
         if (f) processDocument(f, 'pdf', topRatio, btmRatio);
     });
 }
@@ -372,6 +399,7 @@ if (cropSkipBtn) {
         closeModal(pdfCropModal);
         const f = currentCropFile;
         currentCropFile = null;
+        pendingFile = null;
         if (f) processDocument(f, 'pdf', 0, 0);
     });
 }
@@ -381,9 +409,10 @@ if (pdfCropModal) {
     if (back) {
         back.addEventListener('click', () => {
             closeModal(pdfCropModal);
-            const f = currentCropFile;
             currentCropFile = null;
-            if (f) processDocument(f, 'pdf', 0, 0);
+            pendingFile = null;
+            const hadDoc = wordSpans.length > 0 && !reader.classList.contains('hidden');
+            if (!hadDoc) showWelcomeState();
         });
     }
 }

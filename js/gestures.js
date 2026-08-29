@@ -21,7 +21,7 @@ function highlightRange(target) {
 }
 function resetDrag() {
     drag.active = false; drag.anchor = null; drag.current = null; drag.moved = false;
-    document.body.classList.remove('dragging');
+    reader.classList.remove('is-dragging');
 }
 
 // Middle-click (Mouse wheel click): translate and auto-bookmark immediately
@@ -48,7 +48,7 @@ reader.addEventListener('mousedown', e => {
     e.preventDefault();
     drag.active = true; drag.pointer = 'mouse';
     drag.anchor = span; drag.current = span; drag.moved = false;
-    document.body.classList.add('dragging');
+    reader.classList.add('is-dragging');
     previousActiveEl = activeEls[0] || null;
     clearActive(); clearSelected();
     highlightRange(span);
@@ -74,6 +74,7 @@ reader.addEventListener('touchstart', e => {
     drag.active = true; drag.pointer = 'touch';
     drag.anchor = span; drag.current = span; drag.moved = false;
     previousActiveEl = activeEls[0] || null;
+    reader.classList.add('is-dragging');
     clearActive(); clearSelected();
     highlightRange(span);
 }, { passive: true });
@@ -194,13 +195,17 @@ function showWordTooltip(displayText, rect, wordSpan, autoSave = false) {
         .catch(err => {
             if (myGen !== tooltipGen) return;
             const tag = {
-                quota:'⏳ Quota exceeded', auth:'🔑 API key required',
-                network:'🔗 Network error', lang:'⚠ Unsupported pair', http:'⚠ API error', ratelimit: '⏳ Rate limit'
-            }[err.kind] || '⚠ Error';
+                quota: t('statusQuota'),
+                auth: t('statusAuth'),
+                network: t('statusNetwork'),
+                lang: t('statusLang'),
+                http: t('statusApiError'),
+                ratelimit: t('statusRateLimit')
+            }[err.kind] || t('statusError');
             tooltipBody.textContent = tag;
             tooltipSave.disabled = true;
             if (err.kind === 'quota' || err.kind === 'auth') {
-                showToast(`${tag}. Please check your API key.`, 'error', 8000);
+                showToast(t('keyAttentionToast', { tag }), 'error', 8000);
                 keyBtn.classList.add('attention');
                 setTimeout(() => keyBtn.classList.remove('attention'), 5200);
             } else showToast(`${tag}: ${err.message}`, 'error');
@@ -224,7 +229,7 @@ function applyTranslation(translation, original, src, tgt, rect, autoSave = fals
             tgt: tgt,
             date: new Date().toISOString()
         });
-        showToast(`🔖 Saved "${original}" → "${translation}"`, 'success', 2200);
+        showToast(t('savedWordToast', { orig: original, tr: translation }), 'success', 2200);
     }
 
     setSaveIcon(isSaved(original, translation));
@@ -235,7 +240,7 @@ tooltipSave.addEventListener('click', e => {
     e.stopPropagation();
     if (!tooltipData) return;
     if (isSaved(tooltipData.original, tooltipData.translation)) {
-        showToast('Already saved.', 'info');
+        showToast(t('alreadySaved'), 'info');
         return;
     }
     addSaved({
@@ -247,10 +252,18 @@ tooltipSave.addEventListener('click', e => {
         date: new Date().toISOString()
     });
     setSaveIcon(true);
-    showToast('Saved to your list.', 'success');
+    showToast(t('savedSuccess'), 'success');
 });
 
 function positionTooltip(rect, prefer = 'above') {
+    if (isMobile()) {
+        tooltip.classList.remove('above', 'below');
+        tooltip.style.left = '';
+        tooltip.style.top = '';
+        tooltip.style.visibility = 'visible';
+        tooltip.classList.add('visible');
+        return;
+    }
     const sx = window.scrollX, sy = window.scrollY;
     tooltip.style.visibility = 'hidden';
     tooltip.classList.add('visible');
@@ -284,13 +297,21 @@ tooltipClose.addEventListener('touchstart', e => { e.stopPropagation(); hideTool
 document.addEventListener('mousedown', e => {
     if (tooltip.contains(e.target)) return;
     if (reader.contains(e.target))  return;
-    if (keyModal.contains(e.target) || langModal.contains(e.target) || savedModal.contains(e.target) || outlineModal.contains(e.target) || typographyModal.contains(e.target)) return;
+    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target)) return;
     hideTooltip();
 });
+document.addEventListener('touchstart', e => {
+    if (tooltip.contains(e.target)) return;
+    if (reader.contains(e.target))  return;
+    if (bottomMobileBar?.contains(e.target)) return;
+    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target)) return;
+    hideTooltip();
+}, { passive: true });
 
 let repositionTimer = null;
 function scheduleReposition() {
     if (!lastAnchor || !tooltip.classList.contains('visible')) return;
+    if (isMobile()) return;
     clearTimeout(repositionTimer);
     repositionTimer = setTimeout(() => {
         if (!lastAnchor.first.isConnected) { hideTooltip(); return; }

@@ -6,7 +6,7 @@
 
 async function translateApi(texts, source, target, context = null) {
     const key = getKey();
-    if (!key) throw mkErr('No API key set — tap "API Key" to add one.', 'auth');
+    if (!key) throw mkErr(t('noApiKeyToast'), 'auth');
     const provider = getProvider();
     const textArr = Array.isArray(texts) ? texts : [texts];
 
@@ -116,13 +116,13 @@ function setTab(tab) {
         tabDeepl.className = 'flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200';
         geminiDescBlock.classList.remove('hidden');
         deeplDescBlock.classList.add('hidden');
-        keyInput.placeholder = 'e.g. AIzaSyB...';
+        keyInput.placeholder = t('keyPlaceholderGemini');
     } else {
         tabDeepl.className = 'flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-indigo-500 text-indigo-400';
         tabGemini.className = 'flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200';
         deeplDescBlock.classList.remove('hidden');
         geminiDescBlock.classList.add('hidden');
-        keyInput.placeholder = 'e.g. abcd1234...:fx';
+        keyInput.placeholder = t('keyPlaceholderDeepl');
     }
     keyInput.value = getProviderKey(tab);
     keyHint.classList.add('hidden');
@@ -141,9 +141,9 @@ function updateKeyUI() {
     const prov = getProvider();
     const has = !!getKey();
     keyDot.className = 'h-2 w-2 rounded-full ' + (has ? 'bg-emerald-400' : 'bg-amber-400');
-    keyBtn.title = has ? `${prov === 'gemini' ? 'Gemini' : 'DeepL'} API active — click to change` : 'No API key set';
+    keyBtn.title = has ? `${prov === 'gemini' ? 'Gemini' : 'DeepL'} API active — click to change` : t('noApiKeyToast');
     if (activeProviderBadge) {
-        activeProviderBadge.textContent = `Active: ${prov === 'gemini' ? 'Gemini' : 'DeepL'}`;
+        activeProviderBadge.textContent = t('activeProvider', { provider: prov === 'gemini' ? 'Gemini' : 'DeepL' });
     }
 }
 
@@ -160,11 +160,15 @@ keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); })
 
 function saveKey() {
     const v = keyInput.value.trim();
-    if (!v) { keyHint.classList.remove('hidden'); return; }
+    if (!v) { 
+        keyHint.textContent = t('keyHintEmpty');
+        keyHint.classList.remove('hidden'); 
+        return; 
+    }
     setProviderKey(currentModalTab, v);
     localStorage.setItem(PROVIDER_KEY, currentModalTab);
     updateKeyUI();
     closeModal(keyModal);
-    showToast(`${currentModalTab === 'gemini' ? 'Gemini' : 'DeepL'} API key saved & activated.`, 'success');
+    showToast(t('keySavedToast', { prov: currentModalTab === 'gemini' ? 'Gemini' : 'DeepL' }), 'success');
 }
 keySaveBtn.addEventListener('click', saveKey);

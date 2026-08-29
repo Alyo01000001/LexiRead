@@ -45,15 +45,15 @@ if (logoBtn) {
 async function handleIncomingFile(file) {
     const ext = normalizeExt(file.name);
     if (!['txt','pdf','docx'].includes(ext)) {
-        showToast(`Unsupported file type ".${ext}" — use .txt, .pdf or .docx`, 'error');
+        showToast(t('unsupportedFileToast', { ext }), 'error');
         return;
     }
     const hadDoc = wordSpans.length > 0 && !reader.classList.contains('hidden');
-    showLoader(`Validating ${labelExt(ext)}…`);
+    showLoader(t('loaderValidating', { ext: labelExt(ext) }));
     try {
         await validateFileLimits(file, ext);
     } catch (err) {
-        showToast(err.message || LIMIT_ERROR_MSG, 'error');
+        showToast(err.message || t('limitErrorMsg'), 'error');
         hadDoc ? showReaderState() : showWelcomeState();
         return;
     }
@@ -69,6 +69,18 @@ async function handleIncomingFile(file) {
 }
 
 // 2. LANGUAGE MODAL HANDLERS
+if (langChangeBtn) {
+    langChangeBtn.addEventListener('click', () => {
+        pendingFile = null;
+        pendingExt = '';
+        langFileName.textContent = currentParsedDoc ? (currentDocKey ? currentDocKey.split('_')[0] : '') : '';
+        langSrc.value = currentSrc;
+        langTgt.value = currentTgt;
+        langHint.classList.add('hidden');
+        openModal(langModal);
+    });
+}
+
 if (langSwap) {
     langSwap.addEventListener('click', () => {
         const a = langSrc.value; langSrc.value = langTgt.value; langTgt.value = a;
@@ -82,23 +94,33 @@ if (langModal) {
     if (back) back.addEventListener('click', () => { pendingFile = null; closeModal(langModal); });
 }
 
-// Step 3: on Confirm parse and render.
+// Step 3: on Confirm parse and render (or update languages on the fly).
 if (langConfirm) {
     langConfirm.addEventListener('click', () => {
-        if (langSrc.value === langTgt.value) { langHint.classList.remove('hidden'); return; }
+        if (langSrc.value === langTgt.value) { 
+            langHint.textContent = t('langHintSame');
+            langHint.classList.remove('hidden'); 
+            return; 
+        }
         currentSrc = langSrc.value;
         currentTgt = langTgt.value;
         localStorage.setItem(SRC_KEY, currentSrc);
         localStorage.setItem(TGT_KEY, currentTgt);
+        ondemandCache.clear();
         closeModal(langModal);
+
         const f = pendingFile, ext = pendingExt;
         pendingFile = null;
+        pendingExt = '';
+
         if (f) {
             if (ext === 'pdf') {
                 openPdfCropModal(f);
             } else {
                 processDocument(f, ext);
             }
+        } else {
+            showToast(t('langUpdatedToast', { src: langName(currentSrc), tgt: langName(currentTgt) }), 'success');
         }
     });
 }
@@ -152,13 +174,13 @@ function applyTheme(theme) {
     document.documentElement.classList.add(theme);
     if (theme === 'light') {
         themeIcon.textContent = '📜';
-        themeToggleBtn.title = 'Switch to Sepia Theme';
+        themeToggleBtn.title = t('toggleThemeSepia');
     } else if (theme === 'sepia') {
         themeIcon.textContent = '🌙';
-        themeToggleBtn.title = 'Switch to Dark Theme';
+        themeToggleBtn.title = t('toggleThemeDark');
     } else {
         themeIcon.textContent = '☀️';
-        themeToggleBtn.title = 'Switch to Light Theme';
+        themeToggleBtn.title = t('toggleThemeLight');
     }
     localStorage.setItem(THEME_KEY, theme);
 }
@@ -174,7 +196,12 @@ if (themeToggleBtn) {
     });
 }
 
-// 5. APPLICATION STARTUP
+// 5. APPLICATION STARTUP & INITIAL LOCALIZATION
+if (appLangToggleBtn) {
+    appLangToggleBtn.addEventListener('click', toggleAppLanguage);
+}
+
+applyLocalization();
 updateKeyUI();
 persistSaved(loadSaved());
 showWelcomeState();
