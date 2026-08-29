@@ -219,13 +219,14 @@
     </main>
 
     <!-- TOOLTIP: translated text only + bookmark -->
-    <div id="tooltip" class="rounded-lg border border-slate-700 bg-slate-800 p-3 shadow-2xl">
+    <div id="tooltip" class="rounded-xl border border-slate-700 bg-slate-800 p-3.5 shadow-2xl">
         <div class="flex items-start gap-3">
             <div id="tooltipBody" class="min-w-0 flex-1 break-words text-lg font-semibold leading-snug text-slate-50"></div>
-            <div class="flex shrink-0 items-center gap-1">
+            <div class="flex shrink-0 items-center gap-1.5">
                 <button id="tooltipSave" data-i18n-title="saveBookmark" title="Save to Saved Words &amp; Phrases"
-                        class="rounded-md px-1.5 py-1 text-base leading-none text-slate-400 hover:bg-slate-700 hover:text-amber-300">☆</button>
-                <button id="tooltipClose" class="rounded-md px-1.5 py-1 text-xs leading-none text-slate-500 hover:bg-slate-700 hover:text-slate-200">✕</button>
+                        class="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-700/60 hover:bg-indigo-600 text-slate-300 hover:text-white flex items-center justify-center text-base transition shadow-sm select-none active:scale-95">☆</button>
+                <button id="tooltipClose" data-i18n-title="closeBtn" title="Close"
+                        class="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-700/60 hover:bg-slate-600 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold transition shadow-sm select-none active:scale-95">✕</button>
             </div>
         </div>
     </div>
@@ -393,31 +394,45 @@
         </div>
     </div>
 
-    <!-- ============ MODAL: TYPOGRAPHY CUSTOMIZER (TXT/DOCX) ============ -->
+    <!-- ============ MODAL: TYPOGRAPHY & GUI CUSTOMIZER ============ -->
     <div id="typographyModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="typographyBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-[380px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
+        <div class="modal-card relative w-[400px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                    <span>🔤</span> <span data-i18n="typographyTitle">Font &amp; Layout</span>
+                    <span>🔤</span> <span data-i18n="typographyTitle">Appearance &amp; Layout</span>
                 </h2>
                 <button id="typographyClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
             </div>
+
+            <!-- Global GUI Scale Setting -->
             <div>
-                <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="fontFamilyLabel">Font Family</span>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif" data-i18n="fontSerif">Serif (Georgia)</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif" data-i18n="fontSans">Sans (Modern)</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace" data-i18n="fontMono">Monospace</button>
-                    <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
+                <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="guiScaleLabel">Arayüz Boyutu / GUI Scale</span>
+                <div class="grid grid-cols-4 gap-1.5 text-xs">
+                    <button class="gui-scale-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="85" data-i18n="guiScale85">85%</button>
+                    <button class="gui-scale-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="100" data-i18n="guiScale100">100%</button>
+                    <button class="gui-scale-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="115" data-i18n="guiScale115">115%</button>
+                    <button class="gui-scale-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="130" data-i18n="guiScale130">130%</button>
                 </div>
             </div>
-            <div>
-                <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="lineSpacingLabel">Line Spacing</span>
-                <div class="grid grid-cols-3 gap-2 text-xs">
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6" data-i18n="spacingCompact">Compact</button>
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95" data-i18n="spacingDefault">Default</button>
-                    <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4" data-i18n="spacingRelaxed">Relaxed</button>
+
+            <div id="typographyDocSettings" class="space-y-4 pt-1 border-t border-slate-800/60">
+                <div>
+                    <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="fontFamilyLabel">Font Family (TXT / DOCX)</span>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif" data-i18n="fontSerif">Serif (Georgia)</button>
+                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif" data-i18n="fontSans">Sans (Modern)</button>
+                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace" data-i18n="fontMono">Monospace</button>
+                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
+                    </div>
+                </div>
+                <div>
+                    <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="lineSpacingLabel">Line Spacing (TXT / DOCX)</span>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6" data-i18n="spacingCompact">Compact</button>
+                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95" data-i18n="spacingDefault">Default</button>
+                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4" data-i18n="spacingRelaxed">Relaxed</button>
+                    </div>
                 </div>
             </div>
         </div>

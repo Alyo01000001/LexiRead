@@ -380,8 +380,21 @@ function hideTooltip() {
     lastAnchor = null;
 }
 
-tooltipClose.addEventListener('mousedown', e => { e.stopPropagation(); hideTooltip(); });
-tooltipClose.addEventListener('touchstart', e => { e.stopPropagation(); hideTooltip(); }, { passive: true });
+function handleTooltipClose(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    hideTooltip();
+}
+
+tooltipClose.addEventListener('click', handleTooltipClose);
+tooltipClose.addEventListener('touchend', handleTooltipClose);
+tooltipClose.addEventListener('mousedown', handleTooltipClose);
+
+tooltipSave.addEventListener('click', e => e.stopPropagation());
+tooltipSave.addEventListener('touchend', e => e.stopPropagation());
+tooltipSave.addEventListener('mousedown', e => e.stopPropagation());
 
 document.addEventListener('mousedown', e => {
     if (tooltip.contains(e.target)) return;

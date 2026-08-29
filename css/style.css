@@ -6,6 +6,36 @@
     --reader-font: Georgia, "Iowan Old Style", Palatino, serif;
 }
 
+/* ---------- GUI SCALE SETTINGS ---------- */
+html[data-gui-scale="85"] { font-size: 13.6px; }
+html[data-gui-scale="100"] { font-size: 16px; }
+html[data-gui-scale="115"] { font-size: 18.4px; }
+html[data-gui-scale="130"] { font-size: 20.8px; }
+
+.gui-scale-btn.active,
+.font-choice-btn.active,
+.spacing-choice-btn.active {
+    border-color: #6366f1 !important;
+    background-color: rgba(99, 102, 241, 0.25) !important;
+    color: #ffffff !important;
+}
+
+html.sepia .gui-scale-btn.active,
+html.sepia .font-choice-btn.active,
+html.sepia .spacing-choice-btn.active {
+    border-color: #d97706 !important;
+    background-color: rgba(217, 119, 6, 0.3) !important;
+    color: #fbf4eb !important;
+}
+
+html.light .gui-scale-btn.active,
+html.light .font-choice-btn.active,
+html.light .spacing-choice-btn.active {
+    border-color: #4f46e5 !important;
+    background-color: #e0e7ff !important;
+    color: #3730a3 !important;
+}
+
 body {
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     padding-top: 3.5rem;

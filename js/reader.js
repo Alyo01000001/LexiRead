@@ -135,15 +135,17 @@ function showReaderState(mode = 'txt') {
     if (bottomMobileBar) { bottomMobileBar.classList.remove('hidden'); bottomMobileBar.classList.add('flex'); }
     reader.classList.remove('hidden');
     
-    // Show typography button for text documents
-    if (mode === 'txt' || mode === 'docx') {
-        typographyBtn.classList.remove('hidden');
-        typographyBtn.classList.add('flex');
-        if (mobileTypographyBtn) { mobileTypographyBtn.classList.remove('hidden'); mobileTypographyBtn.classList.add('flex'); }
-    } else {
-        typographyBtn.classList.add('hidden');
-        typographyBtn.classList.remove('flex');
-        if (mobileTypographyBtn) { mobileTypographyBtn.classList.add('hidden'); mobileTypographyBtn.classList.remove('flex'); }
+    // Always show typography & appearance button in reader mode
+    typographyBtn.classList.remove('hidden');
+    typographyBtn.classList.add('flex');
+    if (mobileTypographyBtn) {
+        mobileTypographyBtn.classList.remove('hidden');
+        mobileTypographyBtn.classList.add('flex');
+    }
+
+    const docSettings = $('typographyDocSettings');
+    if (docSettings) {
+        docSettings.style.display = (mode === 'txt' || mode === 'docx') ? 'block' : 'none';
     }
 }
 
@@ -441,6 +443,28 @@ const savedLh = localStorage.getItem(TYPO_LH_KEY);
 if (savedFont) document.documentElement.style.setProperty('--reader-font', savedFont);
 if (savedLh && reader) reader.style.lineHeight = savedLh;
 
+const GUI_SCALE_KEY = 'lexiread_gui_scale';
+function applyGuiScale(scale, notify = false) {
+    const s = String(scale || '100');
+    document.documentElement.setAttribute('data-gui-scale', s);
+    localStorage.setItem(GUI_SCALE_KEY, s);
+    document.querySelectorAll('.gui-scale-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scale === s);
+    });
+    if (notify) {
+        showToast(t('guiScaleUpdatedToast', { scale: s }), 'info', 1600);
+    }
+}
+
+const initialScale = localStorage.getItem(GUI_SCALE_KEY) || '100';
+applyGuiScale(initialScale, false);
+
+document.querySelectorAll('.gui-scale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        applyGuiScale(btn.dataset.scale, true);
+    });
+});
+
 if (typographyBtn) typographyBtn.addEventListener('click', () => openModal(typographyModal));
 if (typographyClose) typographyClose.addEventListener('click', () => closeModal(typographyModal));
 if (typographyModal) {
@@ -452,6 +476,7 @@ document.querySelectorAll('.font-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const f = btn.dataset.font;
         applyTypography(f, null);
+        document.querySelectorAll('.font-choice-btn').forEach(b => b.classList.toggle('active', b === btn));
         showToast(t('fontUpdatedToast', { font: btn.textContent }), 'info', 1600);
     });
 });
@@ -459,6 +484,7 @@ document.querySelectorAll('.spacing-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const lh = btn.dataset.lh;
         applyTypography(null, lh);
+        document.querySelectorAll('.spacing-choice-btn').forEach(b => b.classList.toggle('active', b === btn));
         showToast(t('spacingUpdatedToast', { spacing: btn.textContent }), 'info', 1600);
     });
 });
