@@ -223,8 +223,21 @@ const normalizeExt = name => {
 const EXT_LABELS = { txt:'TXT', pdf:'PDF', docx:'DOCX' };
 const labelExt = e => EXT_LABELS[e] || e;
 
+let navHistoryDepth = 0;
+let isPoppingNavState = false;
+
+function pushNavState(type = 'view') {
+    if (isPoppingNavState) return;
+    try {
+        history.pushState({ lexiread: true, type, depth: ++navHistoryDepth }, '');
+    } catch (_) {}
+}
+
 function openModal(m) {
     if (!m) return;
+    if (m.classList.contains('hidden')) {
+        pushNavState('modal');
+    }
     m.classList.remove('hidden');
     m.classList.add('flex');
 }

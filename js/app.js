@@ -125,19 +125,86 @@ if (langConfirm) {
     });
 }
 
-// 3. KEYBOARD SHORTCUTS (J / K / T / Escape)
+// 3. HIERARCHICAL SYSTEM & DEVICE BACK NAVIGATION
+let lastBackActionTime = 0;
+
+function handleHierarchicalBack() {
+    const now = Date.now();
+    if (now - lastBackActionTime < 280) {
+        return false;
+    }
+    lastBackActionTime = now;
+    isPoppingNavState = true;
+
+    try {
+        // 1. If PDF Crop Modal is open -> return to language modal if file exists, else close
+        if (typeof pdfCropModal !== 'undefined' && pdfCropModal && !pdfCropModal.classList.contains('hidden')) {
+            if (typeof cropBackBtn !== 'undefined' && cropBackBtn) {
+                cropBackBtn.click();
+            } else {
+                closeModal(pdfCropModal);
+            }
+            return true;
+        }
+
+        // 2. If any other modal is open -> close it
+        const activeModals = [savedModal, keyModal, langModal, outlineModal, typographyModal];
+        for (const m of activeModals) {
+            if (m && !m.classList.contains('hidden')) {
+                if (m === langModal) pendingFile = null;
+                closeModal(m);
+                return true;
+            }
+        }
+
+        // 3. If translation tooltip is visible -> dismiss it
+        if (typeof tooltip !== 'undefined' && tooltip && tooltip.classList.contains('visible')) {
+            if (typeof hideTooltip === 'function') hideTooltip();
+            return true;
+        }
+
+        // 4. If a document is currently open in reader -> return to welcome/home screen
+        if (typeof reader !== 'undefined' && reader && !reader.classList.contains('hidden')) {
+            if (typeof showWelcomeState === 'function') {
+                showWelcomeState();
+                return true;
+            }
+        }
+
+        return false;
+    } finally {
+        setTimeout(() => { isPoppingNavState = false; }, 50);
+    }
+}
+
+// Intercept OS & Browser Native Back Events (Android System Back Gesture / iOS Safari Back Swipe / Browser Back Button)
+window.addEventListener('popstate', () => {
+    handleHierarchicalBack();
+});
+
+// Intercept Desktop Mouse Back Button (Mouse 4 / Button 3)
+window.addEventListener('auxclick', e => {
+    if (e.button === 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleHierarchicalBack();
+    }
+});
+window.addEventListener('mouseup', e => {
+    if (e.button === 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleHierarchicalBack();
+    }
+});
+
+// 4. KEYBOARD SHORTCUTS (J / K / T / Escape)
 document.addEventListener('keydown', e => {
     const activeTag = document.activeElement?.tagName?.toLowerCase();
     if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
 
     if (e.key === 'Escape') {
-        if (!keyModal.classList.contains('hidden'))       closeModal(keyModal);
-        else if (!langModal.classList.contains('hidden')) { pendingFile = null; closeModal(langModal); }
-        else if (!savedModal.classList.contains('hidden'))closeModal(savedModal);
-        else if (!pdfCropModal.classList.contains('hidden')) closeModal(pdfCropModal);
-        else if (!outlineModal.classList.contains('hidden')) closeModal(outlineModal);
-        else if (!typographyModal.classList.contains('hidden')) closeModal(typographyModal);
-        else hideTooltip();
+        handleHierarchicalBack();
         return;
     }
 

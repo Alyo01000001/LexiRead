@@ -110,12 +110,28 @@ function showLoader(msg) {
 function showWelcomeState() {
     loader.classList.add('hidden'); loader.classList.remove('flex');
     reader.classList.add('hidden');
+    reader.classList.remove('pdf-mode', 'txt-mode', 'docx-mode');
+    reader.innerHTML = '';
+    wordSpans = [];
+    wordIndex = new Map();
+    currentParsedDoc = null;
+    currentDocKey = null;
+    currentDocKind = null;
+    if (pdfPageObserver) {
+        pdfPageObserver.disconnect();
+        pdfPageObserver = null;
+    }
     welcomeState.classList.remove('hidden');
     dropZone.classList.remove('hidden');
     headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex', 'md:flex');
     leftControlWidget.classList.add('hidden'); leftControlWidget.classList.remove('flex');
+    pdfNavSection.classList.add('hidden'); pdfNavSection.classList.remove('flex');
+    navOutlineBtn.classList.add('hidden'); navOutlineBtn.classList.remove('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.add('hidden'); bottomMobileBar.classList.remove('flex'); }
+    if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
+    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
+    hideTooltip();
 }
 function showReaderState(mode = 'txt') {
     loader.classList.add('hidden'); loader.classList.remove('flex');
@@ -133,6 +149,9 @@ function showReaderState(mode = 'txt') {
 
     leftControlWidget.classList.remove('hidden'); leftControlWidget.classList.add('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.remove('hidden'); bottomMobileBar.classList.add('flex'); }
+    if (reader.classList.contains('hidden')) {
+        pushNavState('reader');
+    }
     reader.classList.remove('hidden');
     
     // Always show typography & appearance button in reader mode

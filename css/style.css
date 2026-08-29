@@ -91,7 +91,10 @@ header.header-hidden {
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y pinch-zoom;
 }
-#reader.pdf-mode {
+#reader.hidden {
+    display: none !important;
+}
+#reader.pdf-mode:not(.hidden) {
     display: flex;
     flex-direction: column;
     align-items: center;
