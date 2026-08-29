@@ -8,7 +8,21 @@
 
 body {
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    padding-top: 3.5rem;
+    touch-action: pan-x pan-y pinch-zoom;
     transition: background-color .2s ease, color .2s ease;
+}
+
+header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, opacity 0.2s ease;
+}
+header.header-hidden {
+    transform: translateY(-100%);
 }
 
 /* Native selection disabled inside the reader: the custom drag
@@ -39,13 +53,21 @@ body {
 #reader.is-dragging       { cursor: grabbing; }
 
 /* ---------- PDF ---------- */
-#reader.pdf-mode {
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-}
 #readerShell {
-    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y pinch-zoom;
+}
+#reader.pdf-mode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-width: 100%;
+    touch-action: pan-x pan-y pinch-zoom;
 }
 .pdf-page {
     position: relative;
@@ -56,6 +78,8 @@ body {
     overflow: hidden;
     content-visibility: auto;
     contain-intrinsic-size: 800px 1100px;
+    flex-shrink: 0;
+    max-width: none !important;
 }
 .pdf-page canvas {
     display: block;
@@ -186,7 +210,7 @@ html.light body {
     color: #0f172a;
 }
 html.light header {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.95);
     border-color: #e2e8f0;
 }
 html.light #readerShell {
@@ -220,14 +244,16 @@ html.light #reader.docx-mode em { color: #334155; }
 html.light #reader.docx-mode blockquote { border-left-color: #cbd5e1; color: #475569; }
 html.light #headerUploadBtn,
 html.light #keyBtn,
-html.light #themeToggleBtn {
+html.light #themeToggleBtn,
+html.light #appLangBtn {
     background-color: #ffffff;
     border-color: #cbd5e1;
     color: #334155;
 }
 html.light #headerUploadBtn:hover,
 html.light #keyBtn:hover,
-html.light #themeToggleBtn:hover {
+html.light #themeToggleBtn:hover,
+html.light #appLangBtn:hover {
     background-color: #f1f5f9;
     color: #0f172a;
 }
@@ -244,7 +270,7 @@ html.light #savedCount {
     color: #3730a3;
 }
 html.light #leftControlWidget {
-    background-color: rgba(255, 255, 255, 0.94);
+    background-color: rgba(255, 255, 255, 0.95);
     border-color: #e2e8f0;
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12);
 }
@@ -262,6 +288,21 @@ html.light #zoomSlider {
 html.light #zoomLabel,
 html.light #navCurPage {
     color: #4f46e5;
+}
+html.light #tooltip {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+}
+html.light #tooltip.below::after { border-bottom-color: #ffffff; }
+html.light #tooltip.above::after { border-top-color: #ffffff; }
+html.light #tooltipWord { color: #4f46e5; }
+html.light #tooltipTgt { color: #0f172a; }
+html.light #resumeBanner {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
 }
 html.light .modal-card {
     background-color: #ffffff;
@@ -307,112 +348,132 @@ html.light ::-webkit-scrollbar-track { background:#f1f5f9; }
 html.light ::-webkit-scrollbar-thumb { background:#cbd5e1; }
 html.light ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
 
-/* ---------- SEPIA MODE THEME ---------- */
+/* ---------- DARK WARM SEPIA THEME (Rich Coffee / Cocoa Parchment) ---------- */
 html.sepia body {
-    background-color: #f4ebd9;
-    color: #382818;
+    background-color: #1f1915;
+    color: #ebdccb;
 }
 html.sepia header {
-    background-color: rgba(244, 235, 217, 0.92);
-    border-color: #e6d7b9;
+    background-color: rgba(38, 30, 24, 0.95);
+    border-color: #45372d;
 }
 html.sepia #readerShell {
-    background-color: #fbf5e8;
-    border-color: #e6d7b9;
-    box-shadow: 0 20px 50px -25px rgba(60, 40, 20, 0.08);
-    ring-color: rgba(60, 40, 20, 0.05);
+    background-color: #29211b;
+    border-color: #45372d;
+    box-shadow: 0 20px 50px -25px rgba(0, 0, 0, 0.5);
+    ring-color: rgba(217, 119, 6, 0.1);
 }
 html.sepia #dropZone {
-    border-color: #d8c8a8;
-    background-color: #ede2cd;
-    color: #5d4630;
+    border-color: #45372d;
+    background-color: #29211b;
+    color: #cbb59f;
 }
 html.sepia #dropZone:hover {
-    border-color: #b45309;
-    background-color: #e7dac1;
-    color: #78350f;
+    border-color: #d97706;
+    background-color: #332922;
+    color: #f59e0b;
 }
-html.sepia #dropZone p.text-slate-200 { color: #382818; }
-html.sepia #dropZone p.text-slate-400 { color: #6d543c; }
-html.sepia #welcomeState h2 { color: #2c1a0e; }
-html.sepia #welcomeState p { color: #6d543c; }
-html.sepia #reader.txt-mode .reader-text { color: #2e2012; }
-html.sepia #reader.docx-mode { color: #2e2012; }
+html.sepia #dropZone p.text-slate-200 { color: #ebdccb; }
+html.sepia #dropZone p.text-slate-400 { color: #b8a38e; }
+html.sepia #welcomeState h2 { color: #fbf4eb; }
+html.sepia #welcomeState p { color: #b8a38e; }
+html.sepia #reader.txt-mode .reader-text { color: #f1e5d8; }
+html.sepia #reader.docx-mode { color: #f1e5d8; }
 html.sepia #reader.docx-mode h1,
 html.sepia #reader.docx-mode h2,
 html.sepia #reader.docx-mode h3,
-html.sepia #reader.docx-mode h4 { color: #2c1a0e; }
+html.sepia #reader.docx-mode h4 { color: #fbf4eb; }
+html.sepia #reader.docx-mode strong { color: #fbf4eb; }
+html.sepia #reader.docx-mode em { color: #e2d1c0; }
+html.sepia #reader.docx-mode blockquote { border-left-color: #45372d; color: #b8a38e; }
 html.sepia #headerUploadBtn,
 html.sepia #keyBtn,
-html.sepia #themeToggleBtn {
-    background-color: #fbf5e8;
-    border-color: #d8c8a8;
-    color: #4a3725;
+html.sepia #themeToggleBtn,
+html.sepia #appLangBtn {
+    background-color: #2d241d;
+    border-color: #45372d;
+    color: #ebdccb;
 }
 html.sepia #headerUploadBtn:hover,
 html.sepia #keyBtn:hover,
-html.sepia #themeToggleBtn:hover {
-    background-color: #ede2cd;
-    color: #2c1a0e;
+html.sepia #themeToggleBtn:hover,
+html.sepia #appLangBtn:hover {
+    background-color: #3d3128;
+    color: #ffffff;
 }
 html.sepia #savedBtn {
-    background-color: #fde68a;
-    border-color: #f59e0b;
-    color: #78350f;
+    background-color: rgba(217, 119, 6, 0.18);
+    border-color: rgba(217, 119, 6, 0.45);
+    color: #fcd34d;
 }
 html.sepia #savedBtn:hover {
-    background-color: #fcd34d;
+    background-color: rgba(217, 119, 6, 0.28);
 }
 html.sepia #savedCount {
-    background-color: #f59e0b;
+    background-color: #d97706;
     color: #ffffff;
 }
 html.sepia #leftControlWidget {
-    background-color: rgba(251, 245, 232, 0.94);
-    border-color: #e6d7b9;
-    box-shadow: 0 10px 30px -10px rgba(60, 40, 20, 0.12);
+    background-color: rgba(38, 30, 24, 0.95);
+    border-color: #45372d;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
 }
 html.sepia #leftControlWidget button {
-    background-color: #ede2cd;
-    color: #4a3725;
+    background-color: #2d241d;
+    color: #ebdccb;
 }
 html.sepia #leftControlWidget button:hover {
     background-color: #d97706;
     color: #ffffff;
 }
 html.sepia #zoomSlider {
-    background-color: #d8c8a8;
+    background-color: #45372d;
 }
 html.sepia #zoomLabel,
 html.sepia #navCurPage {
-    color: #b45309;
+    color: #f59e0b;
+}
+html.sepia #tooltip {
+    background-color: #2a221b;
+    border: 1px solid #45372d;
+    color: #ebdccb;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65);
+}
+html.sepia #tooltip.below::after { border-bottom-color: #2a221b; }
+html.sepia #tooltip.above::after { border-top-color: #2a221b; }
+html.sepia #tooltipWord { color: #f59e0b; }
+html.sepia #tooltipTgt { color: #fbf4eb; }
+html.sepia #resumeBanner {
+    background-color: #2d241d;
+    border-color: #45372d;
+    color: #ebdccb;
 }
 html.sepia .modal-card {
-    background-color: #fbf5e8;
-    border-color: #e6d7b9;
-    color: #382818;
+    background-color: #2a221b;
+    border-color: #45372d;
+    color: #ebdccb;
 }
 html.sepia .modal-card h2,
 html.sepia .modal-card h3 {
-    color: #2c1a0e;
+    color: #fbf4eb;
 }
 html.sepia .modal-card p,
 html.sepia .modal-card label span {
-    color: #6d543c;
+    color: #b8a38e;
 }
 html.sepia .modal-card select,
 html.sepia .modal-card input[type="text"],
 html.sepia .modal-card input[type="password"] {
-    background-color: #f4ebd9;
-    border-color: #d8c8a8;
-    color: #382818;
+    background-color: #201a15;
+    border-color: #45372d;
+    color: #ebdccb;
 }
 html.sepia .modal-card select option {
-    background-color: #fbf5e8;
-    color: #382818;
+    background-color: #2a221b;
+    color: #ebdccb;
 }
 html.sepia #cropPreviewOuter {
-    background-color: #ede2cd;
+    background-color: #1f1915;
 }
 html.sepia #savedModal .modal-card,
 html.sepia #keyModal .modal-card,
@@ -420,20 +481,35 @@ html.sepia #langModal .modal-card,
 html.sepia #pdfCropModal .modal-card,
 html.sepia #outlineModal .modal-card,
 html.sepia #typographyModal .modal-card {
-    background-color: #fbf5e8;
-    border-color: #e6d7b9;
+    background-color: #2a221b;
+    border-color: #45372d;
 }
 html.sepia .border-slate-800,
 html.sepia .border-slate-700 {
-    border-color: #e6d7b9;
+    border-color: #45372d;
 }
-html.sepia ::-webkit-scrollbar-track { background:#ede2cd; }
-html.sepia ::-webkit-scrollbar-thumb { background:#d8c8a8; }
-html.sepia ::-webkit-scrollbar-thumb:hover { background:#bfa884; }
+html.sepia .bg-slate-900,
+html.sepia .bg-slate-800,
+html.sepia .bg-slate-800\/80,
+html.sepia .bg-slate-800\/90 {
+    background-color: #2d241d;
+}
+html.sepia .bg-slate-950,
+html.sepia .bg-slate-950\/85,
+html.sepia .bg-slate-950\/95 {
+    background-color: #1f1915;
+}
+html.sepia ::-webkit-scrollbar-track { background:#1f1915; }
+html.sepia ::-webkit-scrollbar-thumb { background:#45372d; }
+html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
 
 /* ---------- MOBILE RESPONSIVE ADAPTATIONS (<768px) ---------- */
 @media (max-width: 768px) {
     #leftControlWidget {
+        display: none !important;
+    }
+
+    #headerUploadBtn {
         display: none !important;
     }
 
@@ -497,6 +573,52 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#bfa884; }
     }
 }
 
+/* ---------- MOBILE LANDSCAPE SIDE-PANEL (<580px Height) ---------- */
+@media (orientation: landscape) and (max-height: 580px) {
+    body {
+        padding-top: 2.8rem;
+    }
+    #readerShell {
+        padding-bottom: 1.5rem !important;
+        padding-left: 3.25rem !important;
+    }
+    #bottomMobileBar {
+        top: 50% !important;
+        bottom: auto !important;
+        left: 0.35rem !important;
+        right: auto !important;
+        transform: translateY(-50%) !important;
+        width: auto !important;
+        max-width: 46px !important;
+        padding: 0.35rem 0.2rem !important;
+        border-radius: 0.85rem !important;
+        border: 1px solid rgba(51, 65, 85, 0.8) !important;
+    }
+    #bottomMobileBar > div {
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+        align-items: center !important;
+    }
+    #bottomMobileBar #mobilePdfNav,
+    #bottomMobileBar .flex.items-center.gap-0\.5,
+    #bottomMobileBar .flex.items-center.gap-1 {
+        flex-direction: column !important;
+        gap: 0.15rem !important;
+    }
+    #bottomMobileBar #mobilePdfNav span {
+        display: none !important;
+    }
+    #tooltip {
+        bottom: 12px !important;
+        left: 3.8rem !important;
+        right: 12px !important;
+    }
+    .modal-card {
+        max-height: 94vh !important;
+        overflow-y: auto !important;
+    }
+}
+
 /* Light Theme overrides for Mobile Bar */
 html.light #bottomMobileBar {
     background-color: rgba(255, 255, 255, 0.94);
@@ -515,16 +637,21 @@ html.light #bottomMobileBar button:hover {
 
 /* Sepia Theme overrides for Mobile Bar */
 html.sepia #bottomMobileBar {
-    background-color: rgba(251, 245, 232, 0.94);
-    border-color: #e6d7b9;
-    box-shadow: 0 -10px 25px rgba(60, 40, 20, 0.08);
+    background-color: rgba(38, 30, 24, 0.96);
+    border-color: #45372d;
+    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
 }
 html.sepia #bottomMobileBar button {
-    background-color: #ede2cd;
-    border-color: #d8c8a8;
-    color: #4a3725;
+    background-color: #2d241d;
+    border-color: #45372d;
+    color: #ebdccb;
 }
 html.sepia #bottomMobileBar button:hover {
     background-color: #d97706;
     color: #ffffff;
+}
+html.sepia #bottomMobileBar #mobilePdfNav,
+html.sepia #bottomMobileBar .bg-slate-900\/90 {
+    background-color: #231c17;
+    border-color: #45372d;
 }

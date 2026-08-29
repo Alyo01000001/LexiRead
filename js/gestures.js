@@ -67,31 +67,120 @@ window.addEventListener('mouseup', e => {
     if (!drag.active || drag.pointer !== 'mouse' || e.button !== 0) return;
     finalizeGesture();
 });
+const touchState = {
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    targetWord: null,
+    isLongPress: false,
+    isScrolling: false,
+    timer: null
+};
+
 reader.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) {
+        if (touchState.timer) clearTimeout(touchState.timer);
+        touchState.isLongPress = false;
+        touchState.isScrolling = false;
+        resetDrag();
+        return;
+    }
     const t = e.touches[0];
     const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
     if (!span) return;
-    drag.active = true; drag.pointer = 'touch';
-    drag.anchor = span; drag.current = span; drag.moved = false;
-    previousActiveEl = activeEls[0] || null;
-    reader.classList.add('is-dragging');
-    clearActive(); clearSelected();
-    highlightRange(span);
+
+    touchState.startX = t.clientX;
+    touchState.startY = t.clientY;
+    touchState.startTime = Date.now();
+    touchState.targetWord = span;
+    touchState.isLongPress = false;
+    touchState.isScrolling = false;
+
+    if (touchState.timer) clearTimeout(touchState.timer);
+    touchState.timer = setTimeout(() => {
+        // 300ms held without moving -> activate phrase drag selection
+        touchState.isLongPress = true;
+        drag.active = true;
+        drag.pointer = 'touch';
+        drag.anchor = span;
+        drag.current = span;
+        drag.moved = false;
+        previousActiveEl = activeEls[0] || null;
+        reader.classList.add('is-dragging');
+        clearActive();
+        clearSelected();
+        highlightRange(span);
+        if (navigator.vibrate) {
+            try { navigator.vibrate(25); } catch (_) {}
+        }
+    }, 300);
 }, { passive: true });
+
 reader.addEventListener('touchmove', e => {
-    if (!drag.active || drag.pointer !== 'touch') return;
-    e.preventDefault();
     const t = e.touches[0];
-    const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
-    if (span && span !== drag.current) highlightRange(span);
-}, { passive: false });
-reader.addEventListener('touchend', e => {
-    if (!drag.active || drag.pointer !== 'touch') return;
+    const dx = t.clientX - touchState.startX;
+    const dy = t.clientY - touchState.startY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (!touchState.isLongPress) {
+        // If moved more than 8px before long-press fires, user is naturally scrolling the page!
+        if (dist > 8) {
+            if (touchState.timer) clearTimeout(touchState.timer);
+            touchState.isScrolling = true;
+        }
+        return; // Do NOT preventDefault -> native buttery smooth scroll!
+    }
+
+    // Long-press was active: user is now dragging to select a multi-word phrase!
     e.preventDefault();
-    finalizeGesture();
+    const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
+    if (span && span !== drag.current) {
+        highlightRange(span);
+    }
 }, { passive: false });
+
+reader.addEventListener('touchend', e => {
+    if (touchState.timer) clearTimeout(touchState.timer);
+
+    // 1. Long-press phrase selection was active
+    if (touchState.isLongPress && drag.active) {
+        e.preventDefault();
+        finalizeGesture();
+        touchState.isLongPress = false;
+        touchState.targetWord = null;
+        return;
+    }
+
+    // 2. Normal scroll occurred -> do nothing, page scrolls smoothly
+    if (touchState.isScrolling) {
+        touchState.isScrolling = false;
+        touchState.targetWord = null;
+        return;
+    }
+
+    // 3. Short tap on a word (<300ms, moved <8px) -> Instant Single-Word Translation!
+    const span = touchState.targetWord;
+    touchState.targetWord = null;
+    if (span) {
+        const text = stripPunctuation(span.textContent);
+        if (!text) return;
+        clearActive();
+        clearSelected();
+        span.classList.add('active');
+        activeEls = [span];
+        const rect = span.getBoundingClientRect();
+        lastAnchor = { first: span, last: span };
+        showWordTooltip(text, rect, span);
+    }
+}, { passive: false });
+
 window.addEventListener('touchcancel', () => {
-    if (drag.active && drag.pointer === 'touch') { resetDrag(); clearSelected(); }
+    if (touchState.timer) clearTimeout(touchState.timer);
+    touchState.isLongPress = false;
+    touchState.isScrolling = false;
+    touchState.targetWord = null;
+    resetDrag();
+    clearSelected();
 });
 
 // Single click → strip surrounding punctuation.

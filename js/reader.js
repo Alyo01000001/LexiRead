@@ -112,7 +112,7 @@ function showWelcomeState() {
     reader.classList.add('hidden');
     welcomeState.classList.remove('hidden');
     dropZone.classList.remove('hidden');
-    headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex');
+    headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex', 'md:flex');
     leftControlWidget.classList.add('hidden'); leftControlWidget.classList.remove('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.add('hidden'); bottomMobileBar.classList.remove('flex'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
@@ -121,7 +121,16 @@ function showReaderState(mode = 'txt') {
     loader.classList.add('hidden'); loader.classList.remove('flex');
     welcomeState.classList.add('hidden');
     dropZone.classList.add('hidden');
-    headerUploadBtn.classList.remove('hidden'); headerUploadBtn.classList.add('flex');
+    
+    // Only show headerUploadBtn on desktop (>=768px)
+    if (window.innerWidth >= 768) {
+        headerUploadBtn.classList.remove('hidden');
+        headerUploadBtn.classList.add('flex');
+    } else {
+        headerUploadBtn.classList.add('hidden');
+        headerUploadBtn.classList.remove('flex', 'md:flex');
+    }
+
     leftControlWidget.classList.remove('hidden'); leftControlWidget.classList.add('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.remove('hidden'); bottomMobileBar.classList.add('flex'); }
     reader.classList.remove('hidden');
@@ -615,10 +624,27 @@ attachTap(mobileDocUploadBtn, () => {
     fileInput.click();
 });
 
+let lastScrollY = window.scrollY;
 let scrollTicking = false;
 let scrollProgressTimer = null;
 
 window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const headerEl = document.querySelector('header');
+
+    if (headerEl) {
+        if (currentScrollY <= 45) {
+            headerEl.classList.remove('header-hidden');
+        } else if (currentScrollY > lastScrollY + 8 && currentScrollY > 70) {
+            // Scrolling down -> smoothly hide header to maximize reading area
+            headerEl.classList.add('header-hidden');
+        } else if (currentScrollY < lastScrollY - 6) {
+            // Scrolling up -> instantly reveal header
+            headerEl.classList.remove('header-hidden');
+        }
+    }
+    lastScrollY = currentScrollY;
+
     if (!scrollTicking) {
         scrollTicking = true;
         requestAnimationFrame(() => {
