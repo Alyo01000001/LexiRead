@@ -203,9 +203,11 @@ async function renderPdf(parsed) {
     pdfNavSection.classList.remove('hidden');
     pdfNavSection.classList.add('flex');
 
-    const avail = Math.min(1000, Math.max(320, (reader.clientWidth || 900) - 24));
+    const screenW = window.innerWidth || document.documentElement.clientWidth || 390;
+    const maxDocW = isMobile() ? (screenW - 16) : 920;
+    const avail = Math.min(1000, Math.max(260, maxDocW));
     const baseViewport = (parsed.pageViewports && parsed.pageViewports[0]) || (await parsed.pdf.getPage(1)).getViewport({ scale: 1 });
-    const scale = Math.min(1.6, Math.max(0.5, avail / baseViewport.width));
+    const scale = Math.min(1.8, Math.max(0.35, avail / baseViewport.width));
 
     // Create lightweight page containers and tokenized textLayers
     for (let i = 1; i <= parsed.pageCount; i++) {
@@ -539,14 +541,23 @@ function applyCurrentZoom() {
     }
 }
 
+function attachTap(el, handler) {
+    if (!el) return;
+    el.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        handler(e);
+    });
+}
+
 if (zoomSlider) zoomSlider.addEventListener('input', () => setZoom(Number(zoomSlider.value)));
-if (zoomInBtn) zoomInBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) + 10));
-if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) - 10));
+if (zoomInBtn) zoomInBtn.addEventListener('click', () => setZoom(Math.round(currentZoomRatio * 100) + 10));
+if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => setZoom(Math.round(currentZoomRatio * 100) - 10));
 if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => setZoom(100));
 
-if (mobileZoomInBtn) mobileZoomInBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) + 10));
-if (mobileZoomOutBtn) mobileZoomOutBtn.addEventListener('click', () => setZoom(Number(zoomSlider.value) - 10));
-if (mobileZoomResetBtn) mobileZoomResetBtn.addEventListener('click', () => setZoom(100));
+attachTap(mobileZoomInBtn, () => setZoom(Math.round(currentZoomRatio * 100) + 10));
+attachTap(mobileZoomOutBtn, () => setZoom(Math.round(currentZoomRatio * 100) - 10));
+attachTap(mobileZoomResetBtn, () => setZoom(100));
 
 if (navPrevPage) {
     navPrevPage.addEventListener('click', () => {
@@ -569,12 +580,40 @@ if (navNextPage) {
     });
 }
 
-if (mobileNavPrevPage) mobileNavPrevPage.addEventListener('click', () => navPrevPage?.click());
-if (mobileNavNextPage) mobileNavNextPage.addEventListener('click', () => navNextPage?.click());
+attachTap(mobileNavPrevPage, () => {
+    const cur = Number(navCurPage.textContent) || 1;
+    if (cur > 1) {
+        const target = $(`pdf-page-${cur - 1}`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
 
-if (mobileLangChangeBtn) mobileLangChangeBtn.addEventListener('click', () => langChangeBtn?.click());
-if (mobileTypographyBtn) mobileTypographyBtn.addEventListener('click', () => typographyBtn?.click());
-if (mobileDocUploadBtn) mobileDocUploadBtn.addEventListener('click', () => fileInput?.click());
+attachTap(mobileNavNextPage, () => {
+    const cur = Number(navCurPage.textContent) || 1;
+    const total = Number(navTotalPages.textContent) || 1;
+    if (cur < total) {
+        const target = $(`pdf-page-${cur + 1}`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+});
+
+attachTap(mobileLangChangeBtn, () => {
+    pendingFile = null;
+    pendingExt = '';
+    langFileName.textContent = currentParsedDoc ? (currentDocKey ? currentDocKey.split('_')[0] : '') : '';
+    langSrc.value = currentSrc;
+    langTgt.value = currentTgt;
+    langHint.classList.add('hidden');
+    openModal(langModal);
+});
+
+attachTap(mobileTypographyBtn, () => {
+    openModal(typographyModal);
+});
+
+attachTap(mobileDocUploadBtn, () => {
+    fileInput.click();
+});
 
 let scrollTicking = false;
 let scrollProgressTimer = null;

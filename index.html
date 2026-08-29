@@ -23,53 +23,52 @@
 
     <!-- ================= HEADER ================= -->
     <header class="sticky top-0 z-40 backdrop-blur bg-slate-950/85 border-b border-slate-800 transition-colors">
-        <div class="max-w-5xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2 sm:gap-3">
+        <div class="max-w-5xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-1.5 sm:gap-3">
             <!-- Modern Logo with LexiReadIcon.png and reload action -->
-            <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-2.5 group cursor-pointer select-none">
-                <img src="LexiReadIcon.png" alt="LexiRead" class="h-8 w-8 object-contain rounded-lg shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition" />
-                <span class="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-100 to-indigo-200 text-lg sm:text-xl">
+            <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-1.5 sm:gap-2.5 group cursor-pointer select-none shrink-0">
+                <img src="LexiReadIcon.png" alt="LexiRead" class="h-7 w-7 sm:h-8 sm:w-8 object-contain rounded-lg shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition" />
+                <span class="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-100 to-indigo-200 text-base sm:text-xl">
                     Lexi<span class="text-indigo-400">Read</span>
                 </span>
             </a>
 
-            <div class="flex-1"></div>
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+                <!-- Dynamic Header Upload Button (Appears when reading a document on desktop) -->
+                <button id="headerUploadBtn"
+                        class="hidden md:flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
+                    <span>📁</span>
+                    <span data-i18n="openDocument">Open Document</span>
+                </button>
 
-            <!-- Dynamic Header Upload Button (Appears when reading a document) -->
-            <button id="headerUploadBtn"
-                    class="hidden items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
-                <span>📁</span>
-                <span class="hidden sm:inline" data-i18n="openDocument">Open Document</span>
-                <span class="sm:hidden" data-i18n="openDocShort">Open</span>
-            </button>
+                <!-- Refined Saved-items manager -->
+                <button id="savedBtn"
+                        class="flex items-center gap-1 sm:gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-950/50 px-2 sm:px-3 py-1.5 text-xs font-medium text-indigo-200 hover:bg-indigo-900/50 hover:border-indigo-500/60 shadow-sm transition">
+                    <span>🔖</span>
+                    <span class="hidden sm:inline" data-i18n="savedWords">Saved</span>
+                    <span id="savedCount" class="rounded-full bg-indigo-500/30 px-1.5 py-0.2 text-[10px] tabular-nums font-mono text-indigo-300">0</span>
+                </button>
 
-            <!-- Refined Saved-items manager -->
-            <button id="savedBtn"
-                    class="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-950/50 px-3 py-1.5 text-xs sm:text-sm font-medium text-indigo-200 hover:bg-indigo-900/50 hover:border-indigo-500/60 shadow-sm transition">
-                <span>🔖</span>
-                <span class="hidden sm:inline" data-i18n="savedWords">Saved Words</span>
-                <span class="sm:hidden" data-i18n="savedShort">Saved</span>
-                <span id="savedCount" class="rounded-full bg-indigo-500/30 px-1.5 py-0.5 text-[10px] tabular-nums font-mono text-indigo-300">0</span>
-            </button>
+                <!-- API Key Status and Setup -->
+                <button id="keyBtn"
+                        class="flex items-center gap-1 sm:gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-2 sm:px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition shadow-sm">
+                    <span id="keyDot" class="h-2 w-2 rounded-full bg-amber-400"></span>
+                    <span class="hidden sm:inline" data-i18n="apiKey">API Key</span>
+                    <span class="sm:hidden text-xs">🔑</span>
+                </button>
 
-            <!-- API Key Status and Setup -->
-            <button id="keyBtn"
-                    class="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 transition shadow-sm">
-                <span id="keyDot" class="h-2 w-2 rounded-full bg-amber-400"></span>
-                <span data-i18n="apiKey">API Key</span>
-            </button>
+                <!-- UI Language Switcher (TR / EN) -->
+                <button id="appLangBtn" data-i18n-title="appLangBtnTitle" title="Dili Değiştir / Change Language (TR / EN)"
+                        class="flex items-center justify-center gap-1 px-2 h-7 sm:h-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm select-none">
+                    <span>🌐</span>
+                    <span id="appLangLabel">EN</span>
+                </button>
 
-            <!-- UI Language Switcher (TR / EN) -->
-            <button id="appLangBtn" data-i18n-title="appLangBtnTitle" title="Dili Değiştir / Change Language (TR / EN)"
-                    class="flex items-center justify-center gap-1 px-2.5 h-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm select-none">
-                <span>🌐</span>
-                <span id="appLangLabel">EN</span>
-            </button>
-
-            <!-- Theme Toggle Button (Light / Sepia / Dark) -->
-            <button id="themeToggleBtn" data-i18n-title="toggleThemeGeneral" title="Toggle Theme (Dark / Light / Sepia)"
-                    class="flex items-center justify-center h-8 w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-sm text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
-                <span id="themeIcon">☀️</span>
-            </button>
+                <!-- Theme Toggle Button (Light / Sepia / Dark) -->
+                <button id="themeToggleBtn" data-i18n-title="toggleThemeGeneral" title="Toggle Theme (Dark / Light / Sepia)"
+                        class="flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs sm:text-sm text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
+                    <span id="themeIcon">☀️</span>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -125,54 +124,57 @@
     </aside>
 
     <!-- ============ MOBILE BOTTOM ACTION & READING BAR (Visible on screens < 768px when doc is open) ============ -->
-    <nav id="bottomMobileBar" class="hidden fixed bottom-0 left-0 right-0 z-40 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-3 py-2 select-none shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-transform duration-300">
+    <nav id="bottomMobileBar" class="hidden fixed bottom-0 left-0 right-0 z-50 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-2 py-1.5 select-none shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-transform duration-300">
         <div class="max-w-md mx-auto flex items-center justify-between gap-1 text-xs">
             
             <!-- Mobile PDF Page Navigator (visible for PDF) -->
-            <div id="mobilePdfNav" class="hidden items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner">
-                <button id="mobileNavPrevPage" data-i18n-title="prevPage" title="Previous Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition disabled:opacity-30">
+            <div id="mobilePdfNav" class="hidden items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-lg px-1 py-0.5 shadow-inner shrink-0">
+                <button id="mobileNavPrevPage" data-i18n-title="prevPage" title="Previous Page" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-[10px] transition active:scale-95 disabled:opacity-30">
                     ▲
                 </button>
-                <span class="font-mono text-[11px] px-1 text-slate-300">
+                <span class="font-mono text-[10px] px-1 text-slate-300">
                     <strong id="mobileNavCurPage" class="text-indigo-400">1</strong>/<span id="mobileNavTotalPages">1</span>
                 </span>
-                <button id="mobileNavNextPage" data-i18n-title="nextPage" title="Next Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition disabled:opacity-30">
+                <button id="mobileNavNextPage" data-i18n-title="nextPage" title="Next Page" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-[10px] transition active:scale-95 disabled:opacity-30">
                     ▼
                 </button>
             </div>
 
             <!-- Mobile Zoom Controller -->
-            <div class="flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner">
-                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition">
+            <div class="flex items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-lg px-1 py-0.5 shadow-inner shrink-0">
+                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
                     −
                 </button>
-                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1 text-[11px] font-mono font-medium text-slate-300 hover:text-indigo-300 transition">
+                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1 text-[10px] font-mono font-medium text-slate-300 hover:text-indigo-300 transition">
                     <span id="mobileZoomLabel">100%</span>
                 </button>
-                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition">
+                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
                     +
                 </button>
             </div>
 
-            <!-- Mobile Translation Languages Button -->
-            <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-sm shadow-sm transition">
-                🌐
-            </button>
+            <!-- Mobile Action Cluster -->
+            <div class="flex items-center gap-1 shrink-0">
+                <!-- Mobile Translation Languages Button -->
+                <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                    🌐
+                </button>
 
-            <!-- Mobile Typography (TXT/DOCX) -->
-            <button id="mobileTypographyBtn" data-i18n-title="typography" title="Typography & Layout" class="hidden w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center font-serif text-xs font-bold shadow-sm transition">
-                Aa
-            </button>
+                <!-- Mobile Typography (TXT/DOCX) -->
+                <button id="mobileTypographyBtn" data-i18n-title="typography" title="Typography & Layout" class="hidden w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center font-serif text-[11px] font-bold shadow-sm transition active:scale-95">
+                    Aa
+                </button>
 
-            <!-- Mobile PDF TOC / Chapters -->
-            <button id="mobileNavOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition">
-                📑
-            </button>
+                <!-- Mobile PDF TOC / Chapters -->
+                <button id="mobileNavOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                    📑
+                </button>
 
-            <!-- Mobile Document Upload Button -->
-            <button id="mobileDocUploadBtn" data-i18n-title="openDocument" title="Open Document" class="w-8 h-8 rounded-xl bg-indigo-950 border border-indigo-500/40 hover:bg-indigo-600 text-indigo-200 hover:text-white flex items-center justify-center text-sm shadow-sm transition">
-                📁
-            </button>
+                <!-- Mobile Document Upload Button -->
+                <button id="mobileDocUploadBtn" data-i18n-title="openDocument" title="Open Document" class="w-7 h-7 rounded-lg bg-indigo-950 border border-indigo-500/40 hover:bg-indigo-600 text-indigo-200 hover:text-white flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                    📁
+                </button>
+            </div>
         </div>
     </nav>
 

@@ -140,6 +140,11 @@ body {
     color: #e6ecf5;
 }
 
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 /* ---------- TOOLTIP ---------- */
 #tooltip {
     position: absolute;
@@ -147,10 +152,11 @@ body {
     min-width: 150px;
     max-width: 340px;
     opacity: 0;
+    pointer-events: none;
     transform: translateY(4px);
     transition: opacity 110ms ease, transform 110ms ease;
 }
-#tooltip.visible { opacity: 1; transform: translateY(0); }
+#tooltip.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 #tooltip::after { content: ""; position: absolute; left: 24px; border: 6px solid transparent; }
 #tooltip.below::after { top: -12px; border-bottom-color: #1e293b; }
 #tooltip.above::after { bottom: -12px; border-top-color: #1e293b; }
