@@ -61,8 +61,11 @@ const loader              = $('loader');
 const loaderText          = $('loaderText');
 const welcomeState        = $('welcomeState');
 const reader              = $('reader');
-const keyBtn              = $('keyBtn');
-const keyDot              = $('keyDot');
+const headerDocBadge      = $('headerDocBadge');
+const zenModeBtn          = $('zenModeBtn');
+const zenExitBar          = $('zenExitBar');
+const zenExitBtn          = $('zenExitBtn');
+
 const savedBtn            = $('savedBtn');
 const savedCount          = $('savedCount');
 const tooltip             = $('tooltip');
@@ -72,11 +75,14 @@ const tooltipClose        = $('tooltipClose');
 const toastHost           = $('toastHost');
 const logoBtn             = $('logoBtn');
 const headerUploadBtn     = $('headerUploadBtn');
-const themeToggleBtn      = $('themeToggleBtn');
-const themeIcon           = $('themeIcon');
-const appLangToggleBtn    = $('appLangBtn');
-const appLangLabel        = $('appLangLabel');
 const leftControlWidget   = $('leftControlWidget');
+
+const settingsBtn         = $('settingsBtn');
+const settingsModal       = $('settingsModal');
+const settingsClose       = $('settingsClose');
+const settingsKeyStatus   = $('settingsKeyStatus');
+const settingsOpenKeyBtn  = $('settingsOpenKeyBtn');
+const settingsOpenTypoBtn = $('settingsOpenTypoBtn');
 
 const zoomInBtn           = $('zoomInBtn');
 const zoomOutBtn          = $('zoomOutBtn');
@@ -95,6 +101,7 @@ const keyInput            = $('keyInput');
 const keyHint             = $('keyHint');
 const keySaveBtn          = $('keySave');
 const keyCancelBtn        = $('keyCancel');
+const keyCloseBtn         = $('keyCloseBtn');
 const tabGemini           = $('tabGemini');
 const tabDeepl            = $('tabDeepl');
 const geminiDescBlock     = $('geminiDescBlock');
@@ -123,7 +130,7 @@ const outlineModal        = $('outlineModal');
 const outlineClose        = $('outlineClose');
 const outlineList         = $('outlineList');
 
-const langChangeBtn     = $('langChangeBtn');
+const langChangeBtn       = $('langChangeBtn');
 const typographyBtn       = $('typographyBtn');
 const typographyModal     = $('typographyModal');
 const typographyClose     = $('typographyClose');
@@ -142,8 +149,12 @@ const mobileZoomLabel      = $('mobileZoomLabel');
 const mobileZoomInBtn      = $('mobileZoomInBtn');
 
 const mobileLangChangeBtn  = $('mobileLangChangeBtn');
-const mobileTypographyBtn  = $('mobileTypographyBtn');
-const mobileNavOutlineBtn  = $('mobileNavOutlineBtn');
+const mobileMoreBtn        = $('mobileMoreBtn');
+const mobileMoreSheet      = $('mobileMoreSheet');
+const mobileMoreClose      = $('mobileMoreClose');
+const moreTypoBtn          = $('moreTypoBtn');
+const moreOutlineBtn       = $('moreOutlineBtn');
+const moreZenBtn           = $('moreZenBtn');
 const mobileDocUploadBtn   = $('mobileDocUploadBtn');
 
 function isMobile() {
@@ -211,7 +222,11 @@ const getProviderKey = (provider) => {
     return k;
 };
 const setProviderKey = (provider, val) => {
-    localStorage.setItem('lexi.key.' + provider, val.trim());
+    const clean = (val || '').trim();
+    localStorage.setItem('lexi.key.' + provider, clean);
+    if (provider === 'deepl') {
+        localStorage.setItem('lexi.deeplKey', clean);
+    }
 };
 const getKey = () => getProviderKey(getProvider());
 
@@ -235,17 +250,22 @@ function pushNavState(type = 'view') {
 
 function openModal(m) {
     if (!m) return;
-    if (m.classList.contains('hidden')) {
+    if (m.classList.contains('hidden') || m.style.display === 'none') {
         pushNavState('modal');
     }
     m.classList.remove('hidden');
     m.classList.add('flex');
+    m.style.display = 'flex';
 }
 function closeModal(m) {
     if (!m) return;
     m.classList.add('hidden');
     m.classList.remove('flex');
+    m.style.display = 'none';
 }
+
+window.openModal = openModal;
+window.closeModal = closeModal;
 
 function genRandomId(prefix = 'id') {
     return prefix + '_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);

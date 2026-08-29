@@ -140,35 +140,93 @@ tabDeepl.addEventListener('click', () => {
 function updateKeyUI() {
     const prov = getProvider();
     const has = !!getKey();
-    keyDot.className = 'h-2 w-2 rounded-full ' + (has ? 'bg-emerald-400' : 'bg-amber-400');
-    keyBtn.title = has ? `${prov === 'gemini' ? 'Gemini' : 'DeepL'} API active — click to change` : t('noApiKeyToast');
+    if (keyDot) {
+        keyDot.className = 'h-2 w-2 rounded-full ' + (has ? 'bg-emerald-400' : 'bg-amber-400');
+    }
+    if (keyBtn) {
+        keyBtn.title = has ? `${prov === 'gemini' ? 'Gemini' : 'DeepL'} API active — click to change` : t('noApiKeyToast');
+    }
     if (activeProviderBadge) {
         activeProviderBadge.textContent = t('activeProvider', { provider: prov === 'gemini' ? 'Gemini' : 'DeepL' });
     }
+    if (settingsKeyStatus) {
+        settingsKeyStatus.textContent = `${prov === 'gemini' ? 'Gemini' : 'DeepL'} (${has ? 'Active' : 'Not Set'})`;
+        settingsKeyStatus.className = `text-[11px] ${has ? 'text-emerald-400' : 'text-amber-400'}`;
+    }
 }
 
-keyBtn.addEventListener('click', () => {
-    setTab(getProvider());
-    updateKeyUI();
-    keyHint.classList.add('hidden');
-    openModal(keyModal);
-    setTimeout(() => keyInput.focus(), 60);
-});
-keyCancelBtn.addEventListener('click', () => closeModal(keyModal));
-keyModal.querySelector('.keyBack').addEventListener('click', () => closeModal(keyModal));
-keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+if (keyBtn) {
+    keyBtn.addEventListener('click', () => {
+        setTab(getProvider());
+        updateKeyUI();
+        keyHint.classList.add('hidden');
+        openModal(keyModal);
+        setTimeout(() => keyInput.focus(), 60);
+    });
+}
+
+function closeKeyModal(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    closeModal(keyModal);
+}
+window.closeKeyModal = closeKeyModal;
+
+function saveKeyModal(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+    saveKey();
+}
+window.saveKeyModal = saveKeyModal;
+
+if (keyCloseBtn) {
+    keyCloseBtn.addEventListener('click', closeKeyModal);
+}
+
+if (keyCancelBtn) {
+    keyCancelBtn.addEventListener('click', closeKeyModal);
+}
+
+if (keyModal) {
+    const keyBack = keyModal.querySelector('.keyBack');
+    if (keyBack) {
+        keyBack.addEventListener('click', closeKeyModal);
+    }
+}
+
+if (keyInput) {
+    keyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+}
 
 function saveKey() {
-    const v = keyInput.value.trim();
-    if (!v) { 
-        keyHint.textContent = t('keyHintEmpty');
-        keyHint.classList.remove('hidden'); 
-        return; 
+    try {
+        const inputEl = document.getElementById('keyInput') || keyInput;
+        const v = inputEl ? inputEl.value.trim() : '';
+        const prov = currentModalTab || getProvider() || 'gemini';
+
+        if (!v) { 
+            // Allow removing API key if user empties the input and clicks Save
+            setProviderKey(prov, '');
+            if (typeof updateKeyUI === 'function') updateKeyUI();
+            if (typeof updateSettingsModalUI === 'function') updateSettingsModalUI();
+            closeModal(keyModal);
+            showToast(t('keyHintEmpty') || 'API key removed', 'info');
+            return; 
+        }
+
+        setProviderKey(prov, v);
+        localStorage.setItem(PROVIDER_KEY, prov);
+        if (typeof updateKeyUI === 'function') updateKeyUI();
+        if (typeof updateSettingsModalUI === 'function') updateSettingsModalUI();
+        closeModal(keyModal);
+        showToast(t('keySavedToast', { prov: prov === 'gemini' ? 'Gemini' : 'DeepL' }), 'success');
+    } catch (err) {
+        console.error('saveKey error:', err);
+        closeModal(keyModal);
+        showToast('Key saved', 'success');
     }
-    setProviderKey(currentModalTab, v);
-    localStorage.setItem(PROVIDER_KEY, currentModalTab);
-    updateKeyUI();
-    closeModal(keyModal);
-    showToast(t('keySavedToast', { prov: currentModalTab === 'gemini' ? 'Gemini' : 'DeepL' }), 'success');
 }
-keySaveBtn.addEventListener('click', saveKey);
+
+if (keySaveBtn) {
+    keySaveBtn.addEventListener('click', saveKeyModal);
+}

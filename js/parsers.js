@@ -233,10 +233,10 @@ async function openPdfCropModal(file) {
         const savedBtm = localStorage.getItem(CROP_BTM_KEY);
         currentTopPct = (savedTop !== null && !isNaN(Number(savedTop))) ? Number(savedTop) : 7;
         currentBottomPct = (savedBtm !== null && !isNaN(Number(savedBtm))) ? Number(savedBtm) : 7;
-        updateCropOverlays();
         
-        await renderCropPreviewPage(cropCurrentPageNum);
         openModal(pdfCropModal);
+        updateCropOverlays();
+        await renderCropPreviewPage(cropCurrentPageNum);
     } catch (e) {
         console.error('Failed to open PDF crop preview:', e);
         processDocument(file, 'pdf', 0, 0);
@@ -252,16 +252,37 @@ async function renderCropPreviewPage(pageNum) {
     try {
         const page = await cropPdfDoc.getPage(pageNum);
         const viewport = page.getViewport({ scale: 1.0 });
-        const maxH = Math.min(window.innerHeight * 0.60, 540);
-        const scale = maxH / viewport.height;
-        const scaledViewport = page.getViewport({ scale });
 
-        cropCanvas.width = Math.floor(scaledViewport.width);
-        cropCanvas.height = Math.floor(scaledViewport.height);
-        cropPreviewContainer.style.width = Math.floor(scaledViewport.width) + 'px';
-        cropPreviewContainer.style.height = Math.floor(scaledViewport.height) + 'px';
+        // Measure available space inside #cropPreviewOuter accurately
+        const outerRect = cropPreviewOuter ? cropPreviewOuter.getBoundingClientRect() : null;
+        const isSmallScreen = window.innerWidth <= 640;
+        const padX = isSmallScreen ? 12 : 28;
+        const padY = isSmallScreen ? 12 : 28;
+
+        const availW = Math.max(220, (outerRect && outerRect.width > 0 ? outerRect.width : window.innerWidth) - padX);
+        const availH = Math.max(240, (outerRect && outerRect.height > 0 ? outerRect.height : (window.innerHeight * 0.60)) - padY);
+
+        const scaleW = availW / viewport.width;
+        const scaleH = availH / viewport.height;
+        const scale = Math.min(scaleW, scaleH);
+
+        const cssW = Math.floor(viewport.width * scale);
+        const cssH = Math.floor(viewport.height * scale);
+
+        // High DPI canvas backing for crisp rendering
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        cropCanvas.width = Math.floor(cssW * dpr);
+        cropCanvas.height = Math.floor(cssH * dpr);
+        cropCanvas.style.width = '100%';
+        cropCanvas.style.height = '100%';
+
+        cropPreviewContainer.style.width = cssW + 'px';
+        cropPreviewContainer.style.height = cssH + 'px';
 
         const ctx = cropCanvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const scaledViewport = page.getViewport({ scale });
         await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
         updateCropOverlays();
     } catch (err) {
@@ -336,6 +357,16 @@ window.addEventListener('mousemove', onPointerMove);
 window.addEventListener('touchmove', onPointerMove, { passive: false });
 window.addEventListener('mouseup', onPointerUp);
 window.addEventListener('touchend', onPointerUp);
+
+let cropResizeDebounce = null;
+window.addEventListener('resize', () => {
+    if (pdfCropModal && !pdfCropModal.classList.contains('hidden') && cropPdfDoc) {
+        clearTimeout(cropResizeDebounce);
+        cropResizeDebounce = setTimeout(() => {
+            renderCropPreviewPage(cropCurrentPageNum);
+        }, 120);
+    }
+});
 
 if (cropPrevPage) {
     cropPrevPage.addEventListener('click', () => {

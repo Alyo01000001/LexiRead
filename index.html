@@ -25,12 +25,15 @@
     <header class="sticky top-0 z-40 backdrop-blur bg-slate-950/85 border-b border-slate-800 transition-colors">
         <div class="max-w-5xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-1.5 sm:gap-3">
             <!-- Modern Logo with LexiReadIcon.png and reload action -->
-            <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-1.5 sm:gap-2.5 group cursor-pointer select-none shrink-0">
-                <img src="LexiReadIcon.png" alt="LexiRead" class="h-7 w-7 sm:h-8 sm:w-8 object-contain rounded-lg shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition" />
-                <span class="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-100 to-indigo-200 text-base sm:text-xl">
-                    Lexi<span class="text-indigo-400">Read</span>
-                </span>
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-1.5 sm:gap-2.5 group cursor-pointer select-none shrink-0">
+                    <img src="LexiReadIcon.png" alt="LexiRead" class="h-7 w-7 sm:h-8 sm:w-8 object-contain rounded-lg shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition" />
+                    <span class="font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-100 to-indigo-200 text-base sm:text-xl">
+                        Lexi<span class="text-indigo-400">Read</span>
+                    </span>
+                </a>
+                <span id="headerDocBadge" class="hidden text-xs max-w-[140px] sm:max-w-[220px] truncate text-slate-400 font-medium px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800/80"></span>
+            </div>
 
             <div class="flex items-center gap-1 sm:gap-2 shrink-0">
                 <!-- Dynamic Header Upload Button (Appears when reading a document on desktop) -->
@@ -38,6 +41,12 @@
                         class="hidden md:flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
                     <span>📁</span>
                     <span data-i18n="openDocument">Open Document</span>
+                </button>
+
+                <!-- Zen / Focus Reading Mode Toggle -->
+                <button id="zenModeBtn" data-i18n-title="zenModeTitle" title="Zen Mode / Focus Mode (Z)"
+                        class="flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs sm:text-sm text-slate-200 hover:bg-slate-700 hover:text-indigo-300 transition shadow-sm">
+                    <span>🧘</span>
                 </button>
 
                 <!-- Refined Saved-items manager -->
@@ -48,130 +57,112 @@
                     <span id="savedCount" class="rounded-full bg-indigo-500/30 px-1.5 py-0.2 text-[10px] tabular-nums font-mono text-indigo-300">0</span>
                 </button>
 
-                <!-- API Key Status and Setup -->
-                <button id="keyBtn"
-                        class="flex items-center gap-1 sm:gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-2 sm:px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700 transition shadow-sm">
-                    <span id="keyDot" class="h-2 w-2 rounded-full bg-amber-400"></span>
-                    <span class="hidden sm:inline" data-i18n="apiKey">API Key</span>
-                    <span class="sm:hidden text-xs">🔑</span>
-                </button>
-
-                <!-- UI Language Switcher (TR / EN) -->
-                <button id="appLangBtn" data-i18n-title="appLangBtnTitle" title="Dili Değiştir / Change Language (TR / EN)"
-                        class="flex items-center justify-center gap-1 px-2 h-7 sm:h-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs font-semibold text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm select-none">
-                    <span>🌐</span>
-                    <span id="appLangLabel">EN</span>
-                </button>
-
-                <!-- Theme Toggle Button (Light / Sepia / Dark) -->
-                <button id="themeToggleBtn" data-i18n-title="toggleThemeGeneral" title="Toggle Theme (Dark / Light / Sepia)"
+                <!-- Unified Settings Button -->
+                <button id="settingsBtn" data-i18n-title="settingsTitle" title="Settings &amp; Preferences"
                         class="flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs sm:text-sm text-slate-200 hover:bg-slate-700 hover:text-white transition shadow-sm">
-                    <span id="themeIcon">☀️</span>
+                    <span>⚙️</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- ============ FLOATING LEFT CONTROL WIDGET (Zoom & Navigator & Extras) ============ -->
-    <aside id="leftControlWidget" class="hidden fixed left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-2.5 p-2 rounded-2xl border border-slate-800/90 bg-slate-900/90 backdrop-blur-md shadow-2xl transition-all duration-200 select-none">
-        <!-- Zoom Controls -->
-        <div class="flex flex-col items-center gap-1.5">
-            <button id="zoomInBtn" data-i18n-title="zoomIn" title="Zoom In (+)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
-                +
-            </button>
+    <!-- Zen Mode Exit Floating Pill -->
+    <div id="zenExitBar" class="hidden fixed top-3 right-4 z-50 items-center gap-2 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 px-3 py-1.5 rounded-full shadow-2xl transition select-none">
+        <span class="text-xs font-semibold text-indigo-300">🧘 <span data-i18n="zenActive">Zen Mode</span></span>
+        <button id="zenExitBtn" data-i18n-title="exitZenTitle" title="Exit Zen Mode (Z / Esc)" class="text-slate-400 hover:text-white text-xs font-bold pl-1">✕</button>
+    </div>
 
-            <div class="h-24 flex items-center justify-center py-1">
-                <input id="zoomSlider" type="range" orient="vertical" min="70" max="180" value="100" step="5"
-                       class="zoom-slider-vertical h-20 w-1.5 accent-indigo-500 bg-slate-700 rounded-lg cursor-pointer appearance-none" />
-            </div>
+    <!-- ============ FLOATING LEFT CONTROL WIDGET (Sleek Island Dock) ============ -->
+    <aside id="leftControlWidget" class="hidden fixed left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 flex-col items-center gap-2 p-2 rounded-2xl border border-slate-800/90 bg-slate-900/85 backdrop-blur-xl shadow-2xl transition-all duration-200 select-none hover:shadow-indigo-500/10">
+        <!-- Zoom In -->
+        <button id="zoomInBtn" data-i18n-title="zoomIn" title="Zoom In (+)" class="w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-200 font-bold text-sm transition active:scale-95">
+            +
+        </button>
 
-            <button id="zoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out (−)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 font-bold text-sm transition">
-                −
-            </button>
+        <button id="zoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom (100%)" class="px-1 py-0.5 text-[10px] font-mono font-semibold text-slate-300 hover:text-indigo-300 transition">
+            <span id="zoomLabel">100%</span>
+        </button>
 
-            <button id="zoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom (100%)" class="text-[10px] font-mono font-medium text-slate-400 hover:text-indigo-300 transition mt-0.5">
-                <span id="zoomLabel">100%</span>
-            </button>
-        </div>
+        <!-- Zoom Out -->
+        <button id="zoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out (−)" class="w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-200 font-bold text-sm transition active:scale-95">
+            −
+        </button>
 
-        <!-- Translation Languages Switcher Button (Changes active translation pair anytime) -->
-        <button id="langChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 text-xs transition">
+        <div class="w-5 border-t border-slate-800 my-0.5"></div>
+
+        <!-- Translation Languages Switcher Button -->
+        <button id="langChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-200 text-xs transition active:scale-95">
             🌐
         </button>
 
-        <!-- Typography Customizer for TXT & DOCX -->
-        <button id="typographyBtn" data-i18n-title="typography" title="Typography &amp; Layout" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 font-serif text-xs font-bold transition">
+        <!-- Typography & Appearance -->
+        <button id="typographyBtn" data-i18n-title="typography" title="Typography &amp; Appearance" class="w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-200 font-serif text-xs font-bold transition active:scale-95">
             Aa
         </button>
 
-        <!-- PDF Table of Contents (Outline) Button -->
-        <button id="navOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-7 h-7 rounded-lg bg-slate-800 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 text-xs transition">
+        <!-- PDF Table of Contents Button -->
+        <button id="navOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-200 text-xs transition active:scale-95">
             📑
         </button>
 
         <!-- PDF Page Navigator (visible for PDF) -->
-        <div id="pdfNavSection" class="hidden flex-col items-center gap-1 pt-2 border-t border-slate-800 w-full">
-            <button id="navPrevPage" data-i18n-title="prevPage" title="Previous Page (K / ▲)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
+        <div id="pdfNavSection" class="hidden flex-col items-center gap-1 pt-1 border-t border-slate-800 w-full">
+            <button id="navPrevPage" data-i18n-title="prevPage" title="Previous Page (K / ▲)" class="w-8 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center transition disabled:opacity-30 active:scale-95">
                 ▲
             </button>
-            <div class="text-center font-mono text-[10px] text-slate-400 py-0.5">
-                <span id="navCurPage" class="text-indigo-400 font-semibold">1</span>/<span id="navTotalPages">1</span>
+            <div class="text-center font-mono text-[10px] text-slate-300 py-0.5">
+                <span id="navCurPage" class="text-indigo-400 font-bold">1</span>/<span id="navTotalPages">1</span>
             </div>
-            <button id="navNextPage" data-i18n-title="nextPage" title="Next Page (J / ▼)" class="w-7 h-6 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px] flex items-center justify-center transition disabled:opacity-30">
+            <button id="navNextPage" data-i18n-title="nextPage" title="Next Page (J / ▼)" class="w-8 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-[10px] flex items-center justify-center transition disabled:opacity-30 active:scale-95">
                 ▼
             </button>
         </div>
     </aside>
 
-    <!-- ============ MOBILE BOTTOM ACTION & READING BAR (Visible on screens < 768px when doc is open) ============ -->
-    <nav id="bottomMobileBar" class="hidden fixed bottom-0 left-0 right-0 z-50 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-2 py-1.5 select-none shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-transform duration-300">
-        <div class="max-w-md mx-auto flex items-center justify-between gap-1 text-xs">
+    <!-- ============ MOBILE BOTTOM ACTION & READING BAR ============ -->
+    <nav id="bottomMobileBar" class="hidden fixed bottom-0 left-0 right-0 z-50 md:hidden bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/90 px-3 py-2 select-none shadow-[0_-10px_30px_rgba(0,0,0,0.5)] transition-transform duration-300">
+        <div class="max-w-md mx-auto flex items-center justify-between gap-2 text-xs">
             
             <!-- Mobile PDF Page Navigator (visible for PDF) -->
-            <div id="mobilePdfNav" class="hidden items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-lg px-1 py-0.5 shadow-inner shrink-0">
-                <button id="mobileNavPrevPage" data-i18n-title="prevPage" title="Previous Page" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-[10px] transition active:scale-95 disabled:opacity-30">
+            <div id="mobilePdfNav" class="hidden items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner shrink-0">
+                <button id="mobileNavPrevPage" data-i18n-title="prevPage" title="Previous Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95 disabled:opacity-30">
                     ▲
                 </button>
-                <span class="font-mono text-[10px] px-1 text-slate-300">
+                <span class="font-mono text-[11px] px-1.5 text-slate-200">
                     <strong id="mobileNavCurPage" class="text-indigo-400">1</strong>/<span id="mobileNavTotalPages">1</span>
                 </span>
-                <button id="mobileNavNextPage" data-i18n-title="nextPage" title="Next Page" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-[10px] transition active:scale-95 disabled:opacity-30">
+                <button id="mobileNavNextPage" data-i18n-title="nextPage" title="Next Page" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95 disabled:opacity-30">
                     ▼
                 </button>
             </div>
 
             <!-- Mobile Zoom Controller -->
-            <div class="flex items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-lg px-1 py-0.5 shadow-inner shrink-0">
-                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
+            <div class="flex items-center gap-0.5 bg-slate-900/90 border border-slate-800 rounded-xl px-1.5 py-1 shadow-inner shrink-0">
+                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
                     −
                 </button>
-                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1 text-[10px] font-mono font-medium text-slate-300 hover:text-indigo-300 transition">
+                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1.5 text-[11px] font-mono font-semibold text-slate-200 hover:text-indigo-300 transition">
                     <span id="mobileZoomLabel">100%</span>
                 </button>
-                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-6 h-6 rounded bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
+                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-95">
                     +
                 </button>
             </div>
 
             <!-- Mobile Action Cluster -->
-            <div class="flex items-center gap-1 shrink-0">
+            <div class="flex items-center gap-1.5 shrink-0">
                 <!-- Mobile Translation Languages Button -->
-                <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
                     🌐
                 </button>
 
-                <!-- Mobile Typography (TXT/DOCX) -->
-                <button id="mobileTypographyBtn" data-i18n-title="typography" title="Typography & Layout" class="hidden w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center font-serif text-[11px] font-bold shadow-sm transition active:scale-95">
-                    Aa
-                </button>
-
-                <!-- Mobile PDF TOC / Chapters -->
-                <button id="mobileNavOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
-                    📑
+                <!-- Mobile More Actions Menu (Opens bottom action sheet) -->
+                <button id="mobileMoreBtn" data-i18n-title="moreMenuTitle" title="More Options" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-sm font-bold shadow-sm transition active:scale-95">
+                    ⋮
                 </button>
 
                 <!-- Mobile Document Upload Button -->
-                <button id="mobileDocUploadBtn" data-i18n-title="openDocument" title="Open Document" class="w-7 h-7 rounded-lg bg-indigo-950 border border-indigo-500/40 hover:bg-indigo-600 text-indigo-200 hover:text-white flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                <button id="mobileDocUploadBtn" data-i18n-title="openDocument" title="Open Document" class="w-8 h-8 rounded-xl bg-indigo-950 border border-indigo-500/40 hover:bg-indigo-600 text-indigo-200 hover:text-white flex items-center justify-center text-xs shadow-sm transition active:scale-95">
                     📁
                 </button>
             </div>
@@ -234,12 +225,15 @@
     <div id="toastHost" class="fixed top-20 right-4 z-[90] max-w-sm space-y-2"></div>
 
     <!-- ============ MODAL: API KEY ============ -->
-    <div id="keyModal" class="hidden fixed inset-0 z-[80] items-center justify-center p-4">
-        <div class="keyBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div id="keyModal" class="hidden fixed inset-0 z-[95] items-center justify-center p-4">
+        <div class="keyBack absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeKeyModal(event)"></div>
         <div class="modal-card relative w-[460px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
             <div class="mb-3 flex items-center justify-between">
                 <h2 class="text-base font-bold text-slate-100" data-i18n="apiKeyModalTitle">🔑 Translation API Key</h2>
-                <span id="activeProviderBadge" class="rounded bg-indigo-500/20 px-2 py-0.5 text-[11px] font-medium text-indigo-300">Active: Gemini</span>
+                <div class="flex items-center gap-2">
+                    <span id="activeProviderBadge" class="rounded bg-indigo-500/20 px-2 py-0.5 text-[11px] font-medium text-indigo-300">Active: Gemini</span>
+                    <button id="keyCloseBtn" type="button" onclick="closeKeyModal(event)" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
+                </div>
             </div>
             
             <!-- Tabs: Left Gemini, Right DeepL -->
@@ -276,8 +270,8 @@
             <div class="mt-4 flex items-center justify-between">
                 <span class="text-[11px] text-slate-500" data-i18n="keysCachedLocally">Keys are cached locally</span>
                 <div class="flex items-center gap-2">
-                    <button id="keyCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="closeBtn">Close</button>
-                    <button id="keySave" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-indigo-500" data-i18n="saveActivateBtn">Save &amp; Activate</button>
+                    <button id="keyCancel" type="button" onclick="closeKeyModal(event)" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer select-none active:scale-95" data-i18n="closeBtn">Close</button>
+                    <button id="keySave" type="button" onclick="saveKeyModal(event)" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20 transition cursor-pointer select-none active:scale-95" data-i18n="saveActivateBtn">Save &amp; Activate</button>
                 </div>
             </div>
         </div>
@@ -313,31 +307,24 @@
     <!-- ============ MODAL: PDF CROP & MARGIN SETUP ============ -->
     <div id="pdfCropModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-2 sm:p-4">
         <div class="cropBack absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="modal-card relative flex h-[90vh] max-h-[860px] w-[880px] max-w-full flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+        <div class="modal-card relative flex h-full sm:h-[90vh] max-h-[96vh] sm:max-h-[860px] w-[880px] max-w-full flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
             <!-- Header -->
-            <div class="border-b border-slate-800 px-5 py-3 flex items-center justify-between bg-slate-900/90 shrink-0">
+            <div class="border-b border-slate-800 px-4 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between bg-slate-900/95 shrink-0">
                 <div>
-                    <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-                        <span>✂️</span> <span data-i18n="pdfCropTitle">PDF Reading Area &amp; Margins</span>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-2">
+                        <span data-i18n="pdfCropTitle">✂️ PDF Reading Area &amp; Margins</span>
                     </h2>
-                    <p class="text-xs text-slate-400 mt-0.5" data-i18n="pdfCropDesc">
+                    <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5" data-i18n="pdfCropDesc">
                         Drag the top and bottom red exclusion lines directly on the page to exclude headers and footers.
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs">
-                        <button id="cropPrevPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">◀</button>
-                        <span id="cropPageIndicator" class="text-slate-200 font-mono text-xs">1 / 1</span>
-                        <button id="cropNextPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30">▶</button>
-                    </div>
-                    <button id="cropCloseBtn" class="rounded-lg p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition" data-i18n-title="cancelTitle" title="Cancel">✕</button>
-                </div>
+                <button id="cropCloseBtn" class="rounded-lg p-1.5 text-xs text-slate-400 hover:bg-slate-800 hover:text-white transition" data-i18n-title="cancelTitle" title="Cancel">✕</button>
             </div>
 
             <!-- Interactive Large Preview Area -->
-            <div id="cropPreviewOuter" class="relative flex-1 bg-slate-950 overflow-auto flex items-center justify-center p-4 select-none touch-none">
+            <div id="cropPreviewOuter" class="relative flex-1 bg-slate-950 overflow-hidden flex items-center justify-center p-2 sm:p-4 select-none touch-none">
                 <div id="cropPreviewContainer" class="relative shadow-2xl border border-slate-700/80 bg-white rounded overflow-hidden select-none touch-none">
-                    <canvas id="cropCanvas" class="block max-h-[62vh] w-auto pointer-events-none select-none"></canvas>
+                    <canvas id="cropCanvas" class="block w-full h-full pointer-events-none select-none"></canvas>
                     
                     <!-- Top Crop Overlay & Line Handle -->
                     <div id="cropTopOverlay" class="absolute top-0 left-0 right-0 bg-red-500/25 border-b-2 border-red-500 transition-none pointer-events-none flex items-end justify-center">
@@ -359,20 +346,22 @@
                 </div>
             </div>
 
-            <!-- Footer Bar -->
-            <div class="border-t border-slate-800 bg-slate-900 px-5 py-3.5 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-3 text-xs text-slate-400">
-                    <span data-i18n="cropTip">💡 <strong class="text-slate-300">Tip:</strong> Drag the red badges up and down over the preview</span>
+            <!-- Footer Bar with Page Navigator and Action Buttons -->
+            <div class="border-t border-slate-800 bg-slate-900 px-3 sm:px-5 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-xs select-none">
+                    <button id="cropPrevPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30 active:scale-95 font-bold">◀</button>
+                    <span id="cropPageIndicator" class="text-slate-200 font-mono text-xs">1 / 1</span>
+                    <button id="cropNextPage" class="px-2 py-0.5 rounded hover:bg-slate-700 text-slate-300 disabled:opacity-30 active:scale-95 font-bold">▶</button>
                 </div>
 
-                <div class="flex items-center gap-2.5">
-                    <button id="cropBackBtn" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white flex items-center gap-1.5 transition">
+                <div class="flex items-center gap-1.5 sm:gap-2.5">
+                    <button id="cropBackBtn" class="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white flex items-center gap-1 transition active:scale-95">
                         <span>◀</span> <span data-i18n="backBtn">Back</span>
                     </button>
-                    <button id="cropSkipBtn" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="noCropBtn">
+                    <button id="cropSkipBtn" class="rounded-lg border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white transition active:scale-95" data-i18n="noCropBtn">
                         No Crop (0%)
                     </button>
-                    <button id="cropConfirmBtn" class="rounded-md bg-indigo-600 px-5 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20" data-i18n="applyOpenBtn">
+                    <button id="cropConfirmBtn" class="rounded-lg bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20 transition active:scale-95" data-i18n="applyOpenBtn">
                         Apply &amp; Open Document
                     </button>
                 </div>
@@ -470,6 +459,81 @@
                         ⬇ Export JSON
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: UNIFIED SETTINGS & PREFERENCES ============ -->
+    <div id="settingsModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
+        <div class="settingsBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="modal-card relative w-[420px] max-w-full rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <span>⚙️</span> <span data-i18n="settingsTitle">Settings &amp; Preferences</span>
+                </h2>
+                <button id="settingsClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
+            </div>
+
+            <!-- Section: Theme -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="themeLabel">Theme</label>
+                <div class="grid grid-cols-3 gap-2 text-xs font-medium">
+                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="dark">
+                        <span>🌙</span> <span data-i18n="themeDark">Dark</span>
+                    </button>
+                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="light">
+                        <span>☀️</span> <span data-i18n="themeLight">Light</span>
+                    </button>
+                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="sepia">
+                        <span>📜</span> <span data-i18n="themeSepia">Sepia</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section: App Language -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="appLangLabel">Interface Language</label>
+                <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                    <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="tr">
+                        <span>🇹🇷</span> <span>Türkçe</span>
+                    </button>
+                    <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="en">
+                        <span>🇬🇧</span> <span>English</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section: Translation API Key -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                <div>
+                    <span class="block text-xs font-semibold text-slate-200" data-i18n="apiKeyModalTitle">🔑 Translation API Key</span>
+                    <span id="settingsKeyStatus" class="text-[11px] text-slate-400">Gemini (Active)</span>
+                </div>
+                <button id="settingsOpenKeyBtn" class="rounded-xl border border-indigo-500/40 bg-indigo-950/60 px-3 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/60 transition shadow-sm" data-i18n="configureBtn">
+                    Configure
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: MOBILE MORE ACTIONS SHEET ============ -->
+    <div id="mobileMoreSheet" class="hidden fixed inset-0 z-[85] items-end justify-center p-0 sm:p-4">
+        <div class="mobileMoreBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="modal-card relative w-full max-w-lg rounded-t-2xl sm:rounded-2xl border-t sm:border border-slate-700 bg-slate-900 p-4 shadow-2xl space-y-2 select-none">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="quickMenu">Quick Menu</span>
+                <button id="mobileMoreClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs font-medium pt-1">
+                <button id="moreTypoBtn" class="flex items-center justify-start gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700 text-slate-200 transition active:scale-95 text-left" data-i18n="typographyTitle">
+                    🔤 Appearance &amp; Layout
+                </button>
+                <button id="moreOutlineBtn" class="hidden flex items-center justify-start gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700 text-slate-200 transition active:scale-95 text-left" data-i18n="outlineTitle">
+                    📑 Table of Contents
+                </button>
+                <button id="moreZenBtn" class="flex items-center justify-start gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700 text-slate-200 transition active:scale-95 text-left" data-i18n="zenModeTitle">
+                    🧘 Zen Focus Mode
+                </button>
             </div>
         </div>
     </div>

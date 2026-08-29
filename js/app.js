@@ -148,7 +148,7 @@ function handleHierarchicalBack() {
         }
 
         // 2. If any other modal is open -> close it
-        const activeModals = [savedModal, keyModal, langModal, outlineModal, typographyModal];
+        const activeModals = [settingsModal, mobileMoreSheet, savedModal, keyModal, langModal, outlineModal, typographyModal];
         for (const m of activeModals) {
             if (m && !m.classList.contains('hidden')) {
                 if (m === langModal) pendingFile = null;
@@ -157,13 +157,19 @@ function handleHierarchicalBack() {
             }
         }
 
-        // 3. If translation tooltip is visible -> dismiss it
+        // 3. If Zen mode is active -> exit Zen mode
+        if (document.documentElement.classList.contains('zen-mode')) {
+            document.documentElement.classList.remove('zen-mode');
+            return true;
+        }
+
+        // 4. If translation tooltip is visible -> dismiss it
         if (typeof tooltip !== 'undefined' && tooltip && tooltip.classList.contains('visible')) {
             if (typeof hideTooltip === 'function') hideTooltip();
             return true;
         }
 
-        // 4. If a document is currently open in reader -> return to welcome/home screen
+        // 5. If a document is currently open in reader -> return to welcome/home screen
         if (typeof reader !== 'undefined' && reader && !reader.classList.contains('hidden')) {
             if (typeof showWelcomeState === 'function') {
                 showWelcomeState();
@@ -198,13 +204,19 @@ window.addEventListener('mouseup', e => {
     }
 });
 
-// 4. KEYBOARD SHORTCUTS (J / K / T / Escape)
+// 4. KEYBOARD SHORTCUTS (J / K / T / Z / Escape)
 document.addEventListener('keydown', e => {
     const activeTag = document.activeElement?.tagName?.toLowerCase();
     if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') return;
 
     if (e.key === 'Escape') {
         handleHierarchicalBack();
+        return;
+    }
+
+    if (e.key === 'z' || e.key === 'Z') {
+        e.preventDefault();
+        toggleZenMode();
         return;
     }
 
@@ -230,44 +242,105 @@ document.addEventListener('keydown', e => {
 
     if (e.key === 't' || e.key === 'T') {
         e.preventDefault();
-        themeToggleBtn.click();
+        const cur = localStorage.getItem(THEME_KEY) || 'dark';
+        const next = cur === 'dark' ? 'light' : (cur === 'light' ? 'sepia' : 'dark');
+        applyTheme(next);
+        updateSettingsModalUI();
         return;
     }
 });
 
-// 4. THEME CONTROLLER (3-Way Theme Cycle: Dark / Light / Sepia)
+// 5. THEME CONTROLLER (3-Way Theme Cycle: Dark / Light / Sepia)
 function applyTheme(theme) {
     document.documentElement.classList.remove('dark', 'light', 'sepia');
     document.documentElement.classList.add(theme);
-    if (theme === 'light') {
-        themeIcon.textContent = '📜';
-        themeToggleBtn.title = t('toggleThemeSepia');
-    } else if (theme === 'sepia') {
-        themeIcon.textContent = '🌙';
-        themeToggleBtn.title = t('toggleThemeDark');
-    } else {
-        themeIcon.textContent = '☀️';
-        themeToggleBtn.title = t('toggleThemeLight');
-    }
     localStorage.setItem(THEME_KEY, theme);
 }
 
 const initialTheme = localStorage.getItem(THEME_KEY) || 'dark';
 applyTheme(initialTheme);
 
-if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-        const cur = localStorage.getItem(THEME_KEY) || 'dark';
-        const next = cur === 'dark' ? 'light' : (cur === 'light' ? 'sepia' : 'dark');
-        applyTheme(next);
+// 6. UNIFIED SETTINGS CONTROLLER
+function updateSettingsModalUI() {
+    const curTheme = localStorage.getItem(THEME_KEY) || 'dark';
+    const curLang = getAppLanguage();
+    const curProvider = getProvider();
+    const hasKey = !!getKey();
+
+    document.querySelectorAll('.theme-choice-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === curTheme);
+    });
+
+    document.querySelectorAll('.app-lang-choice-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === curLang);
+    });
+
+    if (settingsKeyStatus) {
+        settingsKeyStatus.textContent = `${curProvider === 'deepl' ? 'DeepL' : 'Gemini'} (${hasKey ? 'Active' : 'Not Set'})`;
+        settingsKeyStatus.className = `text-[11px] ${hasKey ? 'text-emerald-400' : 'text-amber-400'}`;
+    }
+}
+
+function openSettingsModal() {
+    updateSettingsModalUI();
+    openModal(settingsModal);
+}
+
+if (settingsBtn) {
+    settingsBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        openSettingsModal();
+    });
+}
+if (settingsClose) {
+    settingsClose.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal(settingsModal);
+    });
+}
+if (settingsModal) {
+    const back = settingsModal.querySelector('.settingsBack');
+    if (back) {
+        back.addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal(settingsModal);
+        });
+    }
+}
+
+document.querySelectorAll('.theme-choice-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        applyTheme(btn.dataset.theme);
+        updateSettingsModalUI();
+    });
+});
+
+document.querySelectorAll('.app-lang-choice-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        setAppLanguage(btn.dataset.lang);
+        updateSettingsModalUI();
+    });
+});
+
+if (settingsOpenKeyBtn) {
+    settingsOpenKeyBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal(settingsModal);
+        setTab(getProvider());
+        openModal(keyModal);
+        setTimeout(() => keyInput.focus(), 60);
     });
 }
 
-// 5. APPLICATION STARTUP & INITIAL LOCALIZATION
-if (appLangToggleBtn) {
-    appLangToggleBtn.addEventListener('click', toggleAppLanguage);
-}
-
+// 7. APPLICATION STARTUP & INITIAL LOCALIZATION
 applyLocalization();
 updateKeyUI();
 persistSaved(loadSaved());

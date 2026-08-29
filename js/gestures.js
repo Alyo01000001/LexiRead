@@ -72,48 +72,72 @@ const touchState = {
     startY: 0,
     startTime: 0,
     targetWord: null,
-    isLongPress: false,
     isScrolling: false,
-    timer: null
+    isDoubleTap: false,
+    hasDragged: false,
+    lastTapTime: 0,
+    lastTapWord: null,
+    lastTapX: 0,
+    lastTapY: 0
 };
 
 reader.addEventListener('touchstart', e => {
     if (e.touches.length > 1) {
-        if (touchState.timer) clearTimeout(touchState.timer);
-        touchState.isLongPress = false;
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
         touchState.isScrolling = false;
         resetDrag();
         return;
     }
     const t = e.touches[0];
     const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
-    if (!span) return;
+    if (!span) {
+        touchState.targetWord = null;
+        touchState.isDoubleTap = false;
+        return;
+    }
 
-    touchState.startX = t.clientX;
-    touchState.startY = t.clientY;
-    touchState.startTime = Date.now();
-    touchState.targetWord = span;
-    touchState.isLongPress = false;
-    touchState.isScrolling = false;
+    const now = Date.now();
+    const dt = now - touchState.lastTapTime;
+    const dx = Math.abs(t.clientX - touchState.lastTapX);
+    const dy = Math.abs(t.clientY - touchState.lastTapY);
 
-    if (touchState.timer) clearTimeout(touchState.timer);
-    touchState.timer = setTimeout(() => {
-        // 300ms held without moving -> activate phrase drag selection
-        touchState.isLongPress = true;
+    // Double tap detected: tapped within 350ms, <20px distance, on the same or adjacent word
+    if (dt < 350 && dx < 20 && dy < 20 && touchState.lastTapWord) {
+        touchState.isDoubleTap = true;
+        touchState.hasDragged = false;
+        touchState.startX = t.clientX;
+        touchState.startY = t.clientY;
+        touchState.startTime = now;
+        touchState.targetWord = span;
+        touchState.isScrolling = false;
+        // Prepare drag selection in case user continues to drag!
         drag.active = true;
         drag.pointer = 'touch';
         drag.anchor = span;
         drag.current = span;
         drag.moved = false;
         previousActiveEl = activeEls[0] || null;
-        reader.classList.add('is-dragging');
         clearActive();
         clearSelected();
         highlightRange(span);
         if (navigator.vibrate) {
-            try { navigator.vibrate(25); } catch (_) {}
+            try { navigator.vibrate(15); } catch (_) {}
         }
-    }, 300);
+    } else {
+        // First tap: record location & time for potential double tap
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
+        touchState.startX = t.clientX;
+        touchState.startY = t.clientY;
+        touchState.startTime = now;
+        touchState.targetWord = span;
+        touchState.isScrolling = false;
+        touchState.lastTapTime = now;
+        touchState.lastTapWord = span;
+        touchState.lastTapX = t.clientX;
+        touchState.lastTapY = t.clientY;
+    }
 }, { passive: true });
 
 reader.addEventListener('touchmove', e => {
@@ -122,63 +146,77 @@ reader.addEventListener('touchmove', e => {
     const dy = t.clientY - touchState.startY;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (!touchState.isLongPress) {
-        // If moved more than 8px before long-press fires, user is naturally scrolling the page!
+    if (!touchState.isDoubleTap) {
+        // If not double tapping, any movement > 8px is natural native page scroll!
         if (dist > 8) {
-            if (touchState.timer) clearTimeout(touchState.timer);
             touchState.isScrolling = true;
+            touchState.lastTapWord = null; // moving cancels double-tap sequence
         }
-        return; // Do NOT preventDefault -> native buttery smooth scroll!
+        return; // Do NOT preventDefault -> silky smooth native scroll
     }
 
-    // Long-press was active: user is now dragging to select a multi-word phrase!
-    e.preventDefault();
-    const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
-    if (span && span !== drag.current) {
-        highlightRange(span);
+    // Double-tap was triggered: user is now dragging to select multi-word phrase!
+    if (dist > 6) {
+        touchState.hasDragged = true;
+        e.preventDefault();
+        reader.classList.add('is-dragging');
+        const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
+        if (span && span !== drag.current) {
+            highlightRange(span);
+        }
     }
 }, { passive: false });
 
 reader.addEventListener('touchend', e => {
-    if (touchState.timer) clearTimeout(touchState.timer);
-
-    // 1. Long-press phrase selection was active
-    if (touchState.isLongPress && drag.active) {
+    // 1. Double-tap phrase drag selection occurred
+    if (touchState.isDoubleTap && touchState.hasDragged && drag.active) {
         e.preventDefault();
         finalizeGesture();
-        touchState.isLongPress = false;
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
         touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
         return;
     }
 
-    // 2. Normal scroll occurred -> do nothing, page scrolls smoothly
+    // 2. Double-tap single word translation (quick double tap without drag)
+    if (touchState.isDoubleTap && !touchState.hasDragged) {
+        e.preventDefault();
+        const span = touchState.targetWord || touchState.lastTapWord;
+        touchState.isDoubleTap = false;
+        touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
+        if (span) {
+            const text = stripPunctuation(span.textContent);
+            if (!text) return;
+            clearActive();
+            clearSelected();
+            span.classList.add('active');
+            activeEls = [span];
+            const rect = span.getBoundingClientRect();
+            lastAnchor = { first: span, last: span };
+            showWordTooltip(text, rect, span);
+        }
+        return;
+    }
+
+    // 3. Single tap or normal scroll -> do nothing to translation! Let page scroll freely.
     if (touchState.isScrolling) {
         touchState.isScrolling = false;
         touchState.targetWord = null;
+        touchState.lastTapWord = null;
         return;
-    }
-
-    // 3. Short tap on a word (<300ms, moved <8px) -> Instant Single-Word Translation!
-    const span = touchState.targetWord;
-    touchState.targetWord = null;
-    if (span) {
-        const text = stripPunctuation(span.textContent);
-        if (!text) return;
-        clearActive();
-        clearSelected();
-        span.classList.add('active');
-        activeEls = [span];
-        const rect = span.getBoundingClientRect();
-        lastAnchor = { first: span, last: span };
-        showWordTooltip(text, rect, span);
     }
 }, { passive: false });
 
 window.addEventListener('touchcancel', () => {
-    if (touchState.timer) clearTimeout(touchState.timer);
-    touchState.isLongPress = false;
+    touchState.isDoubleTap = false;
+    touchState.hasDragged = false;
     touchState.isScrolling = false;
     touchState.targetWord = null;
+    touchState.lastTapWord = null;
     resetDrag();
     clearSelected();
 });
@@ -399,14 +437,14 @@ tooltipSave.addEventListener('mousedown', e => e.stopPropagation());
 document.addEventListener('mousedown', e => {
     if (tooltip.contains(e.target)) return;
     if (reader.contains(e.target))  return;
-    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target)) return;
+    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target) || settingsModal?.contains(e.target) || mobileMoreSheet?.contains(e.target)) return;
     hideTooltip();
 });
 document.addEventListener('touchstart', e => {
     if (tooltip.contains(e.target)) return;
     if (reader.contains(e.target))  return;
     if (bottomMobileBar?.contains(e.target)) return;
-    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target)) return;
+    if (keyModal?.contains(e.target) || langModal?.contains(e.target) || savedModal?.contains(e.target) || outlineModal?.contains(e.target) || typographyModal?.contains(e.target) || pdfCropModal?.contains(e.target) || settingsModal?.contains(e.target) || mobileMoreSheet?.contains(e.target)) return;
     hideTooltip();
 }, { passive: true });
 

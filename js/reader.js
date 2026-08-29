@@ -123,13 +123,15 @@ function showWelcomeState() {
     }
     welcomeState.classList.remove('hidden');
     dropZone.classList.remove('hidden');
+    if (headerDocBadge) headerDocBadge.classList.add('hidden');
+    document.documentElement.classList.remove('zen-mode');
     headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex', 'md:flex');
     leftControlWidget.classList.add('hidden'); leftControlWidget.classList.remove('flex');
     pdfNavSection.classList.add('hidden'); pdfNavSection.classList.remove('flex');
     navOutlineBtn.classList.add('hidden'); navOutlineBtn.classList.remove('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.add('hidden'); bottomMobileBar.classList.remove('flex'); }
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
-    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
+    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
     hideTooltip();
 }
@@ -138,6 +140,12 @@ function showReaderState(mode = 'txt') {
     welcomeState.classList.add('hidden');
     dropZone.classList.add('hidden');
     
+    // Update header document badge
+    if (headerDocBadge && currentDocKey) {
+        headerDocBadge.textContent = '📄 ' + currentDocKey.split('_')[0];
+        headerDocBadge.classList.remove('hidden');
+    }
+
     // Only show headerUploadBtn on desktop (>=768px)
     if (window.innerWidth >= 768) {
         headerUploadBtn.classList.remove('hidden');
@@ -157,10 +165,6 @@ function showReaderState(mode = 'txt') {
     // Always show typography & appearance button in reader mode
     typographyBtn.classList.remove('hidden');
     typographyBtn.classList.add('flex');
-    if (mobileTypographyBtn) {
-        mobileTypographyBtn.classList.remove('hidden');
-        mobileTypographyBtn.classList.add('flex');
-    }
 
     const docSettings = $('typographyDocSettings');
     if (docSettings) {
@@ -176,7 +180,7 @@ function renderTxt(parsed) {
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
-    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
+    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
     wordSpans = []; wordIndex = new Map();
     reader.className = 'reader-text txt-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
@@ -198,9 +202,9 @@ function renderDocx(parsed) {
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
-    if (mobileNavOutlineBtn) { mobileNavOutlineBtn.classList.add('hidden'); mobileNavOutlineBtn.classList.remove('flex'); }
+    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
     wordSpans = []; wordIndex = new Map();
-    reader.className = 'docx-mode px-4 py-6 sm:px-10 sm:py-10';
+    reader.className = 'reader-text docx-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
     const host = document.createElement('div');
     host.innerHTML = parsed.html;
@@ -293,23 +297,16 @@ async function renderPdf(parsed) {
     if (parsed.outline && parsed.outline.length) {
         navOutlineBtn.classList.remove('hidden');
         navOutlineBtn.classList.add('flex');
-        if (mobileNavOutlineBtn) {
-            mobileNavOutlineBtn.classList.remove('hidden');
-            mobileNavOutlineBtn.classList.add('flex');
-        }
+        if (moreOutlineBtn) moreOutlineBtn.classList.remove('hidden');
         const openOutline = () => {
             renderOutlineModal(parsed.outline, parsed.pdf);
             openModal(outlineModal);
         };
         navOutlineBtn.onclick = openOutline;
-        if (mobileNavOutlineBtn) mobileNavOutlineBtn.onclick = openOutline;
     } else {
         navOutlineBtn.classList.add('hidden');
         navOutlineBtn.classList.remove('flex');
-        if (mobileNavOutlineBtn) {
-            mobileNavOutlineBtn.classList.add('hidden');
-            mobileNavOutlineBtn.classList.remove('flex');
-        }
+        if (moreOutlineBtn) moreOutlineBtn.classList.add('hidden');
     }
 
     finishRender();
@@ -449,18 +446,24 @@ if (outlineModal) {
 function applyTypography(font, lh) {
     if (font) {
         document.documentElement.style.setProperty('--reader-font', font);
+        if (reader) reader.style.setProperty('--reader-font', font);
         localStorage.setItem(TYPO_FONT_KEY, font);
+        document.querySelectorAll('.font-choice-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.font === font);
+        });
     }
     if (lh) {
         if (reader) reader.style.lineHeight = lh;
         localStorage.setItem(TYPO_LH_KEY, lh);
+        document.querySelectorAll('.spacing-choice-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.lh === lh);
+        });
     }
 }
 
-const savedFont = localStorage.getItem(TYPO_FONT_KEY);
-const savedLh = localStorage.getItem(TYPO_LH_KEY);
-if (savedFont) document.documentElement.style.setProperty('--reader-font', savedFont);
-if (savedLh && reader) reader.style.lineHeight = savedLh;
+const savedFont = localStorage.getItem(TYPO_FONT_KEY) || "Georgia, 'Iowan Old Style', serif";
+const savedLh = localStorage.getItem(TYPO_LH_KEY) || "1.95";
+applyTypography(savedFont, savedLh);
 
 const GUI_SCALE_KEY = 'lexiread_gui_scale';
 function applyGuiScale(scale, notify = false) {
@@ -495,7 +498,6 @@ document.querySelectorAll('.font-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const f = btn.dataset.font;
         applyTypography(f, null);
-        document.querySelectorAll('.font-choice-btn').forEach(b => b.classList.toggle('active', b === btn));
         showToast(t('fontUpdatedToast', { font: btn.textContent }), 'info', 1600);
     });
 });
@@ -503,7 +505,6 @@ document.querySelectorAll('.spacing-choice-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const lh = btn.dataset.lh;
         applyTypography(null, lh);
-        document.querySelectorAll('.spacing-choice-btn').forEach(b => b.classList.toggle('active', b === btn));
         showToast(t('spacingUpdatedToast', { spacing: btn.textContent }), 'info', 1600);
     });
 });
@@ -512,8 +513,8 @@ document.querySelectorAll('.spacing-choice-btn').forEach(btn => {
 function setZoom(val) {
     const clamped = Math.max(70, Math.min(180, val));
     currentZoomRatio = clamped / 100;
-    zoomSlider.value = clamped;
-    zoomLabel.textContent = clamped + '%';
+    if (zoomSlider) zoomSlider.value = clamped;
+    if (zoomLabel) zoomLabel.textContent = clamped + '%';
     if (mobileZoomLabel) mobileZoomLabel.textContent = clamped + '%';
     applyCurrentZoom();
 }
@@ -550,47 +551,34 @@ function applyCurrentZoom() {
             }
         }
 
-        if (!anchorPage) {
-            for (const p of pages) {
-                const rect = p.getBoundingClientRect();
-                if (rect.bottom > 0) {
-                    anchorPage = p;
-                    anchorOffsetRatio = Math.max(0, Math.min(1, -rect.top / (rect.height || 1)));
-                    break;
+        // 2. Adjust rendered widths & heights
+        pages.forEach(p => {
+            const baseW = Number(p.dataset.baseWidth);
+            const baseH = Number(p.dataset.baseHeight);
+            const baseScale = Number(p.dataset.baseScale);
+            if (baseW && baseH) {
+                const targetW = `${baseW * currentZoomRatio}px`;
+                const targetH = `${baseH * currentZoomRatio}px`;
+                p.style.width = targetW;
+                p.style.height = targetH;
+                const canvas = p.querySelector('canvas');
+                if (canvas) {
+                    canvas.style.width = targetW;
+                    canvas.style.height = targetH;
                 }
-            }
-        }
-
-        // 2. Resize all pages to new zoom level
-        pages.forEach(pageWrap => {
-            const baseW = Number(pageWrap.dataset.baseWidth);
-            const baseH = Number(pageWrap.dataset.baseHeight);
-            const baseScale = Number(pageWrap.dataset.baseScale);
-
-            const targetW = baseW * currentZoomRatio;
-            const targetH = baseH * currentZoomRatio;
-
-            pageWrap.style.width = targetW + 'px';
-            pageWrap.style.height = targetH + 'px';
-
-            const canvas = pageWrap.querySelector('canvas');
-            if (canvas) {
-                canvas.style.width = targetW + 'px';
-                canvas.style.height = targetH + 'px';
-            }
-
-            const textLayer = pageWrap.querySelector('.textLayer');
-            if (textLayer) {
-                textLayer.style.setProperty('--scale-factor', String(baseScale * currentZoomRatio));
+                const textLayer = p.querySelector('.textLayer');
+                if (textLayer && baseScale) {
+                    textLayer.style.setProperty('--scale-factor', String(baseScale * currentZoomRatio));
+                }
             }
         });
 
-        // 3. Immediately lock scroll position to the exact anchor point (zero drift)
+        // 3. Restore exact reading position relative to anchor
         if (anchorPage) {
-            const newPageRect = anchorPage.getBoundingClientRect();
-            const newPageAbsTop = window.scrollY + newPageRect.top;
-            const desiredScrollTop = newPageAbsTop + (newPageRect.height * anchorOffsetRatio) - viewportTargetY;
-            window.scrollTo({ top: Math.max(0, desiredScrollTop), behavior: 'instant' });
+            const newAnchorRect = anchorPage.getBoundingClientRect();
+            const newAnchorAbsTop = window.scrollY + newAnchorRect.top;
+            const targetScrollTop = newAnchorAbsTop + (newAnchorRect.height * anchorOffsetRatio) - viewportTargetY;
+            window.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'instant' });
         }
     }
 }
@@ -605,9 +593,10 @@ function attachTap(el, handler) {
 }
 
 if (zoomSlider) zoomSlider.addEventListener('input', () => setZoom(Number(zoomSlider.value)));
-if (zoomInBtn) zoomInBtn.addEventListener('click', () => setZoom(Math.round(currentZoomRatio * 100) + 10));
-if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => setZoom(Math.round(currentZoomRatio * 100) - 10));
-if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => setZoom(100));
+
+attachTap(zoomInBtn, () => setZoom(Math.round(currentZoomRatio * 100) + 10));
+attachTap(zoomOutBtn, () => setZoom(Math.round(currentZoomRatio * 100) - 10));
+attachTap(zoomResetBtn, () => setZoom(100));
 
 attachTap(mobileZoomInBtn, () => setZoom(Math.round(currentZoomRatio * 100) + 10));
 attachTap(mobileZoomOutBtn, () => setZoom(Math.round(currentZoomRatio * 100) - 10));
@@ -661,13 +650,50 @@ attachTap(mobileLangChangeBtn, () => {
     openModal(langModal);
 });
 
-attachTap(mobileTypographyBtn, () => {
+// Mobile More Actions Sheet Handlers
+attachTap(mobileMoreBtn, () => {
+    openModal(mobileMoreSheet);
+});
+attachTap(mobileMoreClose, () => {
+    closeModal(mobileMoreSheet);
+});
+if (mobileMoreSheet) {
+    const back = mobileMoreSheet.querySelector('.mobileMoreBack');
+    if (back) back.addEventListener('click', () => closeModal(mobileMoreSheet));
+}
+attachTap(moreTypoBtn, () => {
+    closeModal(mobileMoreSheet);
     openModal(typographyModal);
+});
+attachTap(moreOutlineBtn, () => {
+    closeModal(mobileMoreSheet);
+    if (currentParsedDoc?.outline) {
+        renderOutlineModal(currentParsedDoc.outline, currentParsedDoc.pdf);
+        openModal(outlineModal);
+    }
+});
+attachTap(moreZenBtn, () => {
+    closeModal(mobileMoreSheet);
+    toggleZenMode();
 });
 
 attachTap(mobileDocUploadBtn, () => {
     fileInput.click();
 });
+
+// Zen Focus Reading Mode
+function toggleZenMode() {
+    setZenMode(!document.documentElement.classList.contains('zen-mode'));
+}
+function setZenMode(active) {
+    document.documentElement.classList.toggle('zen-mode', active);
+    if (active) {
+        showToast(t('zenActive'), 'info', 1400);
+    }
+}
+
+if (zenModeBtn) zenModeBtn.addEventListener('click', toggleZenMode);
+if (zenExitBtn) zenExitBtn.addEventListener('click', () => setZenMode(false));
 
 let lastScrollY = window.scrollY;
 let scrollTicking = false;

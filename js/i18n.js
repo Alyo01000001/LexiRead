@@ -134,6 +134,7 @@ const I18N = {
         guiScale115: "Large (115%)",
         guiScale130: "Extra Large (130%)",
         guiScaleUpdatedToast: "Interface scale: {scale}%",
+        guiScaleSubtitle: "GUI Scale, Fonts & Spacing",
         fontFamilyLabel: "Font Family (TXT / DOCX)",
         fontSerif: "Serif (Georgia)",
         fontSans: "Sans (Modern)",
@@ -145,6 +146,22 @@ const I18N = {
         spacingRelaxed: "Relaxed",
         fontUpdatedToast: "Font updated: {font}",
         spacingUpdatedToast: "Line spacing: {spacing}",
+
+        // Settings & Quick Menu
+        settingsTitle: "⚙️ Settings & Preferences",
+        themeLabel: "Theme",
+        themeDark: "Dark",
+        themeLight: "Light",
+        themeSepia: "Sepia",
+        appLangLabel: "Interface Language",
+        configureBtn: "Configure",
+        customizeBtn: "Customize",
+        quickMenu: "Quick Menu",
+        zenMode: "Zen Focus Mode",
+        zenModeTitle: "Zen Focus Mode (Z)",
+        zenActive: "Zen Mode Active",
+        exitZenTitle: "Exit Zen Mode (Z / Esc)",
+        moreMenuTitle: "More Options",
 
         // Saved Words Modal
         savedModalTitle: "🔖 Saved Words & Phrases",
@@ -306,6 +323,7 @@ const I18N = {
         guiScale115: "Büyük (%115)",
         guiScale130: "Ekstra Büyük (%130)",
         guiScaleUpdatedToast: "Arayüz boyutu: %{scale}",
+        guiScaleSubtitle: "Arayüz Boyutu, Yazı Tipi & Boşluklar",
         fontFamilyLabel: "Yazı Tipi Ailesi (TXT / DOCX)",
         fontSerif: "Serif (Georgia)",
         fontSans: "Sans (Modern)",
@@ -317,6 +335,22 @@ const I18N = {
         spacingRelaxed: "Geniş",
         fontUpdatedToast: "Yazı tipi güncellendi: {font}",
         spacingUpdatedToast: "Satır aralığı: {spacing}",
+
+        // Settings & Quick Menu
+        settingsTitle: "⚙️ Ayarlar & Tercihler",
+        themeLabel: "Tema",
+        themeDark: "Karanlık",
+        themeLight: "Aydınlık",
+        themeSepia: "Sepya",
+        appLangLabel: "Arayüz Dili",
+        configureBtn: "Yapılandır",
+        customizeBtn: "Özelleştir",
+        quickMenu: "Hızlı Menü",
+        zenMode: "Zen Odak Modu",
+        zenModeTitle: "Zen Odak Modu (Z)",
+        zenActive: "Zen Modu Aktif",
+        exitZenTitle: "Zen Modundan Çık (Z / Esc)",
+        moreMenuTitle: "Daha Fazla Seçenek",
 
         // Saved Words Modal
         savedModalTitle: "🔖 Kayıtlı Kelimeler & İfadeler",
@@ -372,6 +406,10 @@ function getLocalizedLangName(code) {
     const key = `lang_${code}`;
     const dict = I18N[currentAppLang] || I18N.en;
     return dict[key] || I18N.en[key] || code;
+}
+
+function getAppLanguage() {
+    return currentAppLang || 'en';
 }
 
 function setAppLanguage(lang) {

@@ -162,24 +162,36 @@ header.header-hidden {
     cursor: default !important;
 }
 
-/* ---------- DOCX ---------- */
-#reader.docx-mode {
-    color: #e2e8f0;
-    line-height: 1.8;
-    font-size: 1.05rem;
+/* ---------- DOCX & TXT TYPOGRAPHY ---------- */
+.reader-text,
+#reader.docx-mode,
+#reader.txt-mode {
+    font-family: var(--reader-font) !important;
+    font-size: 1.15rem;
+    line-height: 1.95;
+    letter-spacing: .01em;
+    color: #e6ecf5;
 }
+
+#reader.docx-mode *,
+#reader.txt-mode * {
+    font-family: var(--reader-font) !important;
+}
+
+/* Specific DOCX HTML tag styling */
 #reader.docx-mode h1, #reader.docx-mode h2, #reader.docx-mode h3, #reader.docx-mode h4 {
     color: #f8fafc;
     font-weight: 700;
     margin: 1.6em 0 .6em;
     line-height: 1.3;
+    font-family: var(--reader-font) !important;
 }
 #reader.docx-mode h1 { font-size: 1.8rem; }
 #reader.docx-mode h2 { font-size: 1.5rem; }
 #reader.docx-mode h3 { font-size: 1.25rem; }
-#reader.docx-mode p  { margin: 0 0 1em; }
+#reader.docx-mode p  { margin: 0 0 1em; line-height: inherit; }
 #reader.docx-mode ul, #reader.docx-mode ol { margin: 0 0 1em 1.4em; }
-#reader.docx-mode li { margin-bottom: .35em; }
+#reader.docx-mode li { margin-bottom: .35em; line-height: inherit; }
 #reader.docx-mode strong { color: #f1f5f9; }
 #reader.docx-mode em     { color: #cbd5e1; }
 #reader.docx-mode a      { color: #818cf8; text-decoration: underline; }
@@ -187,15 +199,7 @@ header.header-hidden {
 #reader.docx-mode th, #reader.docx-mode td { border: 1px solid #334155; padding: .4em .6em; }
 #reader.docx-mode blockquote { border-left: 3px solid #475569; padding-left: 1em; color: #94a3b8; margin: 1em 0; }
 
-/* ---------- TXT ---------- */
 #reader.txt-mode { display: block; }
-.reader-text {
-    font-family: var(--reader-font);
-    font-size: 1.2rem;
-    line-height: 1.95;
-    letter-spacing: .01em;
-    color: #e6ecf5;
-}
 
 html, body {
     overflow-x: hidden;
@@ -513,9 +517,59 @@ html.sepia #keyModal .modal-card,
 html.sepia #langModal .modal-card,
 html.sepia #pdfCropModal .modal-card,
 html.sepia #outlineModal .modal-card,
-html.sepia #typographyModal .modal-card {
+html.sepia #typographyModal .modal-card,
+html.sepia #settingsModal .modal-card,
+html.sepia #mobileMoreSheet .modal-card {
     background-color: #2a221b;
     border-color: #45372d;
+}
+
+/* Modals Stacking Context & Pointer Hit-testing */
+.modal-card {
+    position: relative;
+    z-index: 50 !important;
+    pointer-events: auto !important;
+}
+.keyBack, .langBack, .settingsBack, .savedBack, .outlineBack, .typographyBack, .cropBack, .mobileMoreBack {
+    position: absolute;
+    inset: 0;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+}
+
+/* ---------- ZEN / FOCUS READING MODE ---------- */
+html.zen-mode header,
+html.zen-mode #leftControlWidget,
+html.zen-mode #bottomMobileBar {
+    display: none !important;
+}
+html.zen-mode body {
+    padding-top: 0 !important;
+}
+html.zen-mode #zenExitBar {
+    display: flex !important;
+}
+
+/* Choice button active state styling */
+.theme-choice-btn.active,
+.app-lang-choice-btn.active {
+    border-color: #6366f1 !important;
+    background-color: rgba(99, 102, 241, 0.25) !important;
+    color: #ffffff !important;
+}
+
+html.sepia .theme-choice-btn.active,
+html.sepia .app-lang-choice-btn.active {
+    border-color: #d97706 !important;
+    background-color: rgba(217, 119, 6, 0.3) !important;
+    color: #fbf4eb !important;
+}
+
+html.light .theme-choice-btn.active,
+html.light .app-lang-choice-btn.active {
+    border-color: #4f46e5 !important;
+    background-color: #e0e7ff !important;
+    color: #3730a3 !important;
 }
 html.sepia .border-slate-800,
 html.sepia .border-slate-700 {
@@ -568,6 +622,8 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
         right: 0 !important;
         margin: 0 !important;
         max-height: 88vh !important;
+        z-index: 100 !important;
+        pointer-events: auto !important;
         animation: mobileSheetIn 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
 
@@ -577,8 +633,23 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
     }
 
     #pdfCropModal .modal-card {
-        height: 94vh !important;
-        max-height: 94vh !important;
+        height: 96vh !important;
+        max-height: 96vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    #pdfCropModal #cropPreviewOuter {
+        padding: 0.5rem !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    #pdfCropModal #cropCanvas {
+        display: block !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
     }
 
     /* Mobile Bottom Translation Sheet Card */
