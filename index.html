@@ -151,6 +151,11 @@
 
             <!-- Mobile Action Cluster -->
             <div class="flex items-center gap-1.5 shrink-0">
+                <!-- Mobile Return to Library Button -->
+                <button id="mobileLibraryBtn" data-i18n-title="libraryNavBtn" title="Library" class="w-8 h-8 rounded-xl bg-indigo-950/80 border border-indigo-500/40 hover:bg-indigo-600 hover:text-white text-indigo-300 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
+                    📚
+                </button>
+
                 <!-- Mobile Translation Languages Button -->
                 <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-95">
                     🌐
@@ -172,32 +177,69 @@
     <!-- ================= MAIN ================= -->
     <main class="max-w-5xl mx-auto px-3 sm:px-4 py-6">
 
-        <!-- The dropzone is the initial upload trigger (click or drag & drop). -->
-        <div id="dropZone" role="button" tabindex="0"
-             class="mb-6 cursor-pointer rounded-xl border-2 border-dashed border-slate-700 p-8 text-center text-slate-400 transition hover:border-indigo-500 hover:text-indigo-300 sm:p-10">
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/10 text-2xl text-indigo-400">
-                📁
+        <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
+
+        <!-- Library Shelf Section (Appears when documents are saved in IndexedDB) -->
+        <section id="librarySection" class="hidden mb-8">
+            <div class="flex items-center justify-between mb-4 px-1">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                        <span>📚</span> <span data-i18n="myLibrary">My Library</span>
+                    </h2>
+                    <span id="libraryCountBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono font-medium">0</span>
+                </div>
+                <!-- Sleek Header Upload Button (Replaces ugly dashed box on desktop) -->
+                <button id="libraryUploadBtn" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/20 transition active:scale-95 cursor-pointer">
+                    <span>➕</span> <span data-i18n="openNewDocument">Open Document</span>
+                </button>
             </div>
-            <p class="text-lg font-medium mb-1 text-slate-200" data-i18n="dropTitle">Drop a document here, or tap to choose a file</p>
-            <p class="text-sm text-slate-400" data-i18n="dropSubtitle">Supports <code class="text-indigo-400 font-mono">.pdf</code>, <code class="text-indigo-400 font-mono">.txt</code>, <code class="text-indigo-400 font-mono">.docx</code> documents</p>
-            <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
+            <div id="libraryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <!-- Dynamically populated by renderLibrary() -->
+            </div>
+        </section>
+
+        <!-- Unified Welcome & Hero Box (When library is empty) -->
+        <div id="welcomeState"
+             class="flex min-h-[360px] flex-col items-center justify-center px-5 py-12 text-center sm:px-12 rounded-2xl border border-slate-800/90 bg-slate-900/80 shadow-[0_22px_70px_-35px_rgba(15,23,42,.95)] ring-1 ring-white/[0.03]">
+            <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-500/30 bg-indigo-500/10 text-3xl text-indigo-300 shadow-inner">
+                📖
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-100" data-i18n="welcomeHeroTitle">
+                Read &amp; Expand Your Vocabulary
+            </h2>
+            <p class="mt-2.5 max-w-md text-xs sm:text-sm leading-relaxed text-slate-400" data-i18n="welcomeHeroDesc">
+                Read PDF, DOCX, and TXT documents with instant sentence-aware translation and persistent vocabulary memory.
+            </p>
+
+            <div class="mt-6 flex flex-col items-center gap-2.5 w-full max-w-xs">
+                <button id="welcomeChooseFileBtn" class="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition active:scale-95 cursor-pointer">
+                    <span>📄</span> <span data-i18n="chooseDocumentBtn">Choose Document</span>
+                </button>
+                <p class="hidden sm:block text-[11px] text-slate-500 font-medium" data-i18n="orDragDesktop">
+                    or drag &amp; drop a file into the window
+                </p>
+            </div>
+
+            <div class="mt-6 flex items-center gap-2">
+                <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20">.PDF</span>
+                <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">.DOCX</span>
+                <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">.TXT</span>
+            </div>
+
+            <div class="mt-5 flex items-center gap-1.5 text-[11px] text-slate-500">
+                <span>🔒</span> <span data-i18n="privacyBadge">100% Offline &amp; Private • Runs in your browser</span>
+            </div>
         </div>
 
         <!-- Aesthetic reader shell. -->
         <section id="readerShell"
-                 class="relative overflow-hidden rounded-2xl border border-slate-800/90 bg-slate-900/80 shadow-[0_22px_70px_-35px_rgba(15,23,42,.95)] ring-1 ring-white/[0.03]">
+                 class="hidden relative overflow-hidden rounded-2xl border border-slate-800/90 bg-slate-900/80 shadow-[0_22px_70px_-35px_rgba(15,23,42,.95)] ring-1 ring-white/[0.03]">
 
             <!-- Resume Reading Toast/Banner -->
             <div id="resumeBanner" class="hidden absolute top-3 left-1/2 -translate-x-1/2 z-20 items-center gap-3 px-4 py-2 rounded-xl border border-indigo-500/40 bg-indigo-950/95 text-indigo-100 text-xs shadow-2xl backdrop-blur-md transition-all">
                 <span>📌 <span data-i18n="resumeText">You were on</span> <strong id="resumePageNum" class="text-white">Page 1</strong></span>
                 <button id="resumeJumpBtn" data-i18n="resumeBtn" class="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition">Resume</button>
                 <button id="resumeDismissBtn" class="text-slate-400 hover:text-white text-xs">✕</button>
-            </div>
-            <div id="welcomeState" class="flex min-h-[340px] flex-col items-center justify-center px-6 py-16 text-center sm:px-12">
-                <div class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-400/20 bg-indigo-400/10 text-2xl text-indigo-300">✦</div>
-                <h2 class="text-xl font-semibold tracking-tight text-slate-100" data-i18n="welcomeHeading">Welcome to the Reader.</h2>
-                <p class="mt-2 max-w-md text-sm leading-6 text-slate-400" data-i18n="welcomeSub">Please upload a file to begin...</p>
-                <p class="mt-5 text-xs uppercase tracking-[0.18em] text-slate-600" data-i18n="welcomeBadge">Runs entirely in your browser</p>
             </div>
 
             <div id="loader" class="hidden min-h-[340px] flex-col items-center justify-center py-10 text-indigo-300">
@@ -208,6 +250,12 @@
             <article id="reader" class="hidden px-4 py-6 sm:px-10 sm:py-10" aria-label="Document text"></article>
         </section>
     </main>
+
+    <!-- Mobile Floating Action Button (FAB) for Library Screen -->
+    <button id="mobileUploadFab" data-i18n-title="uploadFabTitle" title="Open Document"
+            class="hidden fixed bottom-6 right-5 z-40 h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-2xl text-white shadow-2xl shadow-indigo-500/40 ring-2 ring-white/20 transition active:scale-90 md:hidden">
+        ➕
+    </button>
 
     <!-- TOOLTIP: translated text only + bookmark -->
     <div id="tooltip" class="rounded-xl border border-slate-700 bg-slate-800 p-3.5 shadow-2xl">
@@ -538,8 +586,69 @@
         </div>
     </div>
 
+    <!-- ============ MODAL: BOOK ACTIONS SHEET (3-DOTS MENU) ============ -->
+    <div id="bookActionModal" class="hidden fixed inset-0 z-[85] items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bookActionBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="modal-card relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border-t sm:border border-slate-700 bg-slate-900 p-4 shadow-2xl space-y-3 select-none">
+            <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+                <div class="min-w-0 flex-1 pr-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="bookActionsTitle">Book Options</span>
+                    <h3 id="bookActionDocName" class="text-sm font-semibold text-slate-100 truncate mt-0.5"></h3>
+                </div>
+                <button id="bookActionClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
+            </div>
+            <div class="space-y-1.5 pt-1">
+                <!-- Action 1: Rename Title -->
+                <button id="bookActionRenameBtn" class="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 transition active:scale-[0.98] text-left text-xs font-medium">
+                    <span class="text-base">✏️</span>
+                    <span data-i18n="renameTitle">Rename Display Title</span>
+                </button>
+                <!-- Action 2: Reset Progress -->
+                <button id="bookActionResetBtn" class="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 transition active:scale-[0.98] text-left text-xs font-medium">
+                    <span class="text-base">🔄</span>
+                    <span data-i18n="resetProgress">Reset Reading Progress</span>
+                </button>
+                <!-- Action 3: Delete Book -->
+                <button id="bookActionDeleteBtn" class="w-full flex items-center gap-3 p-3 rounded-xl border border-red-500/20 bg-red-950/30 hover:bg-red-900/40 text-red-300 transition active:scale-[0.98] text-left text-xs font-medium">
+                    <span class="text-base">🗑️</span>
+                    <span data-i18n="deleteBookAction">Delete from Library</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: RENAME BOOK MODAL ============ -->
+    <div id="bookRenameModal" class="hidden fixed inset-0 z-[90] items-center justify-center p-4">
+        <div class="bookRenameBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div class="modal-card relative w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl select-none">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <span>✏️</span> <span data-i18n="renameTitle">Rename Display Title</span>
+                </h3>
+                <button id="bookRenameCloseBtn" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
+            </div>
+            <p class="text-xs text-slate-400 mb-2" data-i18n="renameTitlePrompt">Enter a custom display title:</p>
+            <input id="bookRenameInput" type="text" maxlength="80"
+                   class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none" />
+            <div class="flex items-center justify-end gap-2 mt-4">
+                <button id="bookRenameCancelBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition" data-i18n="renameCancelBtn">Cancel</button>
+                <button id="bookRenameSaveBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm" data-i18n="renameSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Full-Window Drag & Drop Overlay (Desktop) -->
+    <div id="globalDragOverlay" class="hidden fixed inset-0 z-[100] flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md transition-all duration-200 pointer-events-none select-none">
+        <div class="flex flex-col items-center justify-center p-12 max-w-md w-full rounded-3xl border-2 border-dashed border-indigo-500/80 bg-indigo-950/50 shadow-2xl text-center">
+            <div class="text-5xl mb-3 animate-bounce">📂</div>
+            <h3 class="text-xl font-bold text-white mb-1.5" data-i18n="dropHereTitle">Drop your document here</h3>
+            <p class="text-xs text-indigo-300 font-mono">.pdf, .txt, .docx</p>
+        </div>
+    </div>
+
     <!-- LexiRead Modular Scripts -->
     <script src="js/state.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/api.js"></script>
     <script src="js/parsers.js"></script>

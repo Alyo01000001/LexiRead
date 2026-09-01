@@ -241,6 +241,60 @@ input[type="range"].zoom-slider-vertical {
     vertical-align: middle;
 }
 
+/* ---------- UNIFIED WELCOME HERO CARD ---------- */
+#welcomeState {
+    transition: all 0.2s ease-in-out;
+}
+#welcomeState:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Light Mode Welcome State */
+html.light #welcomeState {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07) !important;
+}
+html.light #welcomeState:hover {
+    border-color: #6366f1 !important;
+}
+
+/* Sepia Mode Welcome State */
+html.sepia #welcomeState {
+    background-color: #2a221b !important;
+    border-color: #45372d !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4) !important;
+}
+html.sepia #welcomeState:hover {
+    border-color: #d97706 !important;
+}
+
+/* Light Mode Library Card */
+html.light .library-card {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light .library-card:hover {
+    border-color: #6366f1 !important;
+    background-color: #f8fafc !important;
+}
+html.light .library-card h3 {
+    color: #0f172a !important;
+}
+
+/* Sepia Mode Library Card */
+html.sepia .library-card {
+    background-color: #2a221b !important;
+    border-color: #45372d !important;
+}
+html.sepia .library-card:hover {
+    border-color: #d97706 !important;
+    background-color: #332922 !important;
+}
+html.sepia .library-card h3 {
+    color: #fbf4eb !important;
+}
+
 /* ---------- LIGHT MODE THEME ---------- */
 html.light body {
     background-color: #f8fafc;
@@ -530,7 +584,7 @@ html.sepia #mobileMoreSheet .modal-card {
     z-index: 50 !important;
     pointer-events: auto !important;
 }
-.keyBack, .langBack, .settingsBack, .savedBack, .outlineBack, .typographyBack, .cropBack, .mobileMoreBack {
+.keyBack, .langBack, .settingsBack, .savedBack, .outlineBack, .typographyBack, .cropBack, .mobileMoreBack, .bookActionBack, .bookRenameBack {
     position: absolute;
     inset: 0;
     z-index: 10 !important;
@@ -675,6 +729,10 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
     #tooltip::after {
         display: none !important;
     }
+}
+
+.lib-action-btn {
+    touch-action: manipulation;
 }
 
 /* ---------- MOBILE LANDSCAPE SIDE-PANEL (<580px Height) ---------- */

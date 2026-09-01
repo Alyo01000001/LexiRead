@@ -140,22 +140,22 @@ tabDeepl.addEventListener('click', () => {
 function updateKeyUI() {
     const prov = getProvider();
     const has = !!getKey();
-    if (keyDot) {
+    if (typeof keyDot !== 'undefined' && keyDot) {
         keyDot.className = 'h-2 w-2 rounded-full ' + (has ? 'bg-emerald-400' : 'bg-amber-400');
     }
-    if (keyBtn) {
+    if (typeof keyBtn !== 'undefined' && keyBtn) {
         keyBtn.title = has ? `${prov === 'gemini' ? 'Gemini' : 'DeepL'} API active — click to change` : t('noApiKeyToast');
     }
-    if (activeProviderBadge) {
+    if (typeof activeProviderBadge !== 'undefined' && activeProviderBadge) {
         activeProviderBadge.textContent = t('activeProvider', { provider: prov === 'gemini' ? 'Gemini' : 'DeepL' });
     }
-    if (settingsKeyStatus) {
+    if (typeof settingsKeyStatus !== 'undefined' && settingsKeyStatus) {
         settingsKeyStatus.textContent = `${prov === 'gemini' ? 'Gemini' : 'DeepL'} (${has ? 'Active' : 'Not Set'})`;
         settingsKeyStatus.className = `text-[11px] ${has ? 'text-emerald-400' : 'text-amber-400'}`;
     }
 }
 
-if (keyBtn) {
+if (typeof keyBtn !== 'undefined' && keyBtn) {
     keyBtn.addEventListener('click', () => {
         setTab(getProvider());
         updateKeyUI();

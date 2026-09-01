@@ -4,7 +4,7 @@
 
 'use strict';
 
-async function processDocument(file, ext, cropTop = 0, cropBottom = 0) {
+async function processDocument(file, ext, cropTop = 0, cropBottom = 0, isResume = false, resumePage = null, resumeScrollTop = null) {
     if (pipelineRunning) { showToast(t('alreadyProcessingMsg'), 'warn'); return; }
     pipelineRunning = true;
     currentDocKey = file.name + '_' + (file.size || 0);
@@ -19,13 +19,50 @@ async function processDocument(file, ext, cropTop = 0, cropBottom = 0) {
         if (!parsed.docText || !parsed.docText.trim()) throw new Error(t('noReadableTextMsg'));
 
         parsed = initDocument(parsed);
+        if (file.__customTitle) {
+            parsed.customTitle = file.__customTitle;
+        }
         showLoader(t('loaderRendering'));
         if      (parsed.kind === 'txt')  renderTxt(parsed);
         else if (parsed.kind === 'pdf')  await renderPdf(parsed);
         else                             renderDocx(parsed);
 
         hideTooltip();
-        checkAndShowResumeBanner(currentDocKey, parsed);
+
+        // Save to LexiDB Library
+        if (window.LexiDB) {
+            const pageNum = resumePage || 1;
+            const pagesTotal = parsed.pageCount || 1;
+            LexiDB.saveDocument({
+                docKey: currentDocKey,
+                name: file.name,
+                size: file.size || 0,
+                ext: ext,
+                blob: file,
+                pageCount: pagesTotal,
+                lastPage: pageNum,
+                scrollTop: resumeScrollTop || 0,
+                progressPercent: Math.min(100, Math.max(1, Math.round((pageNum / pagesTotal) * 100))),
+                srcLang: currentSrc,
+                tgtLang: currentTgt,
+                cropTop: cropTop || 0,
+                cropBottom: cropBottom || 0,
+                customTitle: parsed.customTitle || ''
+            });
+        }
+
+        if (isResume && (resumePage || resumeScrollTop)) {
+            setTimeout(() => {
+                if (parsed.kind === 'pdf' && resumePage && resumePage > 1) {
+                    const target = $(`pdf-page-${resumePage}`);
+                    if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                } else if (resumeScrollTop && resumeScrollTop > 50) {
+                    window.scrollTo({ top: resumeScrollTop, behavior: 'instant' });
+                }
+            }, 100);
+        } else {
+            checkAndShowResumeBanner(currentDocKey, parsed);
+        }
 
         showToast(
             getKey()
@@ -78,8 +115,15 @@ function saveCurrentProgress() {
     if (!currentDocKey) return;
     try {
         let pageNum = 1;
+        let totalPages = 1;
         if (currentDocKind === 'pdf' && navCurPage) {
             pageNum = Number(navCurPage.textContent) || 1;
+            totalPages = currentParsedDoc?.pageCount || Number(navTotalPages?.textContent) || 1;
+        } else if (currentParsedDoc) {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPct = maxScroll > 0 ? Math.min(100, Math.round((window.scrollY / maxScroll) * 100)) : 100;
+            totalPages = 100;
+            pageNum = Math.max(1, scrollPct);
         }
         const prog = {
             page: pageNum,
@@ -87,6 +131,10 @@ function saveCurrentProgress() {
             time: Date.now()
         };
         localStorage.setItem('lexi.prog.' + currentDocKey, JSON.stringify(prog));
+
+        if (window.LexiDB) {
+            LexiDB.updateDocumentProgress(currentDocKey, pageNum, window.scrollY, totalPages);
+        }
     } catch (_) {}
 }
 
@@ -104,6 +152,12 @@ function showLoader(msg) {
     loaderText.textContent = msg;
     welcomeState.classList.add('hidden');
     reader.classList.add('hidden');
+    if (librarySection) librarySection.classList.add('hidden');
+    if (readerShell) readerShell.classList.remove('hidden');
+    if (mobileUploadFab) {
+        mobileUploadFab.classList.add('hidden');
+        mobileUploadFab.classList.remove('flex');
+    }
     loader.classList.remove('hidden');
     loader.classList.add('flex');
 }
@@ -121,8 +175,8 @@ function showWelcomeState() {
         pdfPageObserver.disconnect();
         pdfPageObserver = null;
     }
-    welcomeState.classList.remove('hidden');
-    dropZone.classList.remove('hidden');
+    if (readerShell) readerShell.classList.add('hidden');
+    if (dropZone) dropZone.classList.add('hidden');
     if (headerDocBadge) headerDocBadge.classList.add('hidden');
     document.documentElement.classList.remove('zen-mode');
     headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex', 'md:flex');
@@ -134,15 +188,25 @@ function showWelcomeState() {
     if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
     hideTooltip();
+    if (typeof renderLibrary === 'function') {
+        renderLibrary();
+    }
 }
 function showReaderState(mode = 'txt') {
     loader.classList.add('hidden'); loader.classList.remove('flex');
     welcomeState.classList.add('hidden');
     dropZone.classList.add('hidden');
+    if (librarySection) librarySection.classList.add('hidden');
+    if (readerShell) readerShell.classList.remove('hidden');
+    if (mobileUploadFab) {
+        mobileUploadFab.classList.add('hidden');
+        mobileUploadFab.classList.remove('flex');
+    }
     
     // Update header document badge
     if (headerDocBadge && currentDocKey) {
-        headerDocBadge.textContent = '📄 ' + currentDocKey.split('_')[0];
+        const titleToDisplay = (currentParsedDoc && currentParsedDoc.customTitle) ? currentParsedDoc.customTitle : currentDocKey.split('_')[0];
+        headerDocBadge.textContent = '📄 ' + titleToDisplay;
         headerDocBadge.classList.remove('hidden');
     }
 
@@ -307,6 +371,10 @@ async function renderPdf(parsed) {
         navOutlineBtn.classList.add('hidden');
         navOutlineBtn.classList.remove('flex');
         if (moreOutlineBtn) moreOutlineBtn.classList.add('hidden');
+    }
+
+    if (window.LexiDB && parsed.pdf) {
+        generatePdfThumbnail(parsed.pdf, currentDocKey);
     }
 
     finishRender();
@@ -681,6 +749,30 @@ attachTap(mobileDocUploadBtn, () => {
     fileInput.click();
 });
 
+if (mobileLibraryBtn) {
+    attachTap(mobileLibraryBtn, () => {
+        showWelcomeState();
+    });
+}
+
+if (mobileUploadFab) {
+    attachTap(mobileUploadFab, () => {
+        fileInput.click();
+    });
+}
+
+if (libraryUploadBtn) {
+    attachTap(libraryUploadBtn, () => {
+        fileInput.click();
+    });
+}
+
+if (welcomeChooseFileBtn) {
+    attachTap(welcomeChooseFileBtn, () => {
+        fileInput.click();
+    });
+}
+
 // Zen Focus Reading Mode
 function toggleZenMode() {
     setZenMode(!document.documentElement.classList.contains('zen-mode'));
@@ -753,3 +845,261 @@ function finishRender() {
     showReaderState(currentParsedDoc ? currentParsedDoc.kind : 'txt');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// 5. LIBRARY & THUMBNAIL ENGINES
+async function generatePdfThumbnail(pdf, docKey) {
+    if (!pdf || !docKey) return;
+    try {
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 0.35 });
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const coverDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        if (window.LexiDB) {
+            await LexiDB.updateDocumentCover(docKey, coverDataUrl);
+        }
+    } catch (e) {
+        console.warn('[LexiRead] Could not generate cover thumbnail:', e);
+    }
+}
+
+async function renderLibrary() {
+    if (!librarySection || !libraryGrid || !window.LexiDB) return;
+    try {
+        const docs = await LexiDB.getAllDocuments();
+        if (!docs || !docs.length) {
+            librarySection.classList.add('hidden');
+            if (welcomeState) welcomeState.classList.remove('hidden');
+            if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
+            if (mobileUploadFab) {
+                mobileUploadFab.classList.add('hidden');
+                mobileUploadFab.classList.remove('flex');
+            }
+            return;
+        }
+
+        // Library has books -> show library and hide welcomeState & readerShell
+        librarySection.classList.remove('hidden');
+        if (welcomeState) welcomeState.classList.add('hidden');
+        if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
+        if (mobileUploadFab) {
+            mobileUploadFab.classList.remove('hidden');
+            mobileUploadFab.classList.add('flex');
+        }
+        if (libraryCountBadge) {
+            libraryCountBadge.textContent = t('libraryCount', { count: docs.length });
+        }
+
+        libraryGrid.innerHTML = '';
+        for (const doc of docs) {
+            const card = document.createElement('div');
+            card.className = 'library-card group relative flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-900/85 hover:border-indigo-500/60 hover:bg-slate-800/80 transition-all duration-200 shadow-lg hover:shadow-indigo-500/10 cursor-pointer select-none';
+            card.dataset.dockey = doc.docKey;
+
+            const displayName = doc.customTitle || doc.name;
+
+            // Thumbnail / Cover
+            let coverHtml = '';
+            if (doc.ext === 'pdf' && doc.coverData) {
+                coverHtml = `
+                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg overflow-hidden border border-slate-700/70 bg-slate-950 shadow-md flex items-center justify-center">
+                        <img src="${doc.coverData}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    </div>`;
+            } else {
+                const badgeColor = doc.ext === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (doc.ext === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
+                const icon = doc.ext === 'pdf' ? '📄' : (doc.ext === 'docx' ? '📝' : '📃');
+                coverHtml = `
+                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg border border-slate-800 bg-slate-950/80 flex flex-col items-center justify-center gap-1 shadow-md">
+                        <span class="text-xl">${icon}</span>
+                        <span class="text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded border ${badgeColor}">${doc.ext}</span>
+                    </div>`;
+            }
+
+            const pct = doc.progressPercent || 1;
+            const pageStr = doc.ext === 'pdf' 
+                ? t('pageProgress', { cur: doc.lastPage || 1, total: doc.pageCount || 1 })
+                : (pct > 1 ? `${pct}%` : t('pageProgress', { cur: 1, total: 1 }));
+
+            const src = (doc.srcLang || 'EN').toUpperCase();
+            const tgt = (doc.tgtLang || 'TR').toUpperCase();
+
+            card.innerHTML = `
+                ${coverHtml}
+                <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
+                    <div>
+                        <div class="flex items-start justify-between gap-1.5">
+                            <h3 class="text-xs sm:text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-300 transition" title="${displayName}">
+                                ${displayName}
+                            </h3>
+                            <button class="lib-action-btn text-slate-400 hover:text-white p-1.5 -mr-1 -mt-1 transition rounded-lg hover:bg-slate-800 active:scale-90 shrink-0" title="Options">
+                                <span class="text-base font-bold leading-none select-none">⋮</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-medium border border-slate-700/60">
+                                ${src} → ${tgt}
+                            </span>
+                            <span class="text-[10px] text-slate-400">
+                                ${pageStr}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-2.5">
+                        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-indigo-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Click card to open
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.lib-action-btn')) return;
+                openFromLibrary(doc.docKey);
+            });
+
+            // 3-dots action button
+            const actionBtn = card.querySelector('.lib-action-btn');
+            if (actionBtn) {
+                actionBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openBookActionSheet(doc);
+                });
+            }
+
+            libraryGrid.appendChild(card);
+        }
+    } catch (e) {
+        console.error('[LexiRead] renderLibrary error:', e);
+    }
+}
+window.renderLibrary = renderLibrary;
+
+let currentActionDoc = null;
+
+function openBookActionSheet(doc) {
+    if (!bookActionModal || !doc) return;
+    currentActionDoc = doc;
+    if (bookActionDocName) {
+        bookActionDocName.textContent = doc.customTitle || doc.name;
+    }
+    openModal(bookActionModal);
+}
+
+if (bookActionClose) {
+    attachTap(bookActionClose, () => closeModal(bookActionModal));
+}
+
+if (bookActionRenameBtn) {
+    attachTap(bookActionRenameBtn, () => {
+        closeModal(bookActionModal);
+        if (!currentActionDoc || !bookRenameModal) return;
+        if (bookRenameInput) {
+            bookRenameInput.value = currentActionDoc.customTitle || currentActionDoc.name;
+        }
+        openModal(bookRenameModal);
+        setTimeout(() => { if (bookRenameInput) bookRenameInput.focus(); }, 120);
+    });
+}
+
+if (bookRenameCloseBtn) {
+    attachTap(bookRenameCloseBtn, () => closeModal(bookRenameModal));
+}
+if (bookRenameCancelBtn) {
+    attachTap(bookRenameCancelBtn, () => closeModal(bookRenameModal));
+}
+
+if (bookRenameSaveBtn) {
+    attachTap(bookRenameSaveBtn, async () => {
+        if (!currentActionDoc || !bookRenameInput) return;
+        const newTitle = bookRenameInput.value.trim();
+        if (newTitle) {
+            await LexiDB.updateDocumentTitle(currentActionDoc.docKey, newTitle);
+            showToast(t('titleUpdated'), 'success', 2200);
+            closeModal(bookRenameModal);
+            renderLibrary();
+        }
+    });
+}
+
+if (bookRenameInput) {
+    bookRenameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (bookRenameSaveBtn) bookRenameSaveBtn.click();
+        } else if (e.key === 'Escape') {
+            closeModal(bookRenameModal);
+        }
+    });
+}
+
+if (bookActionResetBtn) {
+    attachTap(bookActionResetBtn, async () => {
+        if (!currentActionDoc) return;
+        closeModal(bookActionModal);
+        const conf = confirm(t('progressResetConfirm'));
+        if (conf) {
+            await LexiDB.resetDocumentProgress(currentActionDoc.docKey);
+            showToast(t('progressResetSuccess'), 'info', 2200);
+            renderLibrary();
+        }
+    });
+}
+
+if (bookActionDeleteBtn) {
+    attachTap(bookActionDeleteBtn, async () => {
+        if (!currentActionDoc) return;
+        closeModal(bookActionModal);
+        const name = currentActionDoc.customTitle || currentActionDoc.name;
+        const conf = confirm(t('deleteBookConfirm', { name }));
+        if (conf) {
+            await LexiDB.deleteDocument(currentActionDoc.docKey);
+            showToast(t('bookDeleted'), 'info', 2200);
+            renderLibrary();
+        }
+    });
+}
+
+async function openFromLibrary(docKey) {
+    if (pipelineRunning) return;
+    if (!window.LexiDB) return;
+    try {
+        showLoader(t('loaderWorking'));
+        const doc = await LexiDB.getDocument(docKey);
+        if (!doc || !doc.blob) {
+            showToast('Document not found in library.', 'error');
+            showWelcomeState();
+            return;
+        }
+
+        // Reconstruct File object from Blob
+        const file = new File([doc.blob], doc.name, { type: doc.blob.type || 'application/octet-stream' });
+        file.__pdf = null;
+        file.__docxBuf = null;
+        file.__txt = null;
+        file.__customTitle = doc.customTitle || '';
+
+        // Restore saved language pair
+        if (doc.srcLang && LANGS.some(l => l.code === doc.srcLang)) {
+            currentSrc = doc.srcLang;
+            localStorage.setItem(SRC_KEY, currentSrc);
+        }
+        if (doc.tgtLang && LANGS.some(l => l.code === doc.tgtLang)) {
+            currentTgt = doc.tgtLang;
+            localStorage.setItem(TGT_KEY, currentTgt);
+        }
+        applyLocalization();
+
+        // Open document directly without prompting for languages or crop
+        await processDocument(file, doc.ext, doc.cropTop || 0, doc.cropBottom || 0, true, doc.lastPage, doc.scrollTop);
+    } catch (err) {
+        console.error('[LexiRead] openFromLibrary error:', err);
+        showToast('Failed to open document: ' + err.message, 'error');
+        showWelcomeState();
+    }
+}
+window.openFromLibrary = openFromLibrary;

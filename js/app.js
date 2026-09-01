@@ -7,24 +7,56 @@
 let pendingFile = null;
 let pendingExt = '';
 
-// 1. FILE UPLOAD & DRAG/DROP LISTENERS
-if (dropZone) {
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
-    });
-
-    ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e => {
-        e.preventDefault(); dropZone.classList.add('border-indigo-500','text-indigo-300');
-    }));
-    ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
-        e.preventDefault(); dropZone.classList.remove('border-indigo-500','text-indigo-300');
-    }));
-    dropZone.addEventListener('drop', e => {
-        const f = e.dataTransfer?.files?.[0];
-        if (f) handleIncomingFile(f);
+// 1. FILE UPLOAD & GLOBAL DRAG/DROP LISTENERS
+if (welcomeState) {
+    welcomeState.addEventListener('click', (e) => {
+        if (e.target.closest('button, a, input')) return;
+        fileInput.click();
     });
 }
+
+// Global window drag-and-drop (Desktop)
+let dragCounter = 0;
+
+window.addEventListener('dragenter', e => {
+    e.preventDefault();
+    if (!e.dataTransfer || !e.dataTransfer.types || !Array.from(e.dataTransfer.types).includes('Files')) return;
+    dragCounter++;
+    if (globalDragOverlay) {
+        globalDragOverlay.classList.remove('hidden');
+        globalDragOverlay.classList.add('flex');
+    }
+});
+
+window.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+    }
+});
+
+window.addEventListener('dragleave', e => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter <= 0) {
+        dragCounter = 0;
+        if (globalDragOverlay) {
+            globalDragOverlay.classList.add('hidden');
+            globalDragOverlay.classList.remove('flex');
+        }
+    }
+});
+
+window.addEventListener('drop', e => {
+    e.preventDefault();
+    dragCounter = 0;
+    if (globalDragOverlay) {
+        globalDragOverlay.classList.add('hidden');
+        globalDragOverlay.classList.remove('flex');
+    }
+    const f = e.dataTransfer?.files?.[0];
+    if (f) handleIncomingFile(f);
+});
 
 if (fileInput) {
     fileInput.addEventListener('change', e => {
@@ -38,7 +70,13 @@ if (headerUploadBtn) {
     headerUploadBtn.addEventListener('click', () => fileInput.click());
 }
 if (logoBtn) {
-    logoBtn.addEventListener('click', () => location.reload());
+    logoBtn.addEventListener('click', () => {
+        if (reader && !reader.classList.contains('hidden')) {
+            showWelcomeState();
+        } else {
+            location.reload();
+        }
+    });
 }
 
 /** Step 1: validate limits BEFORE asking for languages or rendering. */
@@ -120,6 +158,14 @@ if (langConfirm) {
                 processDocument(f, ext);
             }
         } else {
+            hideTooltip();
+            if (window.LexiDB && currentDocKey) {
+                LexiDB.updateDocumentLanguages(currentDocKey, currentSrc, currentTgt);
+            }
+            if (currentParsedDoc) {
+                currentParsedDoc.srcLang = currentSrc;
+                currentParsedDoc.tgtLang = currentTgt;
+            }
             showToast(t('langUpdatedToast', { src: langName(currentSrc), tgt: langName(currentTgt) }), 'success');
         }
     });
@@ -148,7 +194,10 @@ function handleHierarchicalBack() {
         }
 
         // 2. If any other modal is open -> close it
-        const activeModals = [settingsModal, mobileMoreSheet, savedModal, keyModal, langModal, outlineModal, typographyModal];
+        const activeModals = [
+            bookRenameModal, bookActionModal, settingsModal, mobileMoreSheet,
+            savedModal, keyModal, langModal, outlineModal, typographyModal
+        ];
         for (const m of activeModals) {
             if (m && !m.classList.contains('hidden')) {
                 if (m === langModal) pendingFile = null;
@@ -345,6 +394,9 @@ applyLocalization();
 updateKeyUI();
 persistSaved(loadSaved());
 showWelcomeState();
+if (typeof renderLibrary === 'function') {
+    renderLibrary();
+}
 if (!getKey()) {
     setTimeout(() => {
         setTab(getProvider());

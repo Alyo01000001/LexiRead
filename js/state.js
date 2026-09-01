@@ -56,11 +56,21 @@ let currentTgt = LANGS.some(l => l.code === localStorage.getItem(TGT_KEY)) ? loc
 const $ = id => document.getElementById(id);
 
 const fileInput           = $('fileInput');
-const dropZone            = $('dropZone');
+const dropZone            = $('dropZone') || $('welcomeState');
+const librarySection      = $('librarySection');
+const libraryGrid         = $('libraryGrid');
+const libraryCountBadge   = $('libraryCountBadge');
+const libraryUploadBtn    = $('libraryUploadBtn');
+const welcomeChooseFileBtn= $('welcomeChooseFileBtn');
+const mobileUploadFab     = $('mobileUploadFab');
+const globalDragOverlay   = $('globalDragOverlay');
 const loader              = $('loader');
 const loaderText          = $('loaderText');
 const welcomeState        = $('welcomeState');
+const readerShell         = $('readerShell');
 const reader              = $('reader');
+const keyBtn              = $('keyBtn');
+const keyDot              = $('keyDot');
 const headerDocBadge      = $('headerDocBadge');
 const zenModeBtn          = $('zenModeBtn');
 const zenExitBar          = $('zenExitBar');
@@ -148,6 +158,7 @@ const mobileZoomResetBtn   = $('mobileZoomResetBtn');
 const mobileZoomLabel      = $('mobileZoomLabel');
 const mobileZoomInBtn      = $('mobileZoomInBtn');
 
+const mobileLibraryBtn    = $('mobileLibraryBtn');
 const mobileLangChangeBtn  = $('mobileLangChangeBtn');
 const mobileMoreBtn        = $('mobileMoreBtn');
 const mobileMoreSheet      = $('mobileMoreSheet');
@@ -156,6 +167,19 @@ const moreTypoBtn          = $('moreTypoBtn');
 const moreOutlineBtn       = $('moreOutlineBtn');
 const moreZenBtn           = $('moreZenBtn');
 const mobileDocUploadBtn   = $('mobileDocUploadBtn');
+
+const bookActionModal      = $('bookActionModal');
+const bookActionDocName    = $('bookActionDocName');
+const bookActionClose      = $('bookActionClose');
+const bookActionRenameBtn  = $('bookActionRenameBtn');
+const bookActionResetBtn   = $('bookActionResetBtn');
+const bookActionDeleteBtn  = $('bookActionDeleteBtn');
+
+const bookRenameModal      = $('bookRenameModal');
+const bookRenameCloseBtn   = $('bookRenameCloseBtn');
+const bookRenameInput      = $('bookRenameInput');
+const bookRenameCancelBtn  = $('bookRenameCancelBtn');
+const bookRenameSaveBtn    = $('bookRenameSaveBtn');
 
 function isMobile() {
     return window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth < 1024);

@@ -35,12 +35,46 @@ const I18N = {
         prevPage: "Previous Page (K / ▲)",
         nextPage: "Next Page (J / ▼)",
 
-        // Welcome & Dropzone
+        // Welcome & Hero Card
         dropTitle: "Drop a document here, or tap to choose a file",
         dropSubtitle: "Supports .pdf, .txt, .docx documents",
+        dropTitleCompact: "Drop a new file here, or browse (.pdf, .txt, .docx)",
         welcomeHeading: "Welcome to the Reader.",
         welcomeSub: "Please upload a file to begin...",
         welcomeBadge: "Runs entirely in your browser",
+        welcomeHeroTitle: "Read & Expand Your Vocabulary",
+        welcomeHeroDesc: "Read PDF, DOCX, and TXT documents with instant sentence-aware translation and persistent vocabulary memory.",
+        chooseDocumentBtn: "Choose Document",
+        orDragDesktop: "or drag & drop a file into the window",
+        dropHereTitle: "Drop your document here",
+        openNewDocument: "Open Document",
+        privacyBadge: "100% Offline & Private • Runs in your browser",
+
+        // Library (Kitaplık)
+        myLibrary: "My Library",
+        libraryCount: "{count} books",
+        openFromDisk: "Open File",
+        noBooksInLibrary: "Your library is empty. Upload a document to start reading!",
+        deleteBookConfirm: "Remove \"{name}\" from your library?",
+        bookDeleted: "Document removed from library.",
+        pagesCount: "{count} pages",
+        readProgress: "{percent}% read",
+        pageProgress: "Page {cur} / {total}",
+        lastReadJustNow: "Just now",
+        lastReadAgo: "{time} ago",
+        resumeBook: "Read",
+        bookActionsTitle: "Book Options",
+        renameTitle: "Rename Display Title",
+        renameTitlePrompt: "Enter a custom display title:",
+        titleUpdated: "Title updated.",
+        resetProgress: "Reset Reading Progress",
+        progressResetConfirm: "Reset reading progress back to the beginning?",
+        progressResetSuccess: "Reading progress reset to start.",
+        deleteBookAction: "Delete from Library",
+        libraryNavBtn: "Library",
+        uploadFabTitle: "Open Document",
+        renameSaveBtn: "Save",
+        renameCancelBtn: "Cancel",
 
         // Resume reading banner
         resumeText: "You were on",
@@ -60,6 +94,7 @@ const I18N = {
         savedSuccess: "Saved to your list.",
         alreadySaved: "Already saved.",
         savedWordToast: "🔖 Saved \"{orig}\" → \"{tr}\"",
+        savedMeaningAdded: "🔖 Added new meaning for \"{orig}\": \"{tr}\"",
         allSavedDeleted: "All saved items deleted.",
         noSavedToCopy: "No saved words to copy.",
         copiedToClipboard: "📋 Copied {count} words (word:translation)! Paste in Cardlyo.",
@@ -224,12 +259,46 @@ const I18N = {
         prevPage: "Önceki Sayfa (K / ▲)",
         nextPage: "Sonraki Sayfa (J / ▼)",
 
-        // Welcome & Dropzone
+        // Welcome & Hero Card
         dropTitle: "Bir belgeyi buraya bırakın veya dosya seçmek için dokunun",
         dropSubtitle: ".pdf, .txt, .docx formatlarını destekler",
+        dropTitleCompact: "Yeni bir dosya bırakın veya seçin (.pdf, .txt, .docx)",
         welcomeHeading: "Okuyucuya Hoş Geldiniz.",
         welcomeSub: "Başlamak için lütfen bir dosya yükleyin...",
         welcomeBadge: "Tamamen tarayıcınızda çalışır",
+        welcomeHeroTitle: "Okuyun & Kelime Dağarcığınızı Geliştirin",
+        welcomeHeroDesc: "PDF, DOCX ve TXT belgelerinizi okurken anında çeviri yapın, kelimeleri hafızanıza kaydedin.",
+        chooseDocumentBtn: "Belge Seç",
+        orDragDesktop: "veya dosyayı pencereye sürükleyin",
+        dropHereTitle: "Belgenizi buraya bırakın",
+        openNewDocument: "Yeni Belge Aç",
+        privacyBadge: "Tamamen Cihazınızda Çalışır • Gizli ve Güvenli",
+
+        // Library (Kitaplık)
+        myLibrary: "Kitaplığım",
+        libraryCount: "{count} kitap",
+        openFromDisk: "Dosya Aç",
+        noBooksInLibrary: "Kitaplığınız henüz boş. Okumaya başlamak için bir belge yükleyin!",
+        deleteBookConfirm: "\"{name}\" kitaplıktan kaldırılsın mı?",
+        bookDeleted: "Belge kitaplıktan kaldırıldı.",
+        pagesCount: "{count} sayfa",
+        readProgress: "%{percent} okundu",
+        pageProgress: "Sayfa {cur} / {total}",
+        lastReadJustNow: "Az önce",
+        lastReadAgo: "{time} önce",
+        resumeBook: "Oku",
+        bookActionsTitle: "Kitap İşlemleri",
+        renameTitle: "Görünür Başlığı Değiştir",
+        renameTitlePrompt: "Bu kitap için yeni bir görünür başlık girin:",
+        titleUpdated: "Başlık güncellendi.",
+        resetProgress: "Okuma İlerlemesini Sıfırla",
+        progressResetConfirm: "Okuma ilerlemesi başa sarılsın mı?",
+        progressResetSuccess: "Okuma ilerlemesi sıfırlandı.",
+        deleteBookAction: "Kitaplıktan Sil",
+        libraryNavBtn: "Kitaplık",
+        uploadFabTitle: "Yeni Belge Aç",
+        renameSaveBtn: "Kaydet",
+        renameCancelBtn: "İptal",
 
         // Resume reading banner
         resumeText: "Kaldığınız yer:",
@@ -249,6 +318,7 @@ const I18N = {
         savedSuccess: "Listenize kaydedildi.",
         alreadySaved: "Zaten kaydedilmiş.",
         savedWordToast: "🔖 \"{orig}\" → \"{tr}\" kaydedildi",
+        savedMeaningAdded: "🔖 \"{orig}\" için yeni anlam eklendi: \"{tr}\"",
         allSavedDeleted: "Tüm kayıtlı ögeler silindi.",
         noSavedToCopy: "Kopyalanacak kayıtlı kelime yok.",
         copiedToClipboard: "📋 {count} kelime (kelime:çeviri) kopyalandı! Cardlyo'ya yapıştırın.",
@@ -481,5 +551,10 @@ function applyLocalization() {
     // Re-render saved list if open
     if (typeof renderSavedList === 'function' && typeof savedSearchInput !== 'undefined') {
         renderSavedList(savedSearchInput.value.trim());
+    }
+
+    // Re-render library cards if library is visible
+    if (typeof renderLibrary === 'function' && typeof librarySection !== 'undefined' && librarySection && !librarySection.classList.contains('hidden')) {
+        renderLibrary();
     }
 }

@@ -311,32 +311,56 @@ function showWordTooltip(displayText, rect, wordSpan, autoSave = false) {
         return;
     }
 
-    withRetry(() => translateApi([query], src, tgt, sentence || null))
-        .then(outs => {
-            const out = outs[0];
-            ondemandCache.set(cacheKey, out);
+    const fetchAndApplyTranslation = () => {
+        if (myGen !== tooltipGen) return;
+        withRetry(() => translateApi([query], src, tgt, sentence || null))
+            .then(outs => {
+                const out = outs[0];
+                ondemandCache.set(cacheKey, out);
+                if (window.LexiDB && currentDocKey) {
+                    LexiDB.saveTranslation(currentDocKey, query, sentence, src, tgt, out);
+                }
 
-            if (myGen !== tooltipGen) return;
-            applyTranslation(out, displayText, src, tgt, rect, autoSave);
-        })
-        .catch(err => {
-            if (myGen !== tooltipGen) return;
-            const tag = {
-                quota: t('statusQuota'),
-                auth: t('statusAuth'),
-                network: t('statusNetwork'),
-                lang: t('statusLang'),
-                http: t('statusApiError'),
-                ratelimit: t('statusRateLimit')
-            }[err.kind] || t('statusError');
-            tooltipBody.textContent = tag;
-            tooltipSave.disabled = true;
-            if (err.kind === 'quota' || err.kind === 'auth') {
-                showToast(t('keyAttentionToast', { tag }), 'error', 8000);
-                keyBtn.classList.add('attention');
-                setTimeout(() => keyBtn.classList.remove('attention'), 5200);
-            } else showToast(`${tag}: ${err.message}`, 'error');
-        });
+                if (myGen !== tooltipGen) return;
+                applyTranslation(out, displayText, src, tgt, rect, autoSave);
+            })
+            .catch(err => {
+                if (myGen !== tooltipGen) return;
+                const tag = {
+                    quota: t('statusQuota'),
+                    auth: t('statusAuth'),
+                    network: t('statusNetwork'),
+                    lang: t('statusLang'),
+                    http: t('statusApiError'),
+                    ratelimit: t('statusRateLimit')
+                }[err.kind] || t('statusError');
+                tooltipBody.textContent = tag;
+                tooltipSave.disabled = true;
+                if (err.kind === 'quota' || err.kind === 'auth') {
+                    showToast(t('keyAttentionToast', { tag }), 'error', 8000);
+                    const btnToPulse = (typeof settingsBtn !== 'undefined' && settingsBtn) ? settingsBtn : (typeof keyBtn !== 'undefined' ? keyBtn : null);
+                    if (btnToPulse) btnToPulse.classList.add('attention');
+                    setTimeout(() => { if (btnToPulse) btnToPulse.classList.remove('attention'); }, 5200);
+                } else showToast(`${tag}: ${err.message}`, 'error');
+            });
+    };
+
+    // Check IndexedDB persistent translation memory before calling API
+    if (window.LexiDB && currentDocKey) {
+        LexiDB.getTranslation(currentDocKey, query, sentence, src, tgt)
+            .then(persisted => {
+                if (myGen !== tooltipGen) return;
+                if (persisted) {
+                    ondemandCache.set(cacheKey, persisted);
+                    applyTranslation(persisted, displayText, src, tgt, rect, autoSave);
+                } else {
+                    fetchAndApplyTranslation();
+                }
+            })
+            .catch(() => fetchAndApplyTranslation());
+    } else {
+        fetchAndApplyTranslation();
+    }
 }
 
 function applyTranslation(translation, original, src, tgt, rect, autoSave = false) {
@@ -347,8 +371,8 @@ function applyTranslation(translation, original, src, tgt, rect, autoSave = fals
 
     tooltipData = { original, translation, src, tgt };
 
-    if (autoSave && !isSaved(original, translation)) {
-        addSaved({
+    if (autoSave && !isSaved(original, translation, src, tgt)) {
+        const res = addSaved({
             id: genRandomId('w'),
             original: original,
             translation: translation,
@@ -356,21 +380,25 @@ function applyTranslation(translation, original, src, tgt, rect, autoSave = fals
             tgt: tgt,
             date: new Date().toISOString()
         });
-        showToast(t('savedWordToast', { orig: original, tr: translation }), 'success', 2200);
+        if (res && res.updated) {
+            showToast(t('savedMeaningAdded', { orig: original, tr: res.fullTranslation }), 'success', 2600);
+        } else {
+            showToast(t('savedWordToast', { orig: original, tr: translation }), 'success', 2200);
+        }
     }
 
-    setSaveIcon(isSaved(original, translation));
+    setSaveIcon(isSaved(original, translation, src, tgt));
     positionTooltip(rect, 'above');
 }
 
 tooltipSave.addEventListener('click', e => {
     e.stopPropagation();
     if (!tooltipData) return;
-    if (isSaved(tooltipData.original, tooltipData.translation)) {
+    if (isSaved(tooltipData.original, tooltipData.translation, tooltipData.src, tooltipData.tgt)) {
         showToast(t('alreadySaved'), 'info');
         return;
     }
-    addSaved({
+    const res = addSaved({
         id: genRandomId('w'),
         original: tooltipData.original,
         translation: tooltipData.translation,
@@ -379,7 +407,11 @@ tooltipSave.addEventListener('click', e => {
         date: new Date().toISOString()
     });
     setSaveIcon(true);
-    showToast(t('savedSuccess'), 'success');
+    if (res && res.updated) {
+        showToast(t('savedMeaningAdded', { orig: tooltipData.original, tr: res.fullTranslation }), 'success', 2600);
+    } else {
+        showToast(t('savedSuccess'), 'success');
+    }
 });
 
 function positionTooltip(rect, prefer = 'above') {
