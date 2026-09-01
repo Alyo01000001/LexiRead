@@ -756,20 +756,23 @@ if (mobileLibraryBtn) {
 }
 
 if (mobileUploadFab) {
-    attachTap(mobileUploadFab, () => {
+    mobileUploadFab.addEventListener('click', () => {
         fileInput.click();
     });
 }
 
 if (libraryUploadBtn) {
-    attachTap(libraryUploadBtn, () => {
+    libraryUploadBtn.addEventListener('click', () => {
         fileInput.click();
     });
 }
 
 if (welcomeChooseFileBtn) {
-    attachTap(welcomeChooseFileBtn, () => {
-        fileInput.click();
+    welcomeChooseFileBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInput.click();
+        }
     });
 }
 

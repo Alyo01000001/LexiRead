@@ -10,7 +10,7 @@ let pendingExt = '';
 // 1. FILE UPLOAD & GLOBAL DRAG/DROP LISTENERS
 if (welcomeState) {
     welcomeState.addEventListener('click', (e) => {
-        if (e.target.closest('button, a, input')) return;
+        if (e.target.closest('button, a, input, label')) return;
         fileInput.click();
     });
 }

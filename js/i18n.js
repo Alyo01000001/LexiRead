@@ -500,7 +500,12 @@ function applyLocalization() {
     // Update all elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (key) el.innerHTML = t(key);
+        if (key) {
+            const val = t(key);
+            if (val !== key || !el.textContent.trim()) {
+                el.innerHTML = val;
+            }
+        }
     });
 
     // Update all elements with data-i18n-title

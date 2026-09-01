@@ -10,6 +10,13 @@ import os
 PORT = int(os.environ.get('PORT', 8000))
 
 class LexiReadHandler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # Disable aggressive browser caching so mobile devices always get fresh files
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
     def do_POST(self):
         if self.path == '/translate/deepl':
             self.handle_deepl()
