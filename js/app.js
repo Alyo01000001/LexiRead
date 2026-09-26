@@ -195,7 +195,7 @@ function handleHierarchicalBack() {
 
         // 2. If any other modal is open -> close it
         const activeModals = [
-            bookRenameModal, bookActionModal, settingsModal, mobileMoreSheet,
+            bookRenameModal, bookActionModal, settingsModal,
             savedModal, keyModal, langModal, outlineModal, typographyModal
         ];
         for (const m of activeModals) {

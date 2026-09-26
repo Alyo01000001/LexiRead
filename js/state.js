@@ -160,6 +160,8 @@ const mobileZoomInBtn      = $('mobileZoomInBtn');
 
 const mobileLibraryBtn    = $('mobileLibraryBtn');
 const mobileLangChangeBtn  = $('mobileLangChangeBtn');
+const mobileOutlineBtn     = $('mobileOutlineBtn');
+const mobileTypoBtn        = $('mobileTypoBtn');
 const mobileMoreBtn        = $('mobileMoreBtn');
 const mobileMoreSheet      = $('mobileMoreSheet');
 const mobileMoreClose      = $('mobileMoreClose');

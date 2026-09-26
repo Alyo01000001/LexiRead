@@ -89,7 +89,7 @@ header.header-hidden {
     overflow-x: auto !important;
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x pan-y pinch-zoom;
+    touch-action: pan-x pan-y;
 }
 #reader.hidden {
     display: none !important;
@@ -100,7 +100,7 @@ header.header-hidden {
     align-items: center;
     width: 100%;
     min-width: 100%;
-    touch-action: pan-x pan-y pinch-zoom;
+    touch-action: pan-x pan-y;
 }
 .pdf-page {
     position: relative;

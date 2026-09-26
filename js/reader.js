@@ -177,7 +177,6 @@ function showWelcomeState() {
     }
     if (readerShell) readerShell.classList.add('hidden');
     if (dropZone) dropZone.classList.add('hidden');
-    if (headerDocBadge) headerDocBadge.classList.add('hidden');
     document.documentElement.classList.remove('zen-mode');
     headerUploadBtn.classList.add('hidden'); headerUploadBtn.classList.remove('flex', 'md:flex');
     leftControlWidget.classList.add('hidden'); leftControlWidget.classList.remove('flex');
@@ -185,7 +184,8 @@ function showWelcomeState() {
     navOutlineBtn.classList.add('hidden'); navOutlineBtn.classList.remove('flex');
     if (bottomMobileBar) { bottomMobileBar.classList.add('hidden'); bottomMobileBar.classList.remove('flex'); }
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
-    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
+    if (mobileOutlineBtn) { mobileOutlineBtn.classList.add('hidden'); }
+    if (mobileTypoBtn) { mobileTypoBtn.classList.add('hidden'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
     hideTooltip();
     if (typeof renderLibrary === 'function') {
@@ -203,13 +203,6 @@ function showReaderState(mode = 'txt') {
         mobileUploadFab.classList.remove('flex');
     }
     
-    // Update header document badge
-    if (headerDocBadge && currentDocKey) {
-        const titleToDisplay = (currentParsedDoc && currentParsedDoc.customTitle) ? currentParsedDoc.customTitle : currentDocKey.split('_')[0];
-        headerDocBadge.textContent = '📄 ' + titleToDisplay;
-        headerDocBadge.classList.remove('hidden');
-    }
-
     // Only show headerUploadBtn on desktop (>=768px)
     if (window.innerWidth >= 768) {
         headerUploadBtn.classList.remove('hidden');
@@ -244,7 +237,11 @@ function renderTxt(parsed) {
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
-    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
+    if (mobileOutlineBtn) { mobileOutlineBtn.classList.add('hidden'); }
+    if (mobileTypoBtn) {
+        mobileTypoBtn.classList.remove('hidden');
+        mobileTypoBtn.classList.add('flex');
+    }
     wordSpans = []; wordIndex = new Map();
     reader.className = 'reader-text txt-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
@@ -266,7 +263,11 @@ function renderDocx(parsed) {
     if (mobilePdfNav) { mobilePdfNav.classList.add('hidden'); mobilePdfNav.classList.remove('flex'); }
     navOutlineBtn.classList.add('hidden');
     navOutlineBtn.classList.remove('flex');
-    if (moreOutlineBtn) { moreOutlineBtn.classList.add('hidden'); }
+    if (mobileOutlineBtn) { mobileOutlineBtn.classList.add('hidden'); }
+    if (mobileTypoBtn) {
+        mobileTypoBtn.classList.remove('hidden');
+        mobileTypoBtn.classList.add('flex');
+    }
     wordSpans = []; wordIndex = new Map();
     reader.className = 'reader-text docx-mode px-4 py-6 sm:px-10 sm:py-10';
     reader.innerHTML = '';
@@ -358,10 +359,15 @@ async function renderPdf(parsed) {
 
     document.querySelectorAll('.pdf-page').forEach(w => pdfPageObserver.observe(w));
 
+    if (mobileTypoBtn) { mobileTypoBtn.classList.add('hidden'); }
+
     if (parsed.outline && parsed.outline.length) {
         navOutlineBtn.classList.remove('hidden');
         navOutlineBtn.classList.add('flex');
-        if (moreOutlineBtn) moreOutlineBtn.classList.remove('hidden');
+        if (mobileOutlineBtn) {
+            mobileOutlineBtn.classList.remove('hidden');
+            mobileOutlineBtn.classList.add('flex');
+        }
         const openOutline = () => {
             renderOutlineModal(parsed.outline, parsed.pdf);
             openModal(outlineModal);
@@ -370,7 +376,7 @@ async function renderPdf(parsed) {
     } else {
         navOutlineBtn.classList.add('hidden');
         navOutlineBtn.classList.remove('flex');
-        if (moreOutlineBtn) moreOutlineBtn.classList.add('hidden');
+        if (mobileOutlineBtn) mobileOutlineBtn.classList.add('hidden');
     }
 
     if (window.LexiDB && parsed.pdf) {
@@ -691,23 +697,6 @@ if (navNextPage) {
     });
 }
 
-attachTap(mobileNavPrevPage, () => {
-    const cur = Number(navCurPage.textContent) || 1;
-    if (cur > 1) {
-        const target = $(`pdf-page-${cur - 1}`);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-});
-
-attachTap(mobileNavNextPage, () => {
-    const cur = Number(navCurPage.textContent) || 1;
-    const total = Number(navTotalPages.textContent) || 1;
-    if (cur < total) {
-        const target = $(`pdf-page-${cur + 1}`);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-});
-
 attachTap(mobileLangChangeBtn, () => {
     pendingFile = null;
     pendingExt = '';
@@ -718,40 +707,18 @@ attachTap(mobileLangChangeBtn, () => {
     openModal(langModal);
 });
 
-// Mobile More Actions Sheet Handlers
-attachTap(mobileMoreBtn, () => {
-    openModal(mobileMoreSheet);
-});
-attachTap(mobileMoreClose, () => {
-    closeModal(mobileMoreSheet);
-});
-if (mobileMoreSheet) {
-    const back = mobileMoreSheet.querySelector('.mobileMoreBack');
-    if (back) back.addEventListener('click', () => closeModal(mobileMoreSheet));
+if (mobileOutlineBtn) {
+    attachTap(mobileOutlineBtn, () => {
+        if (currentParsedDoc?.outline) {
+            renderOutlineModal(currentParsedDoc.outline, currentParsedDoc.pdf);
+            openModal(outlineModal);
+        }
+    });
 }
-attachTap(moreTypoBtn, () => {
-    closeModal(mobileMoreSheet);
-    openModal(typographyModal);
-});
-attachTap(moreOutlineBtn, () => {
-    closeModal(mobileMoreSheet);
-    if (currentParsedDoc?.outline) {
-        renderOutlineModal(currentParsedDoc.outline, currentParsedDoc.pdf);
-        openModal(outlineModal);
-    }
-});
-attachTap(moreZenBtn, () => {
-    closeModal(mobileMoreSheet);
-    toggleZenMode();
-});
 
-attachTap(mobileDocUploadBtn, () => {
-    fileInput.click();
-});
-
-if (mobileLibraryBtn) {
-    attachTap(mobileLibraryBtn, () => {
-        showWelcomeState();
+if (mobileTypoBtn) {
+    attachTap(mobileTypoBtn, () => {
+        openModal(typographyModal);
     });
 }
 

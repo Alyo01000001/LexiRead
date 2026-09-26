@@ -81,14 +81,65 @@ const touchState = {
     lastTapY: 0
 };
 
-reader.addEventListener('touchstart', e => {
-    if (e.touches.length > 1) {
+// Two-Finger Pinch-to-Zoom Engine
+const pinchState = {
+    active: false,
+    initialDistance: 0,
+    initialZoom: 100,
+    lastZoom: 100,
+    rafId: null,
+    cooldownUntil: 0
+};
+
+function getTouchDistance(touches) {
+    if (!touches || touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+}
+
+const touchSurface = (typeof readerShell !== 'undefined' && readerShell) ? readerShell : reader;
+
+touchSurface.addEventListener('touchstart', e => {
+    // If in pinch cooldown period, ignore single touch to prevent accidental word selection
+    if (Date.now() < pinchState.cooldownUntil) {
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
+        touchState.isScrolling = false;
+        touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
+        return;
+    }
+
+    // 2-finger pinch gesture detected
+    if (e.touches.length === 2) {
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
+        touchState.isScrolling = false;
+        touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
+        resetDrag();
+        clearActive();
+        clearSelected();
+
+        pinchState.active = true;
+        pinchState.initialDistance = getTouchDistance(e.touches);
+        pinchState.initialZoom = Math.round(currentZoomRatio * 100);
+        pinchState.lastZoom = pinchState.initialZoom;
+        return;
+    }
+
+    if (e.touches.length > 2) {
         touchState.isDoubleTap = false;
         touchState.hasDragged = false;
         touchState.isScrolling = false;
         resetDrag();
+        pinchState.active = false;
         return;
     }
+
     const t = e.touches[0];
     const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
     if (!span) {
@@ -140,7 +191,35 @@ reader.addEventListener('touchstart', e => {
     }
 }, { passive: true });
 
-reader.addEventListener('touchmove', e => {
+touchSurface.addEventListener('touchmove', e => {
+    // 1. Two-finger pinch-to-zoom
+    if (pinchState.active && e.touches.length === 2) {
+        e.preventDefault(); // Stop native browser full-page viewport zoom
+        const currentDistance = getTouchDistance(e.touches);
+        if (pinchState.initialDistance > 10) {
+            const scale = currentDistance / pinchState.initialDistance;
+            const targetZoom = Math.round(pinchState.initialZoom * scale);
+            const clamped = Math.max(70, Math.min(180, targetZoom));
+            if (clamped !== pinchState.lastZoom) {
+                pinchState.lastZoom = clamped;
+                if (!pinchState.rafId) {
+                    pinchState.rafId = requestAnimationFrame(() => {
+                        pinchState.rafId = null;
+                        if (typeof setZoom === 'function') {
+                            setZoom(pinchState.lastZoom);
+                        }
+                    });
+                }
+            }
+        }
+        return;
+    }
+
+    if (pinchState.active) {
+        e.preventDefault();
+        return;
+    }
+
     const t = e.touches[0];
     const dx = t.clientX - touchState.startX;
     const dy = t.clientY - touchState.startY;
@@ -167,8 +246,40 @@ reader.addEventListener('touchmove', e => {
     }
 }, { passive: false });
 
-reader.addEventListener('touchend', e => {
-    // 1. Double-tap phrase drag selection occurred
+touchSurface.addEventListener('touchend', e => {
+    // 1. Two-finger pinch gesture ended
+    if (pinchState.active) {
+        if (e.touches.length < 2) {
+            pinchState.active = false;
+            pinchState.cooldownUntil = Date.now() + 350;
+            if (pinchState.rafId) {
+                cancelAnimationFrame(pinchState.rafId);
+                pinchState.rafId = null;
+            }
+            if (typeof setZoom === 'function') {
+                setZoom(pinchState.lastZoom);
+            }
+        }
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
+        touchState.isScrolling = false;
+        touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
+        return;
+    }
+
+    if (Date.now() < pinchState.cooldownUntil) {
+        touchState.isDoubleTap = false;
+        touchState.hasDragged = false;
+        touchState.isScrolling = false;
+        touchState.targetWord = null;
+        touchState.lastTapWord = null;
+        touchState.lastTapTime = 0;
+        return;
+    }
+
+    // 2. Double-tap phrase drag selection occurred
     if (touchState.isDoubleTap && touchState.hasDragged && drag.active) {
         e.preventDefault();
         finalizeGesture();
@@ -180,7 +291,7 @@ reader.addEventListener('touchend', e => {
         return;
     }
 
-    // 2. Double-tap single word translation (quick double tap without drag)
+    // 3. Double-tap single word translation (quick double tap without drag)
     if (touchState.isDoubleTap && !touchState.hasDragged) {
         e.preventDefault();
         const span = touchState.targetWord || touchState.lastTapWord;
@@ -202,7 +313,7 @@ reader.addEventListener('touchend', e => {
         return;
     }
 
-    // 3. Single tap or normal scroll -> do nothing to translation! Let page scroll freely.
+    // 4. Single tap or normal scroll -> do nothing to translation! Let page scroll freely.
     if (touchState.isScrolling) {
         touchState.isScrolling = false;
         touchState.targetWord = null;
@@ -212,6 +323,11 @@ reader.addEventListener('touchend', e => {
 }, { passive: false });
 
 window.addEventListener('touchcancel', () => {
+    pinchState.active = false;
+    if (pinchState.rafId) {
+        cancelAnimationFrame(pinchState.rafId);
+        pinchState.rafId = null;
+    }
     touchState.isDoubleTap = false;
     touchState.hasDragged = false;
     touchState.isScrolling = false;
@@ -219,6 +335,92 @@ window.addEventListener('touchcancel', () => {
     touchState.lastTapWord = null;
     resetDrag();
     clearSelected();
+});
+
+// =============================================================
+// LAPTOP TOUCHPAD & TRACKPAD PINCH-TO-ZOOM ENGINE
+// =============================================================
+let touchpadZoomAccumulator = null;
+let touchpadRafId = null;
+let touchpadTimeout = null;
+
+function isModalActive() {
+    const modals = [
+        typeof settingsModal !== 'undefined' ? settingsModal : null,
+        typeof langModal !== 'undefined' ? langModal : null,
+        typeof keyModal !== 'undefined' ? keyModal : null,
+        typeof savedModal !== 'undefined' ? savedModal : null,
+        typeof outlineModal !== 'undefined' ? outlineModal : null,
+        typeof typographyModal !== 'undefined' ? typographyModal : null,
+        typeof pdfCropModal !== 'undefined' ? pdfCropModal : null,
+        typeof bookActionModal !== 'undefined' ? bookActionModal : null,
+        typeof bookRenameModal !== 'undefined' ? bookRenameModal : null
+    ];
+    return modals.some(m => m && !m.classList.contains('hidden'));
+}
+
+function handleWheelZoom(e) {
+    // Laptop trackpads trigger wheel events with ctrlKey = true when pinched
+    if (!e.ctrlKey) return;
+    if (!readerShell || readerShell.classList.contains('hidden')) return;
+    if (isModalActive()) return;
+
+    // Prevent default browser viewport/page zoom
+    e.preventDefault();
+
+    if (touchpadZoomAccumulator === null) {
+        touchpadZoomAccumulator = Math.round(currentZoomRatio * 100);
+    }
+
+    // Clamp delta to prevent huge jumps from high-speed mouse wheels
+    const clampedDelta = Math.max(-25, Math.min(25, e.deltaY));
+    // Negative deltaY means zooming in (pinch outward), positive means zooming out (pinch inward)
+    touchpadZoomAccumulator -= clampedDelta * 0.4;
+    touchpadZoomAccumulator = Math.max(70, Math.min(180, touchpadZoomAccumulator));
+
+    const targetZoom = Math.round(touchpadZoomAccumulator);
+
+    if (!touchpadRafId) {
+        touchpadRafId = requestAnimationFrame(() => {
+            touchpadRafId = null;
+            if (typeof setZoom === 'function') {
+                setZoom(targetZoom);
+            }
+        });
+    }
+
+    clearTimeout(touchpadTimeout);
+    touchpadTimeout = setTimeout(() => {
+        touchpadZoomAccumulator = null;
+    }, 200);
+}
+
+// Window wheel listener with passive: false to allow e.preventDefault()
+window.addEventListener('wheel', handleWheelZoom, { passive: false });
+
+// Safari on macOS Trackpad Gesture Support (gesturestart / gesturechange / gestureend)
+let gestureInitialZoom = 100;
+
+window.addEventListener('gesturestart', e => {
+    if (!readerShell || readerShell.classList.contains('hidden')) return;
+    if (isModalActive()) return;
+    e.preventDefault();
+    gestureInitialZoom = Math.round(currentZoomRatio * 100);
+});
+
+window.addEventListener('gesturechange', e => {
+    if (!readerShell || readerShell.classList.contains('hidden')) return;
+    if (isModalActive()) return;
+    e.preventDefault();
+    const targetZoom = Math.round(Math.max(70, Math.min(180, gestureInitialZoom * e.scale)));
+    if (typeof setZoom === 'function') {
+        setZoom(targetZoom);
+    }
+});
+
+window.addEventListener('gestureend', e => {
+    if (!readerShell || readerShell.classList.contains('hidden')) return;
+    e.preventDefault();
 });
 
 // Single click → strip surrounding punctuation.
