@@ -6,6 +6,7 @@
 
 const drag = { active:false, anchor:null, current:null, moved:false, pointer:'mouse' };
 let activeEls = [], selectedEls = [], previousActiveEl = null;
+let lastTouchTime = 0;
 
 function clearActive()   { activeEls.forEach(el => el.classList.remove('active')); activeEls = []; }
 function clearSelected() { selectedEls.forEach(el => el.classList.remove('selected')); selectedEls = []; }
@@ -26,6 +27,9 @@ function resetDrag() {
 
 // Middle-click (Mouse wheel click): translate and auto-bookmark immediately
 reader.addEventListener('mousedown', e => {
+    // Ignore synthetic mouse events dispatched by mobile touch taps
+    if (Date.now() - lastTouchTime < 700) return;
+
     if (e.button === 1) {
         e.preventDefault();
         e.stopPropagation();
@@ -59,11 +63,13 @@ reader.addEventListener('auxclick', e => {
 });
 
 reader.addEventListener('mouseover', e => {
+    if (Date.now() - lastTouchTime < 700) return;
     if (!drag.active || drag.pointer !== 'mouse') return;
     const span = e.target.closest('.word');
     if (span && span !== drag.current) highlightRange(span);
 });
 window.addEventListener('mouseup', e => {
+    if (Date.now() - lastTouchTime < 700) return;
     if (!drag.active || drag.pointer !== 'mouse' || e.button !== 0) return;
     finalizeGesture();
 });
@@ -102,6 +108,8 @@ function getTouchDistance(touches) {
 const touchSurface = (typeof readerShell !== 'undefined' && readerShell) ? readerShell : reader;
 
 touchSurface.addEventListener('touchstart', e => {
+    lastTouchTime = Date.now();
+
     // If in pinch cooldown period, ignore single touch to prevent accidental word selection
     if (Date.now() < pinchState.cooldownUntil) {
         touchState.isDoubleTap = false;
@@ -149,6 +157,9 @@ touchSurface.addEventListener('touchstart', e => {
     if (!span) {
         touchState.targetWord = null;
         touchState.isDoubleTap = false;
+        hideTooltip();
+        clearActive();
+        clearSelected();
         return;
     }
 
@@ -161,6 +172,7 @@ touchSurface.addEventListener('touchstart', e => {
     if (dt < 350 && dx < 20 && dy < 20 && touchState.lastTapWord) {
         touchState.isDoubleTap = true;
         touchState.hasDragged = false;
+        hideTooltip();
         touchState.startX = t.clientX;
         touchState.startY = t.clientY;
         touchState.startTime = now;
@@ -196,6 +208,8 @@ touchSurface.addEventListener('touchstart', e => {
 }, { passive: true });
 
 touchSurface.addEventListener('touchmove', e => {
+    lastTouchTime = Date.now();
+
     // 1. Two-finger pinch-to-zoom centered on touch midpoint
     if (pinchState.active && e.touches.length === 2) {
         e.preventDefault(); // Stop native browser full-page viewport zoom
@@ -265,6 +279,8 @@ touchSurface.addEventListener('touchmove', e => {
 }, { passive: false });
 
 touchSurface.addEventListener('touchend', e => {
+    lastTouchTime = Date.now();
+
     // 1. Two-finger pinch gesture ended
     if (pinchState.active) {
         if (e.touches.length < 2) {
@@ -332,15 +348,18 @@ touchSurface.addEventListener('touchend', e => {
     }
 
     // 4. Single tap or normal scroll -> do nothing to translation! Let page scroll freely.
-    if (touchState.isScrolling) {
-        touchState.isScrolling = false;
-        touchState.targetWord = null;
-        touchState.lastTapWord = null;
+    if (!touchState.isDoubleTap) {
+        if (touchState.isScrolling) {
+            touchState.isScrolling = false;
+            touchState.targetWord = null;
+            touchState.lastTapWord = null;
+        }
         return;
     }
 }, { passive: false });
 
 window.addEventListener('touchcancel', () => {
+    lastTouchTime = Date.now();
     pinchState.active = false;
     if (pinchState.rafId) {
         cancelAnimationFrame(pinchState.rafId);
