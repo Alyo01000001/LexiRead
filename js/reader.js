@@ -584,44 +584,71 @@ document.querySelectorAll('.spacing-choice-btn').forEach(btn => {
 });
 
 // 4. ZOOM & NAVIGATION CONTROLLER
-function setZoom(val) {
-    const clamped = Math.max(70, Math.min(180, val));
+function setZoom(val, focalPoint = null) {
+    const clamped = Math.max(70, Math.min(250, val));
     currentZoomRatio = clamped / 100;
     if (zoomSlider) zoomSlider.value = clamped;
     if (zoomLabel) zoomLabel.textContent = clamped + '%';
     if (mobileZoomLabel) mobileZoomLabel.textContent = clamped + '%';
-    applyCurrentZoom();
+    applyCurrentZoom(focalPoint);
 }
 
-function applyCurrentZoom() {
+function applyCurrentZoom(focalPoint = null) {
+    const targetX = (focalPoint && typeof focalPoint.x === 'number') ? focalPoint.x : (window.innerWidth / 2);
+    const targetY = (focalPoint && typeof focalPoint.y === 'number') ? focalPoint.y : (window.innerHeight * 0.40);
+
     if (reader.classList.contains('txt-mode') || reader.classList.contains('docx-mode')) {
-        const viewportTargetY = window.innerHeight * 0.40;
         const oldReaderRect = reader.getBoundingClientRect();
-        const offsetRatio = (viewportTargetY - oldReaderRect.top) / (oldReaderRect.height || 1);
+        const offsetYRatio = (targetY - oldReaderRect.top) / (oldReaderRect.height || 1);
+        const offsetXRatio = (targetX - oldReaderRect.left) / (oldReaderRect.width || 1);
 
         reader.style.fontSize = (1.2 * currentZoomRatio) + 'rem';
 
         const newReaderRect = reader.getBoundingClientRect();
         const newReaderAbsTop = window.scrollY + newReaderRect.top;
-        const desiredScrollTop = newReaderAbsTop + (newReaderRect.height * offsetRatio) - viewportTargetY;
+        const desiredScrollTop = newReaderAbsTop + (newReaderRect.height * offsetYRatio) - targetY;
         window.scrollTo({ top: Math.max(0, desiredScrollTop), behavior: 'instant' });
+
+        if (readerShell && readerShell.scrollWidth > readerShell.clientWidth) {
+            const shellRect = readerShell.getBoundingClientRect();
+            const currentScrollLeft = readerShell.scrollLeft;
+            const readerLeftInShell = (newReaderRect.left - shellRect.left) + currentScrollLeft;
+            const desiredScrollLeft = readerLeftInShell + (newReaderRect.width * offsetXRatio) - (targetX - shellRect.left);
+            readerShell.scrollLeft = Math.max(0, desiredScrollLeft);
+        }
     }
 
     if (reader.classList.contains('pdf-mode')) {
         const pages = document.querySelectorAll('.pdf-page');
         if (!pages.length) return;
 
-        // 1. Capture the active reading anchor before resizing
-        const viewportTargetY = window.innerHeight * 0.40;
+        // 1. Capture the active reading anchor under the focal point before resizing
         let anchorPage = null;
-        let anchorOffsetRatio = 0;
+        let anchorOffsetYRatio = 0;
+        let anchorOffsetXRatio = 0;
 
         for (const p of pages) {
             const rect = p.getBoundingClientRect();
-            if (rect.top <= viewportTargetY && rect.bottom >= viewportTargetY) {
+            if (rect.top <= targetY && rect.bottom >= targetY) {
                 anchorPage = p;
-                anchorOffsetRatio = (viewportTargetY - rect.top) / (rect.height || 1);
+                anchorOffsetYRatio = (targetY - rect.top) / (rect.height || 1);
+                anchorOffsetXRatio = (targetX - rect.left) / (rect.width || 1);
                 break;
+            }
+        }
+
+        // Fallback: pick the closest page if focal point is outside all pages
+        if (!anchorPage) {
+            let closestDist = Infinity;
+            for (const p of pages) {
+                const rect = p.getBoundingClientRect();
+                const distY = Math.abs((rect.top + rect.bottom) / 2 - targetY);
+                if (distY < closestDist) {
+                    closestDist = distY;
+                    anchorPage = p;
+                    anchorOffsetYRatio = Math.max(0, Math.min(1, (targetY - rect.top) / (rect.height || 1)));
+                    anchorOffsetXRatio = Math.max(0, Math.min(1, (targetX - rect.left) / (rect.width || 1)));
+                }
             }
         }
 
@@ -647,12 +674,20 @@ function applyCurrentZoom() {
             }
         });
 
-        // 3. Restore exact reading position relative to anchor
+        // 3. Restore exact reading position relative to anchor under focal point
         if (anchorPage) {
             const newAnchorRect = anchorPage.getBoundingClientRect();
             const newAnchorAbsTop = window.scrollY + newAnchorRect.top;
-            const targetScrollTop = newAnchorAbsTop + (newAnchorRect.height * anchorOffsetRatio) - viewportTargetY;
+            const targetScrollTop = newAnchorAbsTop + (newAnchorRect.height * anchorOffsetYRatio) - targetY;
             window.scrollTo({ top: Math.max(0, targetScrollTop), behavior: 'instant' });
+
+            if (readerShell && readerShell.scrollWidth > readerShell.clientWidth) {
+                const shellRect = readerShell.getBoundingClientRect();
+                const currentScrollLeft = readerShell.scrollLeft;
+                const pageLeftInShell = (newAnchorRect.left - shellRect.left) + currentScrollLeft;
+                const desiredScrollLeft = pageLeftInShell + (newAnchorRect.width * anchorOffsetXRatio) - (targetX - shellRect.left);
+                readerShell.scrollLeft = Math.max(0, desiredScrollLeft);
+            }
         }
     }
 }

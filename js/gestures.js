@@ -87,6 +87,7 @@ const pinchState = {
     initialDistance: 0,
     initialZoom: 100,
     lastZoom: 100,
+    focalPoint: null,
     rafId: null,
     cooldownUntil: 0
 };
@@ -128,6 +129,9 @@ touchSurface.addEventListener('touchstart', e => {
         pinchState.initialDistance = getTouchDistance(e.touches);
         pinchState.initialZoom = Math.round(currentZoomRatio * 100);
         pinchState.lastZoom = pinchState.initialZoom;
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        pinchState.focalPoint = { x: midX, y: midY };
         return;
     }
 
@@ -192,21 +196,35 @@ touchSurface.addEventListener('touchstart', e => {
 }, { passive: true });
 
 touchSurface.addEventListener('touchmove', e => {
-    // 1. Two-finger pinch-to-zoom
+    // 1. Two-finger pinch-to-zoom centered on touch midpoint
     if (pinchState.active && e.touches.length === 2) {
         e.preventDefault(); // Stop native browser full-page viewport zoom
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        pinchState.focalPoint = { x: midX, y: midY };
+
         const currentDistance = getTouchDistance(e.touches);
         if (pinchState.initialDistance > 10) {
             const scale = currentDistance / pinchState.initialDistance;
             const targetZoom = Math.round(pinchState.initialZoom * scale);
-            const clamped = Math.max(70, Math.min(180, targetZoom));
+            const clamped = Math.max(70, Math.min(250, targetZoom));
+
+            // Prevent virtual zoom accumulation beyond limits (eliminate hysteresis/deadband)
+            if (targetZoom >= 250 && currentDistance > 10) {
+                pinchState.initialDistance = currentDistance;
+                pinchState.initialZoom = 250;
+            } else if (targetZoom <= 70 && currentDistance > 10) {
+                pinchState.initialDistance = currentDistance;
+                pinchState.initialZoom = 70;
+            }
+
             if (clamped !== pinchState.lastZoom) {
                 pinchState.lastZoom = clamped;
                 if (!pinchState.rafId) {
                     pinchState.rafId = requestAnimationFrame(() => {
                         pinchState.rafId = null;
                         if (typeof setZoom === 'function') {
-                            setZoom(pinchState.lastZoom);
+                            setZoom(pinchState.lastZoom, pinchState.focalPoint);
                         }
                     });
                 }
@@ -257,7 +275,7 @@ touchSurface.addEventListener('touchend', e => {
                 pinchState.rafId = null;
             }
             if (typeof setZoom === 'function') {
-                setZoom(pinchState.lastZoom);
+                setZoom(pinchState.lastZoom, pinchState.focalPoint);
             }
         }
         touchState.isDoubleTap = false;
@@ -343,6 +361,7 @@ window.addEventListener('touchcancel', () => {
 let touchpadZoomAccumulator = null;
 let touchpadRafId = null;
 let touchpadTimeout = null;
+let touchpadFocalPoint = null;
 
 function isModalActive() {
     const modals = [
@@ -372,11 +391,13 @@ function handleWheelZoom(e) {
         touchpadZoomAccumulator = Math.round(currentZoomRatio * 100);
     }
 
+    touchpadFocalPoint = { x: e.clientX, y: e.clientY };
+
     // Clamp delta to prevent huge jumps from high-speed mouse wheels
     const clampedDelta = Math.max(-25, Math.min(25, e.deltaY));
     // Negative deltaY means zooming in (pinch outward), positive means zooming out (pinch inward)
     touchpadZoomAccumulator -= clampedDelta * 0.4;
-    touchpadZoomAccumulator = Math.max(70, Math.min(180, touchpadZoomAccumulator));
+    touchpadZoomAccumulator = Math.max(70, Math.min(250, touchpadZoomAccumulator));
 
     const targetZoom = Math.round(touchpadZoomAccumulator);
 
@@ -384,7 +405,7 @@ function handleWheelZoom(e) {
         touchpadRafId = requestAnimationFrame(() => {
             touchpadRafId = null;
             if (typeof setZoom === 'function') {
-                setZoom(targetZoom);
+                setZoom(targetZoom, touchpadFocalPoint);
             }
         });
     }
@@ -392,6 +413,7 @@ function handleWheelZoom(e) {
     clearTimeout(touchpadTimeout);
     touchpadTimeout = setTimeout(() => {
         touchpadZoomAccumulator = null;
+        touchpadFocalPoint = null;
     }, 200);
 }
 
@@ -412,9 +434,18 @@ window.addEventListener('gesturechange', e => {
     if (!readerShell || readerShell.classList.contains('hidden')) return;
     if (isModalActive()) return;
     e.preventDefault();
-    const targetZoom = Math.round(Math.max(70, Math.min(180, gestureInitialZoom * e.scale)));
+    const rawZoom = gestureInitialZoom * e.scale;
+    const targetZoom = Math.round(Math.max(70, Math.min(250, rawZoom)));
+
+    if (rawZoom >= 250 && e.scale > 0) {
+        gestureInitialZoom = 250 / e.scale;
+    } else if (rawZoom <= 70 && e.scale > 0) {
+        gestureInitialZoom = 70 / e.scale;
+    }
+
+    const focalPoint = { x: e.clientX, y: e.clientY };
     if (typeof setZoom === 'function') {
-        setZoom(targetZoom);
+        setZoom(targetZoom, focalPoint);
     }
 });
 
