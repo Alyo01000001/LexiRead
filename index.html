@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
 
     <!-- LexiRead Custom Stylesheet -->
-    <link rel="stylesheet" href="css/style.css?v=2.1" />
+    <link rel="stylesheet" href="css/style.css?v=2.2" />
 </head>
 
 <body class="bg-slate-950 text-slate-100 min-h-screen">
@@ -271,51 +271,53 @@
     <!-- ============ MODAL: API KEY ============ -->
     <div id="keyModal" class="hidden fixed inset-0 z-[95] items-center justify-center p-4">
         <div class="keyBack absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeKeyModal(event)"></div>
-        <div class="modal-card relative w-[460px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
-            <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-bold text-slate-100" data-i18n="apiKeyModalTitle">🔑 Translation API Key</h2>
+        <div class="modal-card relative w-[460px] max-w-full flex flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
+                <h2 class="text-sm sm:text-base font-bold text-slate-100" data-i18n="apiKeyModalTitle">🔑 Translation API Key</h2>
                 <div class="flex items-center gap-2">
                     <span id="activeProviderBadge" class="rounded bg-indigo-500/20 px-2 py-0.5 text-[11px] font-medium text-indigo-300">Active: Gemini</span>
                     <button id="keyCloseBtn" type="button" onclick="closeKeyModal(event)" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
                 </div>
             </div>
             
-            <!-- Tabs: Left Gemini, Right DeepL -->
-            <div class="mb-4 flex border-b border-slate-800">
-                <button id="tabGemini" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-indigo-500 text-indigo-400" data-i18n="tabGemini">
-                    Google Gemini
-                </button>
-                <button id="tabDeepl" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200" data-i18n="tabDeepl">
-                    DeepL API
-                </button>
-            </div>
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-5">
+                <!-- Tabs: Left Gemini, Right DeepL -->
+                <div class="mb-4 flex border-b border-slate-800">
+                    <button id="tabGemini" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-indigo-500 text-indigo-400" data-i18n="tabGemini">
+                        Google Gemini
+                    </button>
+                    <button id="tabDeepl" type="button" class="flex-1 pb-2.5 text-center text-xs font-semibold sm:text-sm transition border-b-2 border-transparent text-slate-400 hover:text-slate-200" data-i18n="tabDeepl">
+                        DeepL API
+                    </button>
+                </div>
 
-            <!-- Tab: Gemini Description -->
-            <div id="geminiDescBlock" class="mb-3">
-                <p class="text-xs leading-relaxed text-slate-400" data-i18n="geminiDesc">
-                    Directly uses <strong class="text-indigo-300">Gemini 3.5 Flash-Lite</strong> (low-latency mode). Get a free API key from
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" class="text-indigo-400 underline">Google AI Studio</a>.
-                </p>
-            </div>
+                <!-- Tab: Gemini Description -->
+                <div id="geminiDescBlock" class="mb-3">
+                    <p class="text-xs leading-relaxed text-slate-400" data-i18n="geminiDesc">
+                        Directly uses <strong class="text-indigo-300">Gemini 3.5 Flash-Lite</strong> (low-latency mode). Get a free API key from
+                        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" class="text-indigo-400 underline">Google AI Studio</a>.
+                    </p>
+                </div>
 
-            <!-- Tab: DeepL Description -->
-            <div id="deeplDescBlock" class="mb-3 hidden">
-                <p class="text-xs leading-relaxed text-slate-400" data-i18n="deeplDesc">
-                    Supports Free &amp; Pro keys. Get a key from
-                    <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noreferrer" class="text-indigo-400 underline">DeepL Free / Pro API</a>.
-                </p>
-            </div>
+                <!-- Tab: DeepL Description -->
+                <div id="deeplDescBlock" class="mb-3 hidden">
+                    <p class="text-xs leading-relaxed text-slate-400" data-i18n="deeplDesc">
+                        Supports Free &amp; Pro keys. Get a key from
+                        <a href="https://www.deepl.com/pro#developer" target="_blank" rel="noreferrer" class="text-indigo-400 underline">DeepL Free / Pro API</a>.
+                    </p>
+                </div>
 
-            <input id="keyInput" type="text" spellcheck="false" autocomplete="off"
-                   placeholder="e.g. AIzaSyB..."
-                   class="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <p id="keyHint" class="mt-1.5 hidden text-[11px] text-amber-400" data-i18n="keyHintEmpty">Please paste a non-empty API key.</p>
-            
-            <div class="mt-4 flex items-center justify-between">
-                <span class="text-[11px] text-slate-500" data-i18n="keysCachedLocally">Keys are cached locally</span>
-                <div class="flex items-center gap-2">
-                    <button id="keyCancel" type="button" onclick="closeKeyModal(event)" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer select-none active:scale-95" data-i18n="closeBtn">Close</button>
-                    <button id="keySave" type="button" onclick="saveKeyModal(event)" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20 transition cursor-pointer select-none active:scale-95" data-i18n="saveActivateBtn">Save &amp; Activate</button>
+                <input id="keyInput" type="text" spellcheck="false" autocomplete="off"
+                       placeholder="e.g. AIzaSyB..."
+                       class="w-full rounded-md border border-slate-600 bg-slate-800 px-3 py-2 font-mono text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <p id="keyHint" class="mt-1.5 hidden text-[11px] text-amber-400" data-i18n="keyHintEmpty">Please paste a non-empty API key.</p>
+                
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="text-[11px] text-slate-500" data-i18n="keysCachedLocally">Keys are cached locally</span>
+                    <div class="flex items-center gap-2">
+                        <button id="keyCancel" type="button" onclick="closeKeyModal(event)" class="rounded-md border border-slate-700 px-3.5 py-1.5 text-xs text-slate-300 hover:border-slate-500 hover:text-white transition cursor-pointer select-none active:scale-95" data-i18n="closeBtn">Close</button>
+                        <button id="keySave" type="button" onclick="saveKeyModal(event)" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20 transition cursor-pointer select-none active:scale-95" data-i18n="saveActivateBtn">Save &amp; Activate</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -324,26 +326,33 @@
     <!-- ============ MODAL: LANGUAGE SELECTION (after upload) ============ -->
     <div id="langModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="langBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-[440px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl">
-            <h2 class="text-base font-bold text-slate-100" data-i18n="langModalTitle">🌐 Select Source and Target Language</h2>
-            <p id="langFileName" class="mt-1 mb-4 truncate text-xs text-slate-400"></p>
-
-            <div class="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
-                <label class="block">
-                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langFrom">From</span>
-                    <select id="langSrc" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                </label>
-                <button id="langSwap" data-i18n-title="langSwapTitle" title="Swap" class="mb-1 rounded-md border border-slate-700 bg-slate-800 px-2 py-2 text-sm hover:bg-slate-700">⇄</button>
-                <label class="block">
-                    <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langTo">To</span>
-                    <select id="langTgt" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                </label>
+        <div class="modal-card relative w-[440px] max-w-full flex flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
+                <h2 class="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-2" data-i18n="langModalTitle">
+                    <span>🌐</span> <span>Select Source and Target Language</span>
+                </h2>
+                <button id="langCloseBtn" type="button" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
             </div>
-            <p id="langHint" class="mt-2 hidden text-[11px] text-amber-400" data-i18n="langHintSame">Source and target must be different.</p>
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-5">
+                <p id="langFileName" class="mb-4 truncate text-xs text-slate-400"></p>
 
-            <div class="mt-5 flex items-center justify-end gap-2">
-                <button id="langCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="cancelBtn">Cancel</button>
-                <button id="langConfirm" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium hover:bg-indigo-500" data-i18n="confirmBtn">Confirm</button>
+                <div class="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+                    <label class="block">
+                        <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langFrom">From</span>
+                        <select id="langSrc" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                    </label>
+                    <button id="langSwap" data-i18n-title="langSwapTitle" title="Swap" class="mb-1 rounded-md border border-slate-700 bg-slate-800 px-2 py-2 text-sm hover:bg-slate-700">⇄</button>
+                    <label class="block">
+                        <span class="mb-1 block text-[11px] uppercase tracking-wider text-slate-500" data-i18n="langTo">To</span>
+                        <select id="langTgt" class="w-full rounded-md border border-slate-600 bg-slate-800 px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                    </label>
+                </div>
+                <p id="langHint" class="mt-2 hidden text-[11px] text-amber-400" data-i18n="langHintSame">Source and target must be different.</p>
+
+                <div class="mt-5 flex items-center justify-end gap-2">
+                    <button id="langCancel" class="rounded-md border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-slate-500 hover:text-white" data-i18n="cancelBtn">Cancel</button>
+                    <button id="langConfirm" class="rounded-md bg-indigo-600 px-4 py-1.5 text-xs font-medium hover:bg-indigo-500" data-i18n="confirmBtn">Confirm</button>
+                </div>
             </div>
         </div>
     </div>
@@ -416,44 +425,46 @@
     <!-- ============ MODAL: PDF OUTLINE / TABLE OF CONTENTS ============ -->
     <div id="outlineModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="outlineBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative flex max-h-[80vh] w-[460px] max-w-full flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-800 p-4">
-                <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+        <div class="modal-card relative flex max-h-[85vh] w-[460px] max-w-full flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
+                <h2 class="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-2">
                     <span>📑</span> <span data-i18n="outlineTitle">Table of Contents</span>
                 </h2>
-                <button id="outlineClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
+                <button id="outlineClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
             </div>
-            <div id="outlineList" class="min-h-[160px] flex-1 overflow-y-auto p-4 space-y-1 text-xs"></div>
+            <div id="outlineList" class="modal-scroll-area min-h-[160px] flex-1 overflow-y-auto p-4 space-y-1 text-xs"></div>
         </div>
     </div>
 
     <!-- ============ MODAL: TYPOGRAPHY & GUI CUSTOMIZER ============ -->
     <div id="typographyModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="typographyBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-[400px] max-w-full rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="modal-card relative w-[420px] max-w-full flex flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
                 <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
                     <span>🔤</span> <span data-i18n="typographyTitle">Appearance &amp; Layout</span>
                 </h2>
-                <button id="typographyClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
+                <button id="typographyClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
             </div>
 
-            <div id="typographyDocSettings" class="space-y-4 pt-1">
-                <div>
-                    <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="fontFamilyLabel">Font Family (TXT / DOCX)</span>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif" data-i18n="fontSerif">Serif (Georgia)</button>
-                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif" data-i18n="fontSans">Sans (Modern)</button>
-                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace" data-i18n="fontMono">Monospace</button>
-                        <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-5 space-y-4">
+                <div id="typographyDocSettings" class="space-y-4 pt-1">
+                    <div>
+                        <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="fontFamilyLabel">Font Family (TXT / DOCX)</span>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-serif text-slate-200 transition" data-font="Georgia, 'Iowan Old Style', serif" data-i18n="fontSerif">Serif (Georgia)</button>
+                            <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-sans text-slate-200 transition" data-font="ui-sans-serif, system-ui, sans-serif" data-i18n="fontSans">Sans (Modern)</button>
+                            <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 font-mono text-slate-200 transition" data-font="ui-monospace, monospace" data-i18n="fontMono">Monospace</button>
+                            <button class="font-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-left hover:border-indigo-500 text-slate-200 transition" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="lineSpacingLabel">Line Spacing (TXT / DOCX)</span>
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6" data-i18n="spacingCompact">Compact</button>
-                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95" data-i18n="spacingDefault">Default</button>
-                        <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4" data-i18n="spacingRelaxed">Relaxed</button>
+                    <div>
+                        <span class="block text-xs text-slate-400 mb-1.5 font-medium" data-i18n="lineSpacingLabel">Line Spacing (TXT / DOCX)</span>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.6" data-i18n="spacingCompact">Compact</button>
+                            <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="1.95" data-i18n="spacingDefault">Default</button>
+                            <button class="spacing-choice-btn rounded-lg border border-slate-700 bg-slate-800/80 px-2 py-1.5 text-center hover:border-indigo-500 text-slate-200 transition" data-lh="2.4" data-i18n="spacingRelaxed">Relaxed</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -463,16 +474,16 @@
     <!-- ============ MODAL: SAVED WORDS & PHRASES ============ -->
     <div id="savedModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="savedBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative flex max-h-[80vh] w-[580px] max-w-full flex-col rounded-xl border border-slate-700 bg-slate-900 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-800 p-4">
-                <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
+        <div class="modal-card relative flex max-h-[85vh] w-[580px] max-w-full flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
+                <h2 class="text-sm sm:text-base font-bold text-slate-100 flex items-center gap-2">
                     <span>🔖</span> <span data-i18n="savedModalTitle">Saved Words &amp; Phrases</span>
                 </h2>
-                <button id="savedClose" class="rounded-md px-2 py-1 text-xs text-slate-500 hover:bg-slate-800 hover:text-white">✕</button>
+                <button id="savedClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
             </div>
 
             <!-- Instant Search Filter -->
-            <div class="px-4 pt-3 pb-1 border-b border-slate-800/60">
+            <div class="px-5 pt-3 pb-2 border-b border-slate-800/60 shrink-0">
                 <div class="relative">
                     <span class="absolute left-3 top-2 text-slate-500 text-xs">🔍</span>
                     <input id="savedSearchInput" type="text" data-i18n-placeholder="searchSavedPlaceholder" placeholder="Search saved words or translations..."
@@ -480,9 +491,9 @@
                 </div>
             </div>
 
-            <div id="savedList" class="min-h-[120px] flex-1 overflow-y-auto p-4 space-y-2"></div>
+            <div id="savedList" class="modal-scroll-area min-h-[120px] flex-1 overflow-y-auto p-4 space-y-2"></div>
 
-            <div class="flex items-center justify-between gap-2 border-t border-slate-800 p-4">
+            <div class="flex items-center justify-between gap-2 border-t border-slate-800 px-5 py-3.5 shrink-0 bg-slate-900">
                 <button id="savedClear" class="rounded-md border border-red-900/80 px-3 py-1.5 text-xs text-red-400 hover:bg-red-900/30 transition" data-i18n="deleteAllBtn">Delete all</button>
                 <div class="flex items-center gap-2">
                     <button id="savedSyncCardlyo" data-i18n-title="copyCardlyoBtn" title="Copy flashcard deck to clipboard to paste (Ctrl+V) in Cardlyo" class="rounded-md bg-indigo-600 px-3.5 py-1.5 text-xs font-semibold hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition">
@@ -499,163 +510,165 @@
     <!-- ============ MODAL: UNIFIED SETTINGS & PREFERENCES ============ -->
     <div id="settingsModal" class="hidden fixed inset-0 z-[85] items-center justify-center p-4">
         <div class="settingsBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-[420px] max-w-full rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="modal-card relative w-[440px] max-w-full flex flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="modal-card-header flex items-center justify-between border-b border-slate-800 px-5 py-3.5 bg-slate-900 shrink-0">
                 <h2 class="text-sm font-bold text-slate-100 flex items-center gap-2">
                     <span>⚙️</span> <span data-i18n="settingsTitle">Settings &amp; Preferences</span>
                 </h2>
                 <button id="settingsClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold transition">✕</button>
             </div>
 
-            <!-- Section: Theme -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="themeLabel">Theme</label>
-                <div class="grid grid-cols-3 gap-2 text-xs font-medium">
-                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="dark">
-                        <span>🌙</span> <span data-i18n="themeDark">Dark</span>
-                    </button>
-                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="light">
-                        <span>☀️</span> <span data-i18n="themeLight">Light</span>
-                    </button>
-                    <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="sepia">
-                        <span>📜</span> <span data-i18n="themeSepia">Sepia</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Section: Global GUI Scale -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="guiScaleLabel">Arayüz Boyutu / GUI Scale</label>
-                <div class="grid grid-cols-4 gap-1.5 text-xs">
-                    <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="85" data-i18n="guiScale85">85%</button>
-                    <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="100" data-i18n="guiScale100">100%</button>
-                    <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="115" data-i18n="guiScale115">115%</button>
-                    <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="130" data-i18n="guiScale130">130%</button>
-                </div>
-            </div>
-
-            <!-- Section: App Language -->
-            <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="appLangLabel">Interface Language</label>
-                <div class="grid grid-cols-2 gap-2 text-xs font-medium">
-                    <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="tr">
-                        <span>🇹🇷</span> <span>Türkçe</span>
-                    </button>
-                    <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="en">
-                        <span>🇬🇧</span> <span>English</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Section: Cloud Sync (Dropbox) -->
-            <div class="pt-2 border-t border-slate-800/80 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <span class="block text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                            <span>☁️</span> <span data-i18n="cloudSyncTitle">Bulut Senkronizasyonu (Dropbox)</span>
-                        </span>
-                        <span id="settingsCloudStatus" class="text-[11px] text-slate-400">Disconnected</span>
-                    </div>
-                </div>
-
-                <!-- Disconnected Form: 1-Click OAuth & Manual Token Fallback -->
-                <div id="settingsCloudConnectSection" class="p-3 rounded-xl border border-slate-800 bg-slate-950/60 space-y-2.5">
-                    <p class="text-[11px] text-slate-400" data-i18n="cloudAutoSyncInfo">
-                        Otomatik: Sayfa değişimleri ve kayıtlı kelimeler arka planda sessizce eşitlenir.
-                    </p>
-
-                    <!-- Primary 1-Click OAuth Button -->
-                    <a id="settingsCloudOAuthBtn" href="/oauth/dropbox/login"
-                       class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 py-2.5 px-3 text-xs font-semibold text-white transition shadow-md active:scale-[0.98]">
-                        <span class="text-sm">📦</span>
-                        <span data-i18n="cloudConnectDropboxBtn">Dropbox ile Giriş Yap &amp; Bağlan</span>
-                    </a>
-
-                    <!-- Collapsible Advanced Fallback (App Key Setup & Token Paste) -->
-                    <details id="settingsCloudAdvancedDetails" class="text-[11px] text-slate-500 pt-1 group">
-                        <summary class="cursor-pointer hover:text-slate-400 select-none flex items-center gap-1 font-medium">
-                            <span data-i18n="cloudManualTokenToggle">Gelişmiş Kurulum / Anahtar &amp; Token</span>
-                        </summary>
-                        <div class="mt-2 space-y-2.5 pt-2 border-t border-slate-800/80">
-                            <!-- Dropbox Redirect URI Display & Copy -->
-                            <div class="p-2 rounded-lg bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-slate-300 space-y-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-semibold text-indigo-300">📋 Dropbox Redirect URI (Gerekli):</span>
-                                    <button id="settingsCloudCopyUriBtn" type="button" class="text-[10px] px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition active:scale-95">
-                                        Kopyala
-                                    </button>
-                                </div>
-                                <p class="font-mono text-[10px] text-indigo-200 break-all select-all bg-slate-950/90 p-1.5 rounded border border-slate-800" id="settingsCloudRedirectUri">
-                                    http://localhost:8000/oauth/dropbox/callback
-                                </p>
-                                <p class="text-[10px] text-slate-400">
-                                    *Bu adresi Dropbox Console > Settings > OAuth 2 > <strong>Redirect URIs</strong> listesine ekleyin.
-                                </p>
-                            </div>
-
-                            <!-- Option A: App Key (Enables 1-Click Login Forever) -->
-                            <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
-                                <span class="block text-[10px] font-semibold text-slate-300">1. Dropbox App Key (Tek Tık Girişi Aktifleştirir)</span>
-                                <input id="settingsCloudAppKeyInput" type="text" placeholder="Dropbox App Key (örn: d7x8abc...)"
-                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
-                                <input id="settingsCloudAppSecretInput" type="password" placeholder="Dropbox App Secret (isteğe bağlı)"
-                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
-                                <div class="flex items-center justify-between gap-2 pt-0.5">
-                                    <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer"
-                                       class="text-[10px] text-indigo-400 hover:underline">Dropbox App Console ↗</a>
-                                    <button id="settingsCloudSaveAppKeyBtn" class="rounded-md bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white transition shadow-sm" data-i18n="cloudSaveAppKeyBtn">
-                                        Anahtarı Kaydet
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Option B: Direct Token Paste -->
-                            <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
-                                <span class="block text-[10px] font-semibold text-slate-300">2. Doğrudan Erişim Belirteci (Token)</span>
-                                <input id="settingsCloudTokenInput" type="password" placeholder="Dropbox Access Token yapıştırın..." data-i18n-placeholder="cloudTokenPlaceholder"
-                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
-                                <div class="flex items-center justify-end pt-0.5">
-                                    <button id="settingsCloudTokenSubmit" class="rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 text-[11px] font-medium text-slate-200 transition shadow-sm" data-i18n="cloudSaveTokenBtn">
-                                        Token ile Bağlan
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
-                <!-- Connected Panel -->
-                <div id="settingsCloudConnectedSection" class="hidden p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <div>
-                            <span class="font-medium text-emerald-300 flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span id="settingsCloudAccount">User</span>
-                            </span>
-                            <span id="settingsCloudEmail" class="block text-[10px] text-slate-400 mt-0.5"></span>
-                        </div>
-                        <span id="settingsCloudLastSync" class="text-[10px] font-mono text-slate-400"></span>
-                    </div>
-                    <div class="flex items-center gap-2 pt-1">
-                        <button id="settingsCloudManualSyncBtn" class="flex-1 rounded-lg border border-indigo-500/40 bg-indigo-950/50 hover:bg-indigo-900/50 py-1.5 text-xs font-medium text-indigo-200 transition" data-i18n="cloudSyncNowBtn">
-                            🔄 Şimdi Senkronize Et
-                        </button>
-                        <button id="settingsCloudDisconnectBtn" class="rounded-lg border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 px-3 py-1.5 text-xs font-medium text-red-300 transition" data-i18n="cloudDisconnectBtn">
-                            Bağlantıyı Kes
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section: Translation API Key -->
-            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-5 space-y-4">
+                <!-- Section: Theme -->
                 <div>
-                    <span class="block text-xs font-semibold text-slate-200" data-i18n="apiKeyModalTitle">🔑 Translation API Key</span>
-                    <span id="settingsKeyStatus" class="text-[11px] text-slate-400">Gemini (Active)</span>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="themeLabel">Theme</label>
+                    <div class="grid grid-cols-3 gap-2 text-xs font-medium">
+                        <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="dark">
+                            <span>🌙</span> <span data-i18n="themeDark">Dark</span>
+                        </button>
+                        <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="light">
+                            <span>☀️</span> <span data-i18n="themeLight">Light</span>
+                        </button>
+                        <button class="theme-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-theme="sepia">
+                            <span>📜</span> <span data-i18n="themeSepia">Sepia</span>
+                        </button>
+                    </div>
                 </div>
-                <button id="settingsOpenKeyBtn" class="rounded-xl border border-indigo-500/40 bg-indigo-950/60 px-3 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/60 transition shadow-sm" data-i18n="configureBtn">
-                    Configure
-                </button>
+
+                <!-- Section: Global GUI Scale -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="guiScaleLabel">Arayüz Boyutu / GUI Scale</label>
+                    <div class="grid grid-cols-4 gap-1.5 text-xs">
+                        <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="85" data-i18n="guiScale85">85%</button>
+                        <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="100" data-i18n="guiScale100">100%</button>
+                        <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="115" data-i18n="guiScale115">115%</button>
+                        <button class="gui-scale-btn rounded-xl border border-slate-700 bg-slate-800/80 px-2 py-2 text-center hover:border-indigo-500 text-slate-200 transition font-medium" data-scale="130" data-i18n="guiScale130">130%</button>
+                    </div>
+                </div>
+
+                <!-- Section: App Language -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5" data-i18n="appLangLabel">Interface Language</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                        <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="tr">
+                            <span>🇹🇷</span> <span>Türkçe</span>
+                        </button>
+                        <button class="app-lang-choice-btn flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 py-2 text-slate-200 hover:border-indigo-500 transition" data-lang="en">
+                            <span>🇬🇧</span> <span>English</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section: Cloud Sync (Dropbox) -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                                <span>☁️</span> <span data-i18n="cloudSyncTitle">Bulut Senkronizasyonu (Dropbox)</span>
+                            </span>
+                            <span id="settingsCloudStatus" class="text-[11px] text-slate-400">Disconnected</span>
+                        </div>
+                    </div>
+
+                    <!-- Disconnected Form: 1-Click OAuth & Manual Token Fallback -->
+                    <div id="settingsCloudConnectSection" class="p-3 rounded-xl border border-slate-800 bg-slate-950/60 space-y-2.5">
+                        <p class="text-[11px] text-slate-400" data-i18n="cloudAutoSyncInfo">
+                            Otomatik: Sayfa değişimleri ve kayıtlı kelimeler arka planda sessizce eşitlenir.
+                        </p>
+
+                        <!-- Primary 1-Click OAuth Button -->
+                        <a id="settingsCloudOAuthBtn" href="/oauth/dropbox/login"
+                           class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 py-2.5 px-3 text-xs font-semibold text-white transition shadow-md active:scale-[0.98]">
+                            <span class="text-sm">📦</span>
+                            <span data-i18n="cloudConnectDropboxBtn">Dropbox ile Giriş Yap &amp; Bağlan</span>
+                        </a>
+
+                        <!-- Collapsible Advanced Fallback (App Key Setup & Token Paste) -->
+                        <details id="settingsCloudAdvancedDetails" class="text-[11px] text-slate-500 pt-1 group">
+                            <summary class="cursor-pointer hover:text-slate-400 select-none flex items-center gap-1 font-medium">
+                                <span data-i18n="cloudManualTokenToggle">Gelişmiş Kurulum / Anahtar &amp; Token</span>
+                            </summary>
+                            <div class="mt-2 space-y-2.5 pt-2 border-t border-slate-800/80">
+                                <!-- Dropbox Redirect URI Display & Copy -->
+                                <div class="p-2 rounded-lg bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-slate-300 space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold text-indigo-300">📋 Dropbox Redirect URI (Gerekli):</span>
+                                        <button id="settingsCloudCopyUriBtn" type="button" class="text-[10px] px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition active:scale-95">
+                                            Kopyala
+                                        </button>
+                                    </div>
+                                    <p class="font-mono text-[10px] text-indigo-200 break-all select-all bg-slate-950/90 p-1.5 rounded border border-slate-800" id="settingsCloudRedirectUri">
+                                        http://localhost:8000/oauth/dropbox/callback
+                                    </p>
+                                    <p class="text-[10px] text-slate-400">
+                                        *Bu adresi Dropbox Console > Settings > OAuth 2 > <strong>Redirect URIs</strong> listesine ekleyin.
+                                    </p>
+                                </div>
+
+                                <!-- Option A: App Key (Enables 1-Click Login Forever) -->
+                                <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                                    <span class="block text-[10px] font-semibold text-slate-300">1. Dropbox App Key (Tek Tık Girişi Aktifleştirir)</span>
+                                    <input id="settingsCloudAppKeyInput" type="text" placeholder="Dropbox App Key (örn: d7x8abc...)"
+                                           class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                    <input id="settingsCloudAppSecretInput" type="password" placeholder="Dropbox App Secret (isteğe bağlı)"
+                                           class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                    <div class="flex items-center justify-between gap-2 pt-0.5">
+                                        <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer"
+                                           class="text-[10px] text-indigo-400 hover:underline">Dropbox App Console ↗</a>
+                                        <button id="settingsCloudSaveAppKeyBtn" class="rounded-md bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white transition shadow-sm" data-i18n="cloudSaveAppKeyBtn">
+                                            Anahtarı Kaydet
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Option B: Direct Token Paste -->
+                                <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                                    <span class="block text-[10px] font-semibold text-slate-300">2. Doğrudan Erişim Belirteci (Token)</span>
+                                    <input id="settingsCloudTokenInput" type="password" placeholder="Dropbox Access Token yapıştırın..." data-i18n-placeholder="cloudTokenPlaceholder"
+                                           class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                    <div class="flex items-center justify-end pt-0.5">
+                                        <button id="settingsCloudTokenSubmit" class="rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 text-[11px] font-medium text-slate-200 transition shadow-sm" data-i18n="cloudSaveTokenBtn">
+                                            Token ile Bağlan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Connected Panel -->
+                    <div id="settingsCloudConnectedSection" class="hidden p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <div>
+                                <span class="font-medium text-emerald-300 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span id="settingsCloudAccount">User</span>
+                                </span>
+                                <span id="settingsCloudEmail" class="block text-[10px] text-slate-400 mt-0.5"></span>
+                            </div>
+                            <span id="settingsCloudLastSync" class="text-[10px] font-mono text-slate-400"></span>
+                        </div>
+                        <div class="flex items-center gap-2 pt-1">
+                            <button id="settingsCloudManualSyncBtn" class="flex-1 rounded-lg border border-indigo-500/40 bg-indigo-950/50 hover:bg-indigo-900/50 py-1.5 text-xs font-medium text-indigo-200 transition" data-i18n="cloudSyncNowBtn">
+                                🔄 Şimdi Senkronize Et
+                            </button>
+                            <button id="settingsCloudDisconnectBtn" class="rounded-lg border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 px-3 py-1.5 text-xs font-medium text-red-300 transition" data-i18n="cloudDisconnectBtn">
+                                Bağlantıyı Kes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Translation API Key -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-200" data-i18n="apiKeyModalTitle">🔑 Translation API Key</span>
+                        <span id="settingsKeyStatus" class="text-[11px] text-slate-400">Gemini (Active)</span>
+                    </div>
+                    <button id="settingsOpenKeyBtn" class="rounded-xl border border-indigo-500/40 bg-indigo-950/60 px-3 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-900/60 transition shadow-sm" data-i18n="configureBtn">
+                        Configure
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -663,15 +676,15 @@
     <!-- ============ MODAL: BOOK ACTIONS SHEET (3-DOTS MENU) ============ -->
     <div id="bookActionModal" class="hidden fixed inset-0 z-[85] items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bookActionBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border-t sm:border border-slate-700 bg-slate-900 p-4 shadow-2xl space-y-3 select-none">
-            <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+        <div class="modal-card relative w-full max-w-sm flex flex-col rounded-t-2xl sm:rounded-2xl border-t sm:border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden select-none">
+            <div class="modal-card-header flex items-center justify-between p-4 border-b border-slate-800 shrink-0">
                 <div class="min-w-0 flex-1 pr-2">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="bookActionsTitle">Book Options</span>
                     <h3 id="bookActionDocName" class="text-sm font-semibold text-slate-100 truncate mt-0.5"></h3>
                 </div>
                 <button id="bookActionClose" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
             </div>
-            <div class="space-y-1.5 pt-1">
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-4 space-y-1.5">
                 <!-- Action 1: Rename Title -->
                 <button id="bookActionRenameBtn" class="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 transition active:scale-[0.98] text-left text-xs font-medium">
                     <span class="text-base">✏️</span>
@@ -694,19 +707,21 @@
     <!-- ============ MODAL: RENAME BOOK MODAL ============ -->
     <div id="bookRenameModal" class="hidden fixed inset-0 z-[90] items-center justify-center p-4">
         <div class="bookRenameBack absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
-        <div class="modal-card relative w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl select-none">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <div class="modal-card relative w-full max-w-sm flex flex-col rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden select-none">
+            <div class="modal-card-header flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 shrink-0">
                 <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
                     <span>✏️</span> <span data-i18n="renameTitle">Rename Display Title</span>
                 </h3>
                 <button id="bookRenameCloseBtn" class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
             </div>
-            <p class="text-xs text-slate-400 mb-2" data-i18n="renameTitlePrompt">Enter a custom display title:</p>
-            <input id="bookRenameInput" type="text" maxlength="80"
-                   class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none" />
-            <div class="flex items-center justify-end gap-2 mt-4">
-                <button id="bookRenameCancelBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition" data-i18n="renameCancelBtn">Cancel</button>
-                <button id="bookRenameSaveBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm" data-i18n="renameSaveBtn">Save</button>
+            <div class="modal-scroll-area flex-1 overflow-y-auto p-4 sm:p-5">
+                <p class="text-xs text-slate-400 mb-2" data-i18n="renameTitlePrompt">Enter a custom display title:</p>
+                <input id="bookRenameInput" type="text" maxlength="80"
+                       class="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none" />
+                <div class="flex items-center justify-end gap-2 mt-4">
+                    <button id="bookRenameCancelBtn" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition" data-i18n="renameCancelBtn">Cancel</button>
+                    <button id="bookRenameSaveBtn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm" data-i18n="renameSaveBtn">Save</button>
+                </div>
             </div>
         </div>
     </div>
@@ -721,15 +736,15 @@
     </div>
 
     <!-- LexiRead Modular Scripts -->
-    <script src="js/state.js?v=2.1"></script>
-    <script src="js/db.js?v=2.1"></script>
-    <script src="js/i18n.js?v=2.1"></script>
-    <script src="js/api.js?v=2.1"></script>
-    <script src="js/parsers.js?v=2.1"></script>
-    <script src="js/reader.js?v=2.1"></script>
-    <script src="js/gestures.js?v=2.1"></script>
-    <script src="js/saved.js?v=2.1"></script>
-    <script src="js/sync.js?v=2.1"></script>
-    <script src="js/app.js?v=2.1"></script>
+    <script src="js/state.js?v=2.2"></script>
+    <script src="js/db.js?v=2.2"></script>
+    <script src="js/i18n.js?v=2.2"></script>
+    <script src="js/api.js?v=2.2"></script>
+    <script src="js/parsers.js?v=2.2"></script>
+    <script src="js/reader.js?v=2.2"></script>
+    <script src="js/gestures.js?v=2.2"></script>
+    <script src="js/saved.js?v=2.2"></script>
+    <script src="js/sync.js?v=2.2"></script>
+    <script src="js/app.js?v=2.2"></script>
 </body>
 </html>
