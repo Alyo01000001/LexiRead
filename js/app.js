@@ -127,6 +127,9 @@ if (langSwap) {
 if (langCancel) {
     langCancel.addEventListener('click', () => { pendingFile = null; closeModal(langModal); });
 }
+if (langCloseBtn) {
+    langCloseBtn.addEventListener('click', () => { pendingFile = null; closeModal(langModal); });
+}
 if (langModal) {
     const back = langModal.querySelector('.langBack');
     if (back) back.addEventListener('click', () => { pendingFile = null; closeModal(langModal); });

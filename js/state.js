@@ -126,6 +126,7 @@ const langTgt             = $('langTgt');
 const langSwap            = $('langSwap');
 const langConfirm         = $('langConfirm');
 const langCancel          = $('langCancel');
+const langCloseBtn         = $('langCloseBtn');
 const langFileName        = $('langFileName');
 const langHint            = $('langHint');
 
@@ -276,6 +277,7 @@ function pushNavState(type = 'view') {
     } catch (_) {}
 }
 
+let openModalsCount = 0;
 function openModal(m) {
     if (!m) return;
     if (m.classList.contains('hidden') || m.style.display === 'none') {
@@ -284,12 +286,18 @@ function openModal(m) {
     m.classList.remove('hidden');
     m.classList.add('flex');
     m.style.display = 'flex';
+    openModalsCount++;
+    document.body.classList.add('modal-open');
 }
 function closeModal(m) {
     if (!m) return;
     m.classList.add('hidden');
     m.classList.remove('flex');
     m.style.display = 'none';
+    openModalsCount = Math.max(0, openModalsCount - 1);
+    if (openModalsCount === 0) {
+        document.body.classList.remove('modal-open');
+    }
 }
 
 window.openModal = openModal;
