@@ -591,11 +591,69 @@ html.sepia #mobileMoreSheet .modal-card {
     border-color: #45372d;
 }
 
-/* Modals Stacking Context & Pointer Hit-testing */
+/* Modals Stacking Context, Flex Layout & Safe Height Constraints */
 .modal-card {
     position: relative;
     z-index: 50 !important;
     pointer-events: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: calc(100vh - 3.5rem) !important;
+    max-height: calc(100dvh - 3.5rem) !important;
+    overflow: hidden !important;
+}
+
+.modal-card-header,
+.modal-card > div:first-child:has(button) {
+    flex-shrink: 0 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+}
+
+.modal-scroll-area,
+.modal-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+}
+
+/* Custom Sleek Scrollbar for Modal Scroll Areas */
+.modal-scroll-area::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.modal-card::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-scroll-area::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track,
+.modal-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-scroll-area::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb,
+.modal-card::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 9999px;
+}
+.modal-scroll-area::-webkit-scrollbar-thumb:hover,
+.modal-body::-webkit-scrollbar-thumb:hover,
+.modal-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.45);
+}
+
+html.light .modal-card-header {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.sepia .modal-card-header {
+    background-color: #2a221b !important;
+    border-color: #45372d !important;
+}
+
+body.modal-open {
+    overflow: hidden !important;
 }
 .keyBack, .langBack, .settingsBack, .savedBack, .outlineBack, .typographyBack, .cropBack, .mobileMoreBack, .bookActionBack, .bookRenameBack {
     position: absolute;
@@ -688,10 +746,37 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
         left: 0 !important;
         right: 0 !important;
         margin: 0 !important;
-        max-height: 88vh !important;
+        max-height: calc(100vh - 2.5rem) !important;
+        max-height: calc(100dvh - 2.5rem) !important;
         z-index: 100 !important;
         pointer-events: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
         animation: mobileSheetIn 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* Elegant Mobile Handle Bar Indicator at the top of bottom sheets */
+    .modal-card::before {
+        content: '';
+        display: block;
+        width: 2.75rem;
+        height: 0.25rem;
+        border-radius: 9999px;
+        background-color: rgba(148, 163, 184, 0.4);
+        margin: 0.6rem auto 0.35rem auto;
+        flex-shrink: 0;
+    }
+
+    #pdfCropModal .modal-card::before {
+        display: none !important;
+    }
+
+    html.sepia .modal-card::before {
+        background-color: rgba(184, 163, 142, 0.5);
+    }
+    html.light .modal-card::before {
+        background-color: rgba(100, 116, 139, 0.35);
     }
 
     @keyframes mobileSheetIn {
