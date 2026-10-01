@@ -51,6 +51,10 @@ async function processDocument(file, ext, cropTop = 0, cropBottom = 0, isResume 
             });
         }
 
+        if (window.LexiSync) {
+            LexiSync.handleNewDocumentOpened(file, currentDocKey);
+        }
+
         if (isResume && (resumePage || resumeScrollTop)) {
             setTimeout(() => {
                 if (parsed.kind === 'pdf' && resumePage && resumePage > 1) {
@@ -135,6 +139,9 @@ function saveCurrentProgress() {
         if (window.LexiDB) {
             LexiDB.updateDocumentProgress(currentDocKey, pageNum, window.scrollY, totalPages);
         }
+        if (window.LexiSync) {
+            LexiSync.triggerDebouncedSync();
+        }
     } catch (_) {}
 }
 
@@ -162,6 +169,7 @@ function showLoader(msg) {
     loader.classList.add('flex');
 }
 function showWelcomeState() {
+    if (mainContainer) mainContainer.classList.remove('pdf-layout-active');
     loader.classList.add('hidden'); loader.classList.remove('flex');
     reader.classList.add('hidden');
     reader.classList.remove('pdf-mode', 'txt-mode', 'docx-mode');
@@ -231,6 +239,7 @@ function showReaderState(mode = 'txt') {
 
 // 1. RENDERERS
 function renderTxt(parsed) {
+    if (mainContainer) mainContainer.classList.remove('pdf-layout-active');
     currentParsedDoc = parsed;
     pdfNavSection.classList.add('hidden');
     pdfNavSection.classList.remove('flex');
@@ -257,6 +266,7 @@ function renderTxt(parsed) {
 }
 
 function renderDocx(parsed) {
+    if (mainContainer) mainContainer.classList.remove('pdf-layout-active');
     currentParsedDoc = parsed;
     pdfNavSection.classList.add('hidden');
     pdfNavSection.classList.remove('flex');
@@ -280,6 +290,7 @@ function renderDocx(parsed) {
 }
 
 async function renderPdf(parsed) {
+    if (mainContainer) mainContainer.classList.add('pdf-layout-active');
     currentParsedDoc = parsed;
     wordSpans = []; wordIndex = new Map();
     reader.className = 'pdf-mode px-2 py-6 sm:px-6 sm:py-10';
@@ -875,7 +886,18 @@ async function renderLibrary() {
     if (!librarySection || !libraryGrid || !window.LexiDB) return;
     try {
         const docs = await LexiDB.getAllDocuments();
-        if (!docs || !docs.length) {
+        let remoteBooks = [];
+        if (window.LexiSync && LexiSync.isConnected) {
+            try {
+                remoteBooks = await LexiSync.fetchRemoteBooks();
+            } catch (_) {}
+        }
+
+        const localNames = new Set((docs || []).map(d => (d.name || '').toLowerCase()));
+        const unDownloadedRemoteBooks = remoteBooks.filter(r => !localNames.has((r.name || '').toLowerCase()));
+
+        const totalLibraryCount = (docs ? docs.length : 0) + unDownloadedRemoteBooks.length;
+        if (!totalLibraryCount) {
             librarySection.classList.add('hidden');
             if (welcomeState) welcomeState.classList.remove('hidden');
             if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
@@ -895,11 +917,11 @@ async function renderLibrary() {
             mobileUploadFab.classList.add('flex');
         }
         if (libraryCountBadge) {
-            libraryCountBadge.textContent = t('libraryCount', { count: docs.length });
+            libraryCountBadge.textContent = t('libraryCount', { count: totalLibraryCount });
         }
 
         libraryGrid.innerHTML = '';
-        for (const doc of docs) {
+        for (const doc of (docs || [])) {
             const card = document.createElement('div');
             card.className = 'library-card group relative flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-900/85 hover:border-indigo-500/60 hover:bg-slate-800/80 transition-all duration-200 shadow-lg hover:shadow-indigo-500/10 cursor-pointer select-none';
             card.dataset.dockey = doc.docKey;
@@ -977,6 +999,46 @@ async function renderLibrary() {
             }
 
             libraryGrid.appendChild(card);
+        }
+
+        // Render remote books available in Dropbox but not downloaded locally
+        for (const rem of unDownloadedRemoteBooks) {
+            const remCard = document.createElement('div');
+            remCard.className = 'library-card group relative flex items-center gap-3 p-3 rounded-xl border border-indigo-500/40 bg-slate-900/60 hover:border-indigo-400 hover:bg-slate-800/80 transition-all duration-200 shadow-lg cursor-pointer select-none';
+            const remExt = (rem.name.split('.').pop() || '').toLowerCase();
+            const badgeColor = remExt === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (remExt === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
+            const icon = remExt === 'pdf' ? '📄' : (remExt === 'docx' ? '📝' : '📃');
+
+            remCard.innerHTML = `
+                <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg border border-dashed border-indigo-500/40 bg-indigo-950/30 flex flex-col items-center justify-center gap-1 shadow-md">
+                    <span class="text-xl">${icon}</span>
+                    <span class="text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded border ${badgeColor}">☁️ ${remExt}</span>
+                </div>
+                <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
+                    <div>
+                        <div class="flex items-start justify-between gap-1.5">
+                            <h3 class="text-xs sm:text-sm font-semibold text-slate-200 truncate group-hover:text-indigo-300 transition" title="${rem.name}">
+                                ${rem.name}
+                            </h3>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono shrink-0">☁️ Dropbox</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[10px] text-slate-400">${typeof t === 'function' ? t('cloudAvailableOnDropbox') : 'Available on Dropbox'}</span>
+                        </div>
+                    </div>
+                    <div class="mt-2.5">
+                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-400 group-hover:text-indigo-300">
+                            ⬇️ ${typeof t === 'function' ? t('cloudDownloadAndRead') : 'Download & Read'}
+                        </span>
+                    </div>
+                </div>
+            `;
+            remCard.addEventListener('click', () => {
+                if (window.LexiSync) {
+                    LexiSync.downloadAndOpenBook(rem.path, rem.name);
+                }
+            });
+            libraryGrid.appendChild(remCard);
         }
     } catch (e) {
         console.error('[LexiRead] renderLibrary error:', e);

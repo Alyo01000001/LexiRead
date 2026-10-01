@@ -58,17 +58,20 @@ function addSaved(item) {
         existing.translation = existingMeanings.join(' / ');
         existing.date = new Date().toISOString();
         persistSaved(arr);
+        if (window.LexiSync) LexiSync.triggerImmediateSync();
         return { success: true, updated: true, fullTranslation: existing.translation };
     }
     
     arr.unshift(item);
     persistSaved(arr);
+    if (window.LexiSync) LexiSync.triggerImmediateSync();
     return { success: true, updated: false, fullTranslation: item.translation };
 }
 
 function deleteSaved(id) {
     persistSaved(loadSaved().filter(i => i.id !== id));
     renderSavedList(savedSearchInput.value.trim());
+    if (window.LexiSync) LexiSync.triggerImmediateSync();
 }
 
 function renderSavedList(filter = '') {
@@ -129,7 +132,10 @@ savedBtn.addEventListener('click', () => {
     savedSearchInput.value = '';
     renderSavedList();
     openModal(savedModal);
-    setTimeout(() => savedSearchInput.focus(), 60);
+    // Only autofocus search on desktop (avoids popping up virtual keyboard on mobile)
+    if (window.innerWidth >= 768 && !('ontouchstart' in window)) {
+        setTimeout(() => savedSearchInput.focus(), 60);
+    }
 });
 savedClose.addEventListener('click', () => closeModal(savedModal));
 if (savedModal) {
@@ -140,6 +146,7 @@ savedClear.addEventListener('click', () => {
     if (!loadSaved().length) return;
     persistSaved([]);
     renderSavedList();
+    if (window.LexiSync) LexiSync.triggerImmediateSync();
     showToast(t('allSavedDeleted'), 'info');
 });
 

@@ -83,6 +83,19 @@ header.header-hidden {
 #reader.is-dragging       { cursor: grabbing; }
 
 /* ---------- PDF ---------- */
+/* Expanded desktop canvas for PDFs: spreads horizontally to monitor edges while keeping left floating dock unhindered */
+#mainContainer.pdf-layout-active {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    #mainContainer.pdf-layout-active {
+        padding-left: 5.5rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
 #readerShell {
     width: 100%;
     max-width: 100%;

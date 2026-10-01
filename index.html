@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
 
     <!-- LexiRead Custom Stylesheet -->
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css?v=2.1" />
 </head>
 
 <body class="bg-slate-950 text-slate-100 min-h-screen">
@@ -46,6 +46,13 @@
                 <button id="zenModeBtn" data-i18n-title="zenModeTitle" title="Zen Mode / Focus Mode (Z)"
                         class="flex items-center justify-center h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-700 bg-slate-800/90 text-xs sm:text-sm text-slate-200 hover:bg-slate-700 hover:text-indigo-300 transition shadow-sm">
                     <span>🧘</span>
+                </button>
+
+                <!-- Cloud Sync Status / Trigger Button -->
+                <button id="headerCloudSyncBtn" data-i18n-title="cloudSyncTitle" title="Cloud Sync (Dropbox)"
+                        class="flex items-center gap-1 sm:gap-1.5 rounded-lg border border-slate-700 bg-slate-800/90 px-2 sm:px-2.5 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition shadow-sm">
+                    <span id="headerCloudIcon" class="inline-block transition-transform duration-300">☁️</span>
+                    <span id="headerCloudText" class="hidden md:inline text-[11px] text-slate-400 font-mono">Sync</span>
                 </button>
 
                 <!-- Refined Saved-items manager -->
@@ -163,7 +170,7 @@
     </nav>
 
     <!-- ================= MAIN ================= -->
-    <main class="max-w-5xl mx-auto px-3 sm:px-4 py-6">
+    <main id="mainContainer" class="max-w-5xl mx-auto px-3 sm:px-4 py-6 transition-all duration-300">
 
         <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
 
@@ -540,6 +547,106 @@
                 </div>
             </div>
 
+            <!-- Section: Cloud Sync (Dropbox) -->
+            <div class="pt-2 border-t border-slate-800/80 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                            <span>☁️</span> <span data-i18n="cloudSyncTitle">Bulut Senkronizasyonu (Dropbox)</span>
+                        </span>
+                        <span id="settingsCloudStatus" class="text-[11px] text-slate-400">Disconnected</span>
+                    </div>
+                </div>
+
+                <!-- Disconnected Form: 1-Click OAuth & Manual Token Fallback -->
+                <div id="settingsCloudConnectSection" class="p-3 rounded-xl border border-slate-800 bg-slate-950/60 space-y-2.5">
+                    <p class="text-[11px] text-slate-400" data-i18n="cloudAutoSyncInfo">
+                        Otomatik: Sayfa değişimleri ve kayıtlı kelimeler arka planda sessizce eşitlenir.
+                    </p>
+
+                    <!-- Primary 1-Click OAuth Button -->
+                    <a id="settingsCloudOAuthBtn" href="/oauth/dropbox/login"
+                       class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 py-2.5 px-3 text-xs font-semibold text-white transition shadow-md active:scale-[0.98]">
+                        <span class="text-sm">📦</span>
+                        <span data-i18n="cloudConnectDropboxBtn">Dropbox ile Giriş Yap &amp; Bağlan</span>
+                    </a>
+
+                    <!-- Collapsible Advanced Fallback (App Key Setup & Token Paste) -->
+                    <details id="settingsCloudAdvancedDetails" class="text-[11px] text-slate-500 pt-1 group">
+                        <summary class="cursor-pointer hover:text-slate-400 select-none flex items-center gap-1 font-medium">
+                            <span data-i18n="cloudManualTokenToggle">Gelişmiş Kurulum / Anahtar &amp; Token</span>
+                        </summary>
+                        <div class="mt-2 space-y-2.5 pt-2 border-t border-slate-800/80">
+                            <!-- Dropbox Redirect URI Display & Copy -->
+                            <div class="p-2 rounded-lg bg-indigo-950/40 border border-indigo-500/30 text-[11px] text-slate-300 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-indigo-300">📋 Dropbox Redirect URI (Gerekli):</span>
+                                    <button id="settingsCloudCopyUriBtn" type="button" class="text-[10px] px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition active:scale-95">
+                                        Kopyala
+                                    </button>
+                                </div>
+                                <p class="font-mono text-[10px] text-indigo-200 break-all select-all bg-slate-950/90 p-1.5 rounded border border-slate-800" id="settingsCloudRedirectUri">
+                                    http://localhost:8000/oauth/dropbox/callback
+                                </p>
+                                <p class="text-[10px] text-slate-400">
+                                    *Bu adresi Dropbox Console > Settings > OAuth 2 > <strong>Redirect URIs</strong> listesine ekleyin.
+                                </p>
+                            </div>
+
+                            <!-- Option A: App Key (Enables 1-Click Login Forever) -->
+                            <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                                <span class="block text-[10px] font-semibold text-slate-300">1. Dropbox App Key (Tek Tık Girişi Aktifleştirir)</span>
+                                <input id="settingsCloudAppKeyInput" type="text" placeholder="Dropbox App Key (örn: d7x8abc...)"
+                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                <input id="settingsCloudAppSecretInput" type="password" placeholder="Dropbox App Secret (isteğe bağlı)"
+                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                <div class="flex items-center justify-between gap-2 pt-0.5">
+                                    <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer"
+                                       class="text-[10px] text-indigo-400 hover:underline">Dropbox App Console ↗</a>
+                                    <button id="settingsCloudSaveAppKeyBtn" class="rounded-md bg-indigo-700 hover:bg-indigo-600 px-2.5 py-1 text-[11px] font-semibold text-white transition shadow-sm" data-i18n="cloudSaveAppKeyBtn">
+                                        Anahtarı Kaydet
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Option B: Direct Token Paste -->
+                            <div class="space-y-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                                <span class="block text-[10px] font-semibold text-slate-300">2. Doğrudan Erişim Belirteci (Token)</span>
+                                <input id="settingsCloudTokenInput" type="password" placeholder="Dropbox Access Token yapıştırın..." data-i18n-placeholder="cloudTokenPlaceholder"
+                                       class="w-full rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-200 placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono" />
+                                <div class="flex items-center justify-end pt-0.5">
+                                    <button id="settingsCloudTokenSubmit" class="rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1 text-[11px] font-medium text-slate-200 transition shadow-sm" data-i18n="cloudSaveTokenBtn">
+                                        Token ile Bağlan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Connected Panel -->
+                <div id="settingsCloudConnectedSection" class="hidden p-3 rounded-xl border border-emerald-500/20 bg-emerald-950/20 space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-medium text-emerald-300 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="settingsCloudAccount">User</span>
+                            </span>
+                            <span id="settingsCloudEmail" class="block text-[10px] text-slate-400 mt-0.5"></span>
+                        </div>
+                        <span id="settingsCloudLastSync" class="text-[10px] font-mono text-slate-400"></span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-1">
+                        <button id="settingsCloudManualSyncBtn" class="flex-1 rounded-lg border border-indigo-500/40 bg-indigo-950/50 hover:bg-indigo-900/50 py-1.5 text-xs font-medium text-indigo-200 transition" data-i18n="cloudSyncNowBtn">
+                            🔄 Şimdi Senkronize Et
+                        </button>
+                        <button id="settingsCloudDisconnectBtn" class="rounded-lg border border-red-500/30 bg-red-950/30 hover:bg-red-900/40 px-3 py-1.5 text-xs font-medium text-red-300 transition" data-i18n="cloudDisconnectBtn">
+                            Bağlantıyı Kes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Section: Translation API Key -->
             <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
                 <div>
@@ -614,14 +721,15 @@
     </div>
 
     <!-- LexiRead Modular Scripts -->
-    <script src="js/state.js?v=1.8"></script>
-    <script src="js/db.js?v=1.8"></script>
-    <script src="js/i18n.js?v=1.8"></script>
-    <script src="js/api.js?v=1.8"></script>
-    <script src="js/parsers.js?v=1.8"></script>
-    <script src="js/reader.js?v=1.8"></script>
-    <script src="js/gestures.js?v=1.8"></script>
-    <script src="js/saved.js?v=1.8"></script>
-    <script src="js/app.js?v=1.8"></script>
+    <script src="js/state.js?v=2.1"></script>
+    <script src="js/db.js?v=2.1"></script>
+    <script src="js/i18n.js?v=2.1"></script>
+    <script src="js/api.js?v=2.1"></script>
+    <script src="js/parsers.js?v=2.1"></script>
+    <script src="js/reader.js?v=2.1"></script>
+    <script src="js/gestures.js?v=2.1"></script>
+    <script src="js/saved.js?v=2.1"></script>
+    <script src="js/sync.js?v=2.1"></script>
+    <script src="js/app.js?v=2.1"></script>
 </body>
 </html>

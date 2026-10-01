@@ -328,6 +328,10 @@ function updateSettingsModalUI() {
         settingsKeyStatus.textContent = `${curProvider === 'deepl' ? 'DeepL' : 'Gemini'} (${hasKey ? 'Active' : 'Not Set'})`;
         settingsKeyStatus.className = `text-[11px] ${hasKey ? 'text-emerald-400' : 'text-amber-400'}`;
     }
+
+    if (window.LexiSync) {
+        LexiSync.checkStatus();
+    }
 }
 
 function openSettingsModal() {

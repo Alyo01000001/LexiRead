@@ -16,6 +16,7 @@ const TYPO_FONT_KEY        = 'lexi.fontFamily';
 const TYPO_LH_KEY          = 'lexi.lineHeight';
 const CROP_TOP_KEY         = 'lexi.cropTop';
 const CROP_BTM_KEY         = 'lexi.cropBottom';
+const DROPBOX_APP_KEY_STORAGE = 'lexi.dropboxAppKey';
 
 const BG_INTERVAL_MS       = 350;
 const API_RETRIES          = 2;
@@ -55,6 +56,7 @@ let currentTgt = LANGS.some(l => l.code === localStorage.getItem(TGT_KEY)) ? loc
 // 3. DOM SHORTCUTS & ELEMENT BINDINGS
 const $ = id => document.getElementById(id);
 
+const mainContainer       = $('mainContainer');
 const fileInput           = $('fileInput');
 const dropZone            = $('dropZone') || $('welcomeState');
 const librarySection      = $('librarySection');
