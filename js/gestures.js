@@ -73,6 +73,79 @@ window.addEventListener('mouseup', e => {
     if (!drag.active || drag.pointer !== 'mouse' || e.button !== 0) return;
     finalizeGesture();
 });
+let isAutoScrolling = false;
+
+function findWordNearPoint(clientX, clientY, maxRadius = 16) {
+    if (typeof clientX !== 'number' || typeof clientY !== 'number') return null;
+
+    // 1. Direct hit check (fastest path O(1))
+    const direct = document.elementFromPoint(clientX, clientY)?.closest?.('.word');
+    if (direct) return direct;
+
+    // 2. Proximity radial search around (clientX, clientY)
+    // Priority: horizontal offsets (catching taps between words or just outside margin),
+    // then vertical and diagonal offsets.
+    const offsets = [
+        [-8, 0], [8, 0], [-14, 0], [14, 0],
+        [0, -7], [0, 7], [0, -12], [0, 12],
+        [-8, -6], [8, -6], [-8, 6], [8, 6]
+    ];
+
+    const maxSq = maxRadius * maxRadius;
+    let bestCandidate = null;
+    let minDistanceSq = Infinity;
+
+    for (let i = 0; i < offsets.length; i++) {
+        const px = clientX + offsets[i][0];
+        const py = clientY + offsets[i][1];
+        const candidate = document.elementFromPoint(px, py)?.closest?.('.word');
+        if (candidate) {
+            const rect = candidate.getBoundingClientRect();
+            const nearestX = Math.max(rect.left, Math.min(clientX, rect.right));
+            const nearestY = Math.max(rect.top, Math.min(clientY, rect.bottom));
+            const distSq = (clientX - nearestX) ** 2 + (clientY - nearestY) ** 2;
+            if (distSq <= maxSq && distSq < minDistanceSq) {
+                minDistanceSq = distSq;
+                bestCandidate = candidate;
+            }
+        }
+    }
+    return bestCandidate;
+}
+
+function triggerWordTranslation(span) {
+    if (!span) return;
+    const text = stripPunctuation(span.textContent);
+    if (!text) return;
+
+    clearActive();
+    clearSelected();
+    span.classList.add('active');
+    activeEls = [span];
+
+    if (navigator.vibrate) {
+        try { navigator.vibrate(12); } catch (_) {}
+    }
+
+    const rect = span.getBoundingClientRect();
+    lastAnchor = { first: span, last: span };
+
+    // Auto-scroll on mobile if the tapped word would be occluded by the bottom sheet
+    if (isMobile()) {
+        const bottomThreshold = window.innerHeight - 155;
+        if (rect.bottom > bottomThreshold) {
+            const neededScroll = Math.min(150, Math.ceil(rect.bottom - bottomThreshold + 25));
+            if (neededScroll > 0) {
+                isAutoScrolling = true;
+                window.scrollBy({ top: neededScroll, behavior: 'smooth' });
+                setTimeout(() => { isAutoScrolling = false; }, 450);
+            }
+        }
+    }
+
+    showWordTooltip(text, rect, span);
+}
+
 const touchState = {
     startX: 0,
     startY: 0,
@@ -153,32 +226,22 @@ touchSurface.addEventListener('touchstart', e => {
     }
 
     const t = e.touches[0];
-    const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
-    if (!span) {
-        touchState.targetWord = null;
-        touchState.isDoubleTap = false;
-        hideTooltip();
-        clearActive();
-        clearSelected();
-        return;
-    }
-
     const now = Date.now();
     const dt = now - touchState.lastTapTime;
-    const dx = Math.abs(t.clientX - touchState.lastTapX);
-    const dy = Math.abs(t.clientY - touchState.lastTapY);
+    const dx = t.clientX - touchState.lastTapX;
+    const dy = t.clientY - touchState.lastTapY;
 
-    // Double tap detected: tapped within 350ms, <20px distance, on the same or adjacent word
-    if (dt < 350 && dx < 20 && dy < 20 && touchState.lastTapWord) {
+    touchState.startX = t.clientX;
+    touchState.startY = t.clientY;
+    touchState.startTime = now;
+    touchState.isScrolling = false;
+    touchState.hasDragged = false;
+
+    // Check if this touch is the second tap of a double tap (for multi-word phrase drag)
+    if (dt < 320 && (dx * dx + dy * dy < 400) && touchState.lastTapWord) {
         touchState.isDoubleTap = true;
-        touchState.hasDragged = false;
-        hideTooltip();
-        touchState.startX = t.clientX;
-        touchState.startY = t.clientY;
-        touchState.startTime = now;
+        const span = findWordNearPoint(t.clientX, t.clientY) || touchState.lastTapWord;
         touchState.targetWord = span;
-        touchState.isScrolling = false;
-        // Prepare drag selection in case user continues to drag!
         drag.active = true;
         drag.pointer = 'touch';
         drag.anchor = span;
@@ -189,21 +252,13 @@ touchSurface.addEventListener('touchstart', e => {
         clearSelected();
         highlightRange(span);
         if (navigator.vibrate) {
-            try { navigator.vibrate(15); } catch (_) {}
+            try { navigator.vibrate(12); } catch (_) {}
         }
     } else {
-        // First tap: record location & time for potential double tap
+        // Single tap sequence: do NOT query DOM or call hideTooltip here
+        // to keep touchstart completely unblocked (<0.1ms execution)
         touchState.isDoubleTap = false;
-        touchState.hasDragged = false;
-        touchState.startX = t.clientX;
-        touchState.startY = t.clientY;
-        touchState.startTime = now;
-        touchState.targetWord = span;
-        touchState.isScrolling = false;
-        touchState.lastTapTime = now;
-        touchState.lastTapWord = span;
-        touchState.lastTapX = t.clientX;
-        touchState.lastTapY = t.clientY;
+        touchState.targetWord = null;
     }
 }, { passive: true });
 
@@ -253,23 +308,32 @@ touchSurface.addEventListener('touchmove', e => {
     }
 
     const t = e.touches[0];
-    const dx = t.clientX - touchState.startX;
-    const dy = t.clientY - touchState.startY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
 
+    // Single touch path (Reading / Scrolling)
     if (!touchState.isDoubleTap) {
-        // If not double tapping, any movement > 8px is natural native page scroll!
-        if (dist > 8) {
-            touchState.isScrolling = true;
-            touchState.lastTapWord = null; // moving cancels double-tap sequence
+        if (!touchState.isScrolling) {
+            const dx = t.clientX - touchState.startX;
+            const dy = t.clientY - touchState.startY;
+            // Squared distance threshold (8px): 8*8 = 64
+            if (dx * dx + dy * dy > 64) {
+                touchState.isScrolling = true;
+                touchState.lastTapWord = null;
+                // Auto-dismiss open translation card as user starts reading/scrolling
+                if (tooltip.classList.contains('visible')) {
+                    hideTooltip();
+                }
+            }
         }
-        return; // Do NOT preventDefault -> silky smooth native scroll
+        // ZERO preventDefault() -> silky smooth 100% native compositor scroll
+        return;
     }
 
-    // Double-tap was triggered: user is now dragging to select multi-word phrase!
-    if (dist > 6) {
+    // Double-tap phrase drag in progress:
+    const dx = t.clientX - touchState.startX;
+    const dy = t.clientY - touchState.startY;
+    if (dx * dx + dy * dy > 36) { // > 6px
         touchState.hasDragged = true;
-        e.preventDefault();
+        e.preventDefault(); // Only prevent scroll when actively selecting a phrase
         reader.classList.add('is-dragging');
         const span = document.elementFromPoint(t.clientX, t.clientY)?.closest?.('.word');
         if (span && span !== drag.current) {
@@ -313,7 +377,7 @@ touchSurface.addEventListener('touchend', e => {
         return;
     }
 
-    // 2. Double-tap phrase drag selection occurred
+    // 2. Double-tap phrase drag selection finalized
     if (touchState.isDoubleTap && touchState.hasDragged && drag.active) {
         e.preventDefault();
         finalizeGesture();
@@ -325,36 +389,52 @@ touchSurface.addEventListener('touchend', e => {
         return;
     }
 
-    // 3. Double-tap single word translation (quick double tap without drag)
+    // 3. Double-tap single word translation (quick double tap without dragging)
     if (touchState.isDoubleTap && !touchState.hasDragged) {
         e.preventDefault();
-        const span = touchState.targetWord || touchState.lastTapWord;
+        const span = touchState.targetWord || findWordNearPoint(touchState.startX, touchState.startY);
         touchState.isDoubleTap = false;
         touchState.targetWord = null;
         touchState.lastTapWord = null;
         touchState.lastTapTime = 0;
         if (span) {
-            const text = stripPunctuation(span.textContent);
-            if (!text) return;
-            clearActive();
-            clearSelected();
-            span.classList.add('active');
-            activeEls = [span];
-            const rect = span.getBoundingClientRect();
-            lastAnchor = { first: span, last: span };
-            showWordTooltip(text, rect, span);
+            triggerWordTranslation(span);
         }
         return;
     }
 
-    // 4. Single tap or normal scroll -> do nothing to translation! Let page scroll freely.
+    // 4. Single tap handling
     if (!touchState.isDoubleTap) {
         if (touchState.isScrolling) {
+            // User was scrolling, not tapping! Do not translate.
             touchState.isScrolling = false;
             touchState.targetWord = null;
             touchState.lastTapWord = null;
+            return;
         }
-        return;
+
+        const duration = Date.now() - touchState.startTime;
+        const t = e.changedTouches ? e.changedTouches[0] : null;
+        const endX = t ? t.clientX : touchState.startX;
+        const endY = t ? t.clientY : touchState.startY;
+        const moveDistSq = (endX - touchState.startX) ** 2 + (endY - touchState.startY) ** 2;
+
+        // Clean quick tap: duration < 380ms and moved <= 8px
+        if (duration < 380 && moveDistSq <= 64) {
+            const span = findWordNearPoint(endX, endY);
+            if (span) {
+                touchState.lastTapTime = Date.now();
+                touchState.lastTapWord = span;
+                touchState.lastTapX = endX;
+                touchState.lastTapY = endY;
+                triggerWordTranslation(span);
+            } else {
+                // Tapped on empty page background / margins
+                touchState.lastTapWord = null;
+                touchState.lastTapTime = 0;
+                hideTooltip();
+            }
+        }
     }
 }, { passive: false });
 
@@ -526,9 +606,11 @@ function finalizeGesture() {
 
 // 2. TOOLTIP ENGINE & DISMISSAL
 function setSaveIcon(state) {
-    tooltipSave.textContent = state ? '★' : '☆';
-    tooltipSave.className = 'rounded-md px-1.5 py-1 text-base leading-none hover:bg-slate-700 ' +
-        (state ? 'text-amber-300' : 'text-slate-400 hover:text-amber-300');
+    tooltipSave.innerHTML = state
+        ? `<svg class="w-4 h-4 text-amber-400 fill-amber-400 transition-all duration-200" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+        : `<svg class="w-4 h-4 text-slate-400 fill-none group-hover:text-amber-400 transition-all duration-200" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    tooltipSave.className = 'w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 cursor-pointer ' +
+        (state ? 'bg-amber-500/15 border border-amber-500/30' : 'bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-amber-400');
     tooltipSave.disabled = false;
 }
 
@@ -536,7 +618,8 @@ function showWordTooltip(displayText, rect, wordSpan, autoSave = false) {
     const src = currentSrc, tgt = currentTgt;
     const myGen = ++tooltipGen;
     tooltipData = null;
-    tooltipSave.textContent = '☆';
+    tooltipSave.innerHTML = `<svg class="w-4 h-4 text-slate-400 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+    tooltipSave.className = 'w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.06] text-slate-400 transition-all duration-200';
     tooltipSave.disabled = true;
     tooltipBody.innerHTML =
         '<span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent align-middle"></span>';
@@ -735,7 +818,12 @@ document.addEventListener('touchstart', e => {
 let repositionTimer = null;
 function scheduleReposition() {
     if (!lastAnchor || !tooltip.classList.contains('visible')) return;
-    if (isMobile()) return;
+    if (isMobile()) {
+        if (!isAutoScrolling) {
+            hideTooltip();
+        }
+        return;
+    }
     clearTimeout(repositionTimer);
     repositionTimer = setTimeout(() => {
         if (!lastAnchor.first.isConnected) { hideTooltip(); return; }

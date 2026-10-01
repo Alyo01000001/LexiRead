@@ -220,21 +220,38 @@ const cropCloseBtn        = $('cropCloseBtn');
 // 4. UTILITIES & HELPERS
 function showToast(message, type = 'error', lifeMs) {
     const palette = {
-        error:   'bg-red-900/95 border-red-500 text-red-50',
-        warn:    'bg-amber-900/95 border-amber-500 text-amber-50',
-        info:    'bg-indigo-900/95 border-indigo-500 text-indigo-50',
-        success: 'bg-emerald-900/95 border-emerald-500 text-emerald-50'
+        error:   'bg-slate-950/90 border-red-500/40 text-red-200 shadow-[0_15px_30px_rgba(239,68,68,0.25)]',
+        warn:    'bg-slate-950/90 border-amber-500/40 text-amber-200 shadow-[0_15px_30px_rgba(245,158,11,0.25)]',
+        info:    'bg-slate-950/90 border-indigo-500/40 text-indigo-200 shadow-[0_15px_30px_rgba(99,102,241,0.25)]',
+        success: 'bg-slate-950/90 border-emerald-500/40 text-emerald-200 shadow-[0_15px_30px_rgba(16,185,129,0.25)]'
+    };
+    const icons = {
+        error:   '<svg class="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        warn:    '<svg class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info:    '<svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+        success: '<svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
     };
     const el = document.createElement('div');
-    el.className = `toast rounded-md border px-4 py-2.5 text-sm shadow-xl ${palette[type] || palette.info}`;
+    el.className = `toast flex items-center gap-2.5 rounded-full border backdrop-blur-xl px-4 py-2.5 text-xs font-medium shadow-2xl pointer-events-auto transition-all ${palette[type] || palette.info}`;
     el.setAttribute('role', 'status');
-    el.textContent = message;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'inline-flex items-center justify-center shrink-0';
+    iconSpan.innerHTML = icons[type] || icons.info;
+
+    const msgSpan = document.createElement('span');
+    msgSpan.className = 'leading-snug';
+    msgSpan.textContent = message;
+
+    el.appendChild(iconSpan);
+    el.appendChild(msgSpan);
     toastHost.appendChild(el);
+
     const life = lifeMs != null ? lifeMs : (type === 'error' ? 6500 : 3400);
     setTimeout(() => {
-        el.style.transition = 'opacity .3s, transform .3s';
+        el.style.transition = 'opacity .3s cubic-bezier(0.16, 1, 0.3, 1), transform .3s cubic-bezier(0.16, 1, 0.3, 1)';
         el.style.opacity = '0';
-        el.style.transform = 'translateY(-6px)';
+        el.style.transform = 'translateY(-6px) scale(0.96)';
         setTimeout(() => el.remove(), 320);
     }, life);
 }

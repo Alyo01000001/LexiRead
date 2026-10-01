@@ -54,8 +54,7 @@ const LexiSync = (() => {
 
         if (state === 'syncing') {
             if (headerIcon) {
-                headerIcon.textContent = '🔄';
-                headerIcon.classList.add('animate-spin');
+                headerIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-indigo-400 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
             }
             if (headerText) {
                 headerText.textContent = typeof t === 'function' ? t('cloudSyncing') : 'Syncing…';
@@ -65,14 +64,12 @@ const LexiSync = (() => {
             return;
         }
 
-        if (headerIcon) {
-            headerIcon.classList.remove('animate-spin');
-        }
-
         if (isConnected) {
-            if (headerIcon) headerIcon.textContent = '☁️';
+            if (headerIcon) {
+                headerIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><polyline points="9 12 11 14 15 10"/></svg>`;
+            }
             if (headerText) {
-                headerText.textContent = '✓';
+                headerText.textContent = 'Synced';
                 headerText.className = 'hidden md:inline text-[11px] text-emerald-400 font-mono font-bold';
             }
             headerBtn.title = (typeof t === 'function' ? t('cloudSynced') : 'Synced with Dropbox') +
@@ -101,7 +98,9 @@ const LexiSync = (() => {
                 }
             }
         } else {
-            if (headerIcon) headerIcon.textContent = '☁️';
+            if (headerIcon) {
+                headerIcon.innerHTML = `<svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`;
+            }
             if (headerText) {
                 headerText.textContent = 'Sync';
                 headerText.className = 'hidden md:inline text-[11px] text-slate-400 font-mono';
@@ -547,7 +546,7 @@ const LexiSync = (() => {
                     document.body.removeChild(ta);
                 }
                 const oldText = copyUriBtn.textContent;
-                copyUriBtn.textContent = typeof t === 'function' ? t('cloudCopied') : '✓ Kopyalandı';
+                copyUriBtn.textContent = typeof t === 'function' ? t('cloudCopied') : 'Kopyalandı';
                 showToast(
                     typeof t === 'function' ? t('cloudRedirectUriCopied') : 'Redirect URI copied to clipboard!',
                     'success',

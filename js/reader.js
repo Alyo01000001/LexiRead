@@ -496,8 +496,8 @@ async function renderOutlineModal(outline, pdf) {
     async function appendOutlineNodes(items, parentEl, depth = 0) {
         for (const it of items) {
             const row = document.createElement('div');
-            row.className = 'flex items-center justify-between py-1.5 px-2.5 rounded-lg hover:bg-indigo-600/20 hover:text-indigo-300 cursor-pointer text-slate-200 transition group';
-            row.style.paddingLeft = `${depth * 14 + 10}px`;
+            row.className = 'flex items-center justify-between py-2 px-3 rounded-xl hover:bg-white/[0.06] hover:text-indigo-300 cursor-pointer text-slate-200 transition active:scale-[0.99] group border border-transparent hover:border-white/5';
+            row.style.paddingLeft = `${depth * 14 + 12}px`;
 
             const label = document.createElement('span');
             label.className = 'truncate text-xs font-medium';
@@ -923,7 +923,7 @@ async function renderLibrary() {
         libraryGrid.innerHTML = '';
         for (const doc of (docs || [])) {
             const card = document.createElement('div');
-            card.className = 'library-card group relative flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-slate-900/85 hover:border-indigo-500/60 hover:bg-slate-800/80 transition-all duration-200 shadow-lg hover:shadow-indigo-500/10 cursor-pointer select-none';
+            card.className = 'library-card group relative p-1 rounded-2xl sm:rounded-3xl border border-white/10 bg-white/[0.03] hover:border-indigo-500/50 hover:bg-white/[0.06] transition-all duration-300 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_45px_-10px_rgba(99,102,241,0.25)] hover:-translate-y-0.5 cursor-pointer select-none';
             card.dataset.dockey = doc.docKey;
 
             const displayName = doc.customTitle || doc.name;
@@ -932,16 +932,20 @@ async function renderLibrary() {
             let coverHtml = '';
             if (doc.ext === 'pdf' && doc.coverData) {
                 coverHtml = `
-                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg overflow-hidden border border-slate-700/70 bg-slate-950 shadow-md flex items-center justify-center">
+                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-xl overflow-hidden border border-white/10 bg-slate-950 shadow-md flex items-center justify-center">
                         <img src="${doc.coverData}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     </div>`;
             } else {
                 const badgeColor = doc.ext === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (doc.ext === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
-                const icon = doc.ext === 'pdf' ? '📄' : (doc.ext === 'docx' ? '📝' : '📃');
+                const svgIcon = doc.ext === 'pdf' 
+                    ? '<svg class="w-5 h-5 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>'
+                    : (doc.ext === 'docx' 
+                        ? '<svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>'
+                        : '<svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>');
                 coverHtml = `
-                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg border border-slate-800 bg-slate-950/80 flex flex-col items-center justify-center gap-1 shadow-md">
-                        <span class="text-xl">${icon}</span>
-                        <span class="text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded border ${badgeColor}">${doc.ext}</span>
+                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-xl border border-white/10 bg-slate-950/80 flex flex-col items-center justify-center gap-1.5 shadow-md">
+                        ${svgIcon}
+                        <span class="text-[9px] font-mono uppercase font-bold px-2 py-0.2 rounded-full border ${badgeColor}">${doc.ext}</span>
                     </div>`;
             }
 
@@ -954,29 +958,31 @@ async function renderLibrary() {
             const tgt = (doc.tgtLang || 'TR').toUpperCase();
 
             card.innerHTML = `
-                ${coverHtml}
-                <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
-                    <div>
-                        <div class="flex items-start justify-between gap-1.5">
-                            <h3 class="text-xs sm:text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-300 transition" title="${displayName}">
-                                ${displayName}
-                            </h3>
-                            <button class="lib-action-btn text-slate-400 hover:text-white p-1.5 -mr-1 -mt-1 transition rounded-lg hover:bg-slate-800 active:scale-90 shrink-0" title="Options">
-                                <span class="text-base font-bold leading-none select-none">⋮</span>
-                            </button>
+                <div class="rounded-[calc(1rem-2px)] sm:rounded-[calc(1.5rem-2px)] bg-slate-900/90 p-3 sm:p-3.5 flex items-center gap-3.5 border border-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] h-full w-full">
+                    ${coverHtml}
+                    <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
+                        <div>
+                            <div class="flex items-start justify-between gap-1.5">
+                                <h3 class="text-xs sm:text-sm font-semibold text-white truncate group-hover:text-indigo-300 transition" title="${displayName}">
+                                    ${displayName}
+                                </h3>
+                                <button class="lib-action-btn text-slate-400 hover:text-white p-1 -mr-1 -mt-1 transition rounded-full hover:bg-white/10 active:scale-90 shrink-0" title="Options">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.05] text-indigo-300 font-medium border border-white/10 shadow-sm">
+                                    ${src} → ${tgt}
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium">
+                                    ${pageStr}
+                                </span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 font-medium border border-slate-700/60">
-                                ${src} → ${tgt}
-                            </span>
-                            <span class="text-[10px] text-slate-400">
-                                ${pageStr}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="mt-2.5">
-                        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-indigo-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                        <div class="mt-3">
+                            <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden border border-white/[0.04]">
+                                <div class="bg-gradient-to-r from-indigo-500 to-violet-400 h-1.5 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(99,102,241,0.5)]" style="width: ${pct}%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1004,32 +1010,37 @@ async function renderLibrary() {
         // Render remote books available in Dropbox but not downloaded locally
         for (const rem of unDownloadedRemoteBooks) {
             const remCard = document.createElement('div');
-            remCard.className = 'library-card group relative flex items-center gap-3 p-3 rounded-xl border border-indigo-500/40 bg-slate-900/60 hover:border-indigo-400 hover:bg-slate-800/80 transition-all duration-200 shadow-lg cursor-pointer select-none';
+            remCard.className = 'library-card group relative p-1 rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] hover:border-indigo-400 hover:bg-indigo-500/[0.07] transition-all duration-300 shadow-lg cursor-pointer select-none';
             const remExt = (rem.name.split('.').pop() || '').toLowerCase();
             const badgeColor = remExt === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (remExt === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
-            const icon = remExt === 'pdf' ? '📄' : (remExt === 'docx' ? '📝' : '📃');
 
             remCard.innerHTML = `
-                <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-lg border border-dashed border-indigo-500/40 bg-indigo-950/30 flex flex-col items-center justify-center gap-1 shadow-md">
-                    <span class="text-xl">${icon}</span>
-                    <span class="text-[9px] font-mono uppercase font-bold px-1.5 py-0.5 rounded border ${badgeColor}">☁️ ${remExt}</span>
-                </div>
-                <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
-                    <div>
-                        <div class="flex items-start justify-between gap-1.5">
-                            <h3 class="text-xs sm:text-sm font-semibold text-slate-200 truncate group-hover:text-indigo-300 transition" title="${rem.name}">
-                                ${rem.name}
-                            </h3>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono shrink-0">☁️ Dropbox</span>
-                        </div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] text-slate-400">${typeof t === 'function' ? t('cloudAvailableOnDropbox') : 'Available on Dropbox'}</span>
-                        </div>
+                <div class="rounded-[calc(1rem-2px)] sm:rounded-[calc(1.5rem-2px)] bg-slate-900/80 p-3 sm:p-3.5 flex items-center gap-3.5 border border-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] h-full w-full">
+                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-xl border border-dashed border-indigo-500/40 bg-indigo-950/30 flex flex-col items-center justify-center gap-1.5 shadow-md">
+                        <svg class="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                        <span class="text-[9px] font-mono uppercase font-bold px-2 py-0.2 rounded-full border ${badgeColor}">${remExt}</span>
                     </div>
-                    <div class="mt-2.5">
-                        <span class="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-400 group-hover:text-indigo-300">
-                            ⬇️ ${typeof t === 'function' ? t('cloudDownloadAndRead') : 'Download & Read'}
-                        </span>
+                    <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
+                        <div>
+                            <div class="flex items-start justify-between gap-1.5">
+                                <h3 class="text-xs sm:text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-300 transition" title="${rem.name}">
+                                    ${rem.name}
+                                </h3>
+                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono shrink-0">
+                                    <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                                    <span>Dropbox</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1.5">
+                                <span class="text-[10px] text-slate-400">${typeof t === 'function' ? t('cloudAvailableOnDropbox') : 'Available on Dropbox'}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-400 group-hover:text-indigo-300">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                <span>${typeof t === 'function' ? t('cloudDownloadAndRead') : 'Download & Read'}</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
             `;

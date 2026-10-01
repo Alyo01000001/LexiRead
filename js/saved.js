@@ -91,11 +91,11 @@ function renderSavedList(filter = '') {
     }
     for (const item of arr) {
         const row = document.createElement('div');
-        row.className = 'saved-item flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-800/50 p-3 transition';
+        row.className = 'saved-item flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-white/20 transition-all duration-200 shadow-sm';
         const info = document.createElement('div');
         info.className = 'min-w-0 flex-1';
         const orig = document.createElement('p');
-        orig.className = 'break-words text-sm font-medium text-slate-100';
+        orig.className = 'break-words text-sm font-semibold text-white';
         orig.textContent = item.original;
 
         const trContainer = document.createElement('div');
@@ -104,7 +104,7 @@ function renderSavedList(filter = '') {
         if (parts.length > 1) {
             parts.forEach(part => {
                 const chip = document.createElement('span');
-                chip.className = 'inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-500/15 text-indigo-200 border border-indigo-500/30';
+                chip.className = 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/30';
                 chip.textContent = part;
                 trContainer.appendChild(chip);
             });
@@ -116,11 +116,11 @@ function renderSavedList(filter = '') {
         }
 
         const meta = document.createElement('p');
-        meta.className = 'mt-1 text-[10px] uppercase tracking-wider text-slate-500';
+        meta.className = 'mt-1 text-[10px] uppercase tracking-wider text-slate-400 font-mono';
         meta.textContent = `${langName(item.src)} → ${langName(item.tgt)}`;
         info.append(orig, trContainer, meta);
         const del = document.createElement('button');
-        del.className = 'shrink-0 rounded-md border border-red-900/60 px-2 py-1 text-[11px] text-red-300 hover:bg-red-900/40 transition';
+        del.className = 'shrink-0 rounded-full border border-red-500/20 px-2.5 py-1 text-[11px] text-red-400 hover:bg-red-950/40 hover:border-red-500/40 transition active:scale-95 cursor-pointer';
         del.textContent = t('deleteBtn');
         del.addEventListener('click', () => deleteSaved(item.id));
         row.append(info, del);

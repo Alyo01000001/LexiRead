@@ -1,5 +1,5 @@
 /* =============================================================
-   LexiRead — Internationalization & Localization (i18n) Engine
+   LexiRead - Internationalization & Localization (i18n) Engine
    English (en) & Turkish (tr) Full Support
    ============================================================= */
 
@@ -10,7 +10,7 @@ const APP_LANG_KEY = 'lexi.appLang';
 const I18N = {
     en: {
         // App / Brand
-        appTitle: "LexiRead — Reader & Translator",
+        appTitle: "LexiRead - Reader & Translator",
         logoReloadTitle: "Reload & Return Home",
 
         // Header
@@ -84,7 +84,7 @@ const I18N = {
         // Loader messages
         loaderWorking: "Working…",
         loaderValidating: "Validating {ext}…",
-        loaderReadingLayer: "Reading text layer — page {cur} / {total}",
+        loaderReadingLayer: "Reading text layer - page {cur} / {total}",
         loaderPrepPages: "Preparing page structure {cur} / {total}…",
         loaderRendering: "Rendering document…",
         loaderReadingFile: "Reading {ext} file…",
@@ -93,35 +93,35 @@ const I18N = {
         saveBookmark: "Save to Saved Words & Phrases",
         savedSuccess: "Saved to your list.",
         alreadySaved: "Already saved.",
-        savedWordToast: "🔖 Saved \"{orig}\" → \"{tr}\"",
-        savedMeaningAdded: "🔖 Added new meaning for \"{orig}\": \"{tr}\"",
+        savedWordToast: "Saved \"{orig}\" → \"{tr}\"",
+        savedMeaningAdded: "Added new meaning for \"{orig}\": \"{tr}\"",
         allSavedDeleted: "All saved items deleted.",
         noSavedToCopy: "No saved words to copy.",
-        copiedToClipboard: "📋 Copied {count} words (word:translation)! Paste in Cardlyo.",
+        copiedToClipboard: "Copied {count} words (word:translation)! Paste in Cardlyo.",
         exportedJson: "Exported to JSON (cards format).",
-        noSavedItems: "No saved items yet.<br/>Tap the ☆ in a tooltip or Middle-Click any word to save it.",
+        noSavedItems: "No saved items yet.<br/>Click the bookmark in a tooltip or Middle-Click any word to save it.",
         noMatchingWords: "No saved words match \"<strong>{query}</strong>\"",
         deleteBtn: "Delete",
 
         // Tooltip Statuses & Errors
-        statusQuota: "⏳ Quota exceeded",
-        statusAuth: "🔑 API key required",
-        statusNetwork: "🔗 Network error",
-        statusLang: "⚠ Unsupported pair",
-        statusApiError: "⚠ API error",
-        statusRateLimit: "⏳ Rate limit",
-        statusError: "⚠ Error",
+        statusQuota: "Quota exceeded",
+        statusAuth: "API key required",
+        statusNetwork: "Network error",
+        statusLang: "Unsupported pair",
+        statusApiError: "API error",
+        statusRateLimit: "Rate limit",
+        statusError: "Error",
         keyAttentionToast: "{tag}. Please check your API key.",
-        noApiKeyToast: "No API key set — tap \"API Key\" to add one.",
-        unsupportedFileToast: "Unsupported file type \".{ext}\" — use .txt, .pdf or .docx",
+        noApiKeyToast: "No API key set - tap \"API Key\" to add one.",
+        unsupportedFileToast: "Unsupported file type \".{ext}\" - use .txt, .pdf or .docx",
         limitErrorMsg: "Error: Maximum 20 pages or ~40,000 characters allowed.",
         noReadableTextMsg: "No readable text found in this document.",
         alreadyProcessingMsg: "Already processing a document…",
-        loadedWithKey: "Loaded \"{name}\" — {src} → {tgt}",
-        loadedNoKey: "Loaded \"{name}\" — add an API Key to translate.",
+        loadedWithKey: "Loaded \"{name}\" - {src} → {tgt}",
+        loadedNoKey: "Loaded \"{name}\" - add an API Key to translate.",
 
         // API Key Modal
-        apiKeyModalTitle: "🔑 Translation API Key",
+        apiKeyModalTitle: "Translation API Key",
         activeProvider: "Active: {provider}",
         tabGemini: "Google Gemini",
         tabDeepl: "DeepL API",
@@ -136,7 +136,7 @@ const I18N = {
         keySavedToast: "{prov} API key saved & activated.",
 
         // Language Modal
-        langModalTitle: "🌐 Select Source and Target Language",
+        langModalTitle: "Select Source and Target Language",
         langFrom: "From",
         langTo: "To",
         langSwapTitle: "Swap",
@@ -145,11 +145,11 @@ const I18N = {
         confirmBtn: "Confirm",
 
         // PDF Crop Modal
-        pdfCropTitle: "✂️ PDF Reading Area & Margins",
+        pdfCropTitle: "PDF Reading Area & Margins",
         pdfCropDesc: "Drag the top and bottom red exclusion lines directly on the page to exclude headers and footers.",
         excludeHeaderBadge: "Exclude Header:",
         excludeFooterBadge: "Exclude Footer:",
-        cropTip: "💡 <strong class=\"text-slate-300\">Tip:</strong> Drag the red badges up and down over the preview",
+        cropTip: "<strong class=\"text-slate-300\">Tip:</strong> Drag the red badges up and down over the preview",
         noCropBtn: "No Crop (0%)",
         applyOpenBtn: "Apply & Open Document",
         backBtn: "Back",
@@ -157,12 +157,12 @@ const I18N = {
         langUpdatedToast: "Translation languages updated: {src} → {tgt}",
 
         // Outline Modal
-        outlineTitle: "📑 Table of Contents",
+        outlineTitle: "Table of Contents",
         noOutlineMsg: "No table of contents available for this PDF.",
         untitledChapter: "Untitled Chapter",
 
         // Typography & Appearance Modal
-        typographyTitle: "🔤 Appearance & Layout",
+        typographyTitle: "Appearance & Layout",
         guiScaleLabel: "Interface Scale (GUI Size)",
         guiScale85: "Compact (85%)",
         guiScale100: "Default (100%)",
@@ -183,7 +183,7 @@ const I18N = {
         spacingUpdatedToast: "Line spacing: {spacing}",
 
         // Settings & Quick Menu
-        settingsTitle: "⚙️ Settings & Preferences",
+        settingsTitle: "Settings & Preferences",
         themeLabel: "Theme",
         themeDark: "Dark",
         themeLight: "Light",
@@ -200,7 +200,7 @@ const I18N = {
 
         // Cloud Sync (Dropbox)
         cloudSyncTitle: "Cloud Sync (Dropbox)",
-        cloudSyncHeader: "☁️ Cloud Sync (Dropbox)",
+        cloudSyncHeader: "Cloud Sync (Dropbox)",
         cloudStatusConnected: "Connected",
         cloudStatusDisconnected: "Disconnected",
         cloudConnectBtn: "Connect Dropbox",
@@ -214,8 +214,8 @@ const I18N = {
         cloudSyncError: "Cloud sync error: {error}",
         cloudConnectedToast: "Connected to Dropbox ({name})",
         cloudDisconnectedToast: "Disconnected from Dropbox",
-        cloudBookUploaded: "☁️ Uploaded \"{name}\" to Dropbox",
-        cloudBookDownloaded: "☁️ Downloaded \"{name}\" from Dropbox",
+        cloudBookUploaded: "Uploaded \"{name}\" to Dropbox",
+        cloudBookDownloaded: "Downloaded \"{name}\" from Dropbox",
         cloudAutoSyncInfo: "Automatic: Page turns and saved vocabulary sync seamlessly in the background.",
         cloudDownloadAndRead: "Download & Read",
         cloudAvailableOnDropbox: "Available on Dropbox",
@@ -231,7 +231,7 @@ const I18N = {
         cloudInvalidRedirectUri: "Dropbox Redirect URI mismatch! Please copy the Redirect URI from Settings and add it to your Dropbox Console.",
 
         // Saved Words Modal
-        savedModalTitle: "🔖 Saved Words & Phrases",
+        savedModalTitle: "Saved Words & Phrases",
         searchSavedPlaceholder: "Search saved words or translations...",
         deleteAllBtn: "Delete all",
         copyCardlyoBtn: "Copy for Cardlyo",
@@ -266,7 +266,7 @@ const I18N = {
 
     tr: {
         // App / Brand
-        appTitle: "LexiRead — Okuyucu & Çevirmen",
+        appTitle: "LexiRead - Okuyucu & Çevirmen",
         logoReloadTitle: "Yenile & Ana Sayfaya Dön",
 
         // Header
@@ -340,7 +340,7 @@ const I18N = {
         // Loader messages
         loaderWorking: "Çalışıyor…",
         loaderValidating: "{ext} dosyası doğrulanıyor…",
-        loaderReadingLayer: "Metin katmanı okunuyor — sayfa {cur} / {total}",
+        loaderReadingLayer: "Metin katmanı okunuyor - sayfa {cur} / {total}",
         loaderPrepPages: "Sayfa yapısı hazırlanıyor {cur} / {total}…",
         loaderRendering: "Belge işleniyor…",
         loaderReadingFile: "{ext} dosyası okunuyor…",
@@ -349,35 +349,35 @@ const I18N = {
         saveBookmark: "Kayıtlı Kelimelere & İfadelere Kaydet",
         savedSuccess: "Listenize kaydedildi.",
         alreadySaved: "Zaten kaydedilmiş.",
-        savedWordToast: "🔖 \"{orig}\" → \"{tr}\" kaydedildi",
-        savedMeaningAdded: "🔖 \"{orig}\" için yeni anlam eklendi: \"{tr}\"",
+        savedWordToast: "\"{orig}\" → \"{tr}\" kaydedildi",
+        savedMeaningAdded: "\"{orig}\" için yeni anlam eklendi: \"{tr}\"",
         allSavedDeleted: "Tüm kayıtlı ögeler silindi.",
         noSavedToCopy: "Kopyalanacak kayıtlı kelime yok.",
-        copiedToClipboard: "📋 {count} kelime (kelime:çeviri) kopyalandı! Cardlyo'ya yapıştırın.",
+        copiedToClipboard: "{count} kelime (kelime:çeviri) kopyalandı! Cardlyo'ya yapıştırın.",
         exportedJson: "JSON formatında dışa aktarıldı.",
-        noSavedItems: "Henüz kayıtlı öge yok.<br/>Kaydetmek için kutucuktaki ☆ simgesine tıklayın veya herhangi bir kelimeye fare tekerleğiyle tıklayın.",
+        noSavedItems: "Henüz kayıtlı öge yok.<br/>Kaydetmek için kutucuktaki yer imi simgesine tıklayın veya herhangi bir kelimeye fare tekerleğiyle tıklayın.",
         noMatchingWords: "\"<strong>{query}</strong>\" ile eşleşen kayıtlı kelime bulunamadı",
         deleteBtn: "Sil",
 
         // Tooltip Statuses & Errors
-        statusQuota: "⏳ Kota aşıldı",
-        statusAuth: "🔑 API anahtarı gerekli",
-        statusNetwork: "🔗 Ağ bağlantı hatası",
-        statusLang: "⚠ Desteklenmeyen dil çifti",
-        statusApiError: "⚠ API hatası",
-        statusRateLimit: "⏳ İstek limiti",
-        statusError: "⚠ Hata",
+        statusQuota: "Kota aşıldı",
+        statusAuth: "API anahtarı gerekli",
+        statusNetwork: "Ağ bağlantı hatası",
+        statusLang: "Desteklenmeyen dil çifti",
+        statusApiError: "API hatası",
+        statusRateLimit: "İstek limiti",
+        statusError: "Hata",
         keyAttentionToast: "{tag}. Lütfen API anahtarınızı kontrol edin.",
-        noApiKeyToast: "API anahtarı ayarlanmadı — eklemek için \"API Anahtarı\"na tıklayın.",
-        unsupportedFileToast: "Desteklenmeyen dosya türü \".{ext}\" — .txt, .pdf veya .docx kullanın",
+        noApiKeyToast: "API anahtarı ayarlanmadı - eklemek için \"API Anahtarı\"na tıklayın.",
+        unsupportedFileToast: "Desteklenmeyen dosya türü \".{ext}\" - .txt, .pdf veya .docx kullanın",
         limitErrorMsg: "Hata: Maksimum 20 sayfa veya ~40.000 karakter desteklenir.",
         noReadableTextMsg: "Bu belgede okunabilir metin bulunamadı.",
         alreadyProcessingMsg: "Zaten bir belge işleniyor…",
-        loadedWithKey: "\"{name}\" yüklendi — {src} → {tgt}",
-        loadedNoKey: "\"{name}\" yüklendi — çeviri yapmak için API Anahtarı ekleyin.",
+        loadedWithKey: "\"{name}\" yüklendi - {src} → {tgt}",
+        loadedNoKey: "\"{name}\" yüklendi - çeviri yapmak için API Anahtarı ekleyin.",
 
         // API Key Modal
-        apiKeyModalTitle: "🔑 Çeviri API Anahtarı",
+        apiKeyModalTitle: "Çeviri API Anahtarı",
         activeProvider: "Aktif: {provider}",
         tabGemini: "Google Gemini",
         tabDeepl: "DeepL API",
@@ -392,7 +392,7 @@ const I18N = {
         keySavedToast: "{prov} API anahtarı kaydedildi ve etkinleştirildi.",
 
         // Language Modal
-        langModalTitle: "🌐 Kaynak ve Hedef Dili Seçin",
+        langModalTitle: "Kaynak ve Hedef Dili Seçin",
         langFrom: "Kaynak",
         langTo: "Hedef",
         langSwapTitle: "Dilleri Değiştir",
@@ -401,11 +401,11 @@ const I18N = {
         confirmBtn: "Onayla",
 
         // PDF Crop Modal
-        pdfCropTitle: "✂️ PDF Okuma Alanı & Kenar Boşlukları",
+        pdfCropTitle: "PDF Okuma Alanı & Kenar Boşlukları",
         pdfCropDesc: "Üst bilgi (header) ve alt bilgileri (footer) dışlamak için kırmızı çizgileri doğrudan sayfa üzerinde yukarı/aşağı sürükleyin.",
         excludeHeaderBadge: "Üst Bilgiyi Dışla:",
         excludeFooterBadge: "Alt Bilgiyi Dışla:",
-        cropTip: "💡 <strong class=\"text-slate-300\">İpucu:</strong> Önizleme üzerindeki kırmızı etiketleri yukarı/aşağı sürükleyin",
+        cropTip: "<strong class=\"text-slate-300\">İpucu:</strong> Önizleme üzerindeki kırmızı etiketleri yukarı/aşağı sürükleyin",
         noCropBtn: "Kırpma Yok (%0)",
         applyOpenBtn: "Uygula & Belgeyi Aç",
         backBtn: "Geri",
@@ -413,12 +413,12 @@ const I18N = {
         langUpdatedToast: "Çeviri dilleri güncellendi: {src} → {tgt}",
 
         // Outline Modal
-        outlineTitle: "📑 İçindekiler Tablosu",
+        outlineTitle: "İçindekiler Tablosu",
         noOutlineMsg: "Bu PDF için içindekiler tablosu bulunamadı.",
         untitledChapter: "Başlıksız Bölüm",
 
         // Typography & Appearance Modal
-        typographyTitle: "🔤 Görünüm & Düzen",
+        typographyTitle: "Görünüm & Düzen",
         guiScaleLabel: "Arayüz Boyutu (GUI Ölçeği)",
         guiScale85: "Küçük (%85)",
         guiScale100: "Standart (%100)",
@@ -439,7 +439,7 @@ const I18N = {
         spacingUpdatedToast: "Satır aralığı: {spacing}",
 
         // Settings & Quick Menu
-        settingsTitle: "⚙️ Ayarlar & Tercihler",
+        settingsTitle: "Ayarlar & Tercihler",
         themeLabel: "Tema",
         themeDark: "Karanlık",
         themeLight: "Aydınlık",
@@ -456,7 +456,7 @@ const I18N = {
 
         // Cloud Sync (Dropbox)
         cloudSyncTitle: "Bulut Senkronizasyonu (Dropbox)",
-        cloudSyncHeader: "☁️ Bulut Senkronizasyonu (Dropbox)",
+        cloudSyncHeader: "Bulut Senkronizasyonu (Dropbox)",
         cloudStatusConnected: "Bağlı",
         cloudStatusDisconnected: "Bağlı Değil",
         cloudConnectBtn: "Dropbox Bağla",
@@ -470,8 +470,8 @@ const I18N = {
         cloudSyncError: "Bulut eşitleme hatası: {error}",
         cloudConnectedToast: "Dropbox hesabı bağlandı ({name})",
         cloudDisconnectedToast: "Dropbox bağlantısı kesildi",
-        cloudBookUploaded: "☁️ \"{name}\" Dropbox'a yüklendi",
-        cloudBookDownloaded: "☁️ \"{name}\" Dropbox'tan indirildi",
+        cloudBookUploaded: "\"{name}\" Dropbox'a yüklendi",
+        cloudBookDownloaded: "\"{name}\" Dropbox'tan indirildi",
         cloudAutoSyncInfo: "Otomatik: Sayfa değişimleri ve kayıtlı kelimeler arka planda sessizce eşitlenir.",
         cloudDownloadAndRead: "İndir & Oku",
         cloudAvailableOnDropbox: "Dropbox'ta Mevcut",
@@ -487,7 +487,7 @@ const I18N = {
         cloudInvalidRedirectUri: "Dropbox Redirect URI uyuşmazlığı! Lütfen Ayarlar > Dropbox bölümündeki Redirect URI adresini kopyalayıp Dropbox Console'a ekleyin.",
 
         // Saved Words Modal
-        savedModalTitle: "🔖 Kayıtlı Kelimeler & İfadeler",
+        savedModalTitle: "Kayıtlı Kelimeler & İfadeler",
         searchSavedPlaceholder: "Kayıtlı kelimelerde veya çevirilerde ara...",
         deleteAllBtn: "Tümünü sil",
         copyCardlyoBtn: "Cardlyo için Kopyala",
