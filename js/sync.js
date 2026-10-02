@@ -38,6 +38,74 @@ const LexiSync = (() => {
         } catch (_) {}
     }
 
+    const DELETED_BOOKS_STORAGE_KEY = 'lexi.deletedBooks';
+
+    function getDeletedBooksMap() {
+        try {
+            const obj = JSON.parse(localStorage.getItem(DELETED_BOOKS_STORAGE_KEY) || '{}');
+            return (obj && typeof obj === 'object') ? obj : {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function saveDeletedBooksMap(map) {
+        try {
+            localStorage.setItem(DELETED_BOOKS_STORAGE_KEY, JSON.stringify(map));
+        } catch (_) {}
+    }
+
+    function recordBookDeletion(fileName, docKey) {
+        if (!fileName && !docKey) return;
+        const map = getDeletedBooksMap();
+        const now = Date.now();
+        const item = {
+            name: fileName || (docKey ? docKey.split('_')[0] : ''),
+            docKey: docKey || '',
+            deletedAt: now
+        };
+        if (fileName) map[fileName.toLowerCase()] = item;
+        if (docKey) map[docKey] = item;
+        saveDeletedBooksMap(map);
+
+        // Remove from local synced set
+        const set = getSyncedBooksSet();
+        if (fileName) set.delete(fileName);
+        if (docKey) set.delete(docKey);
+        try {
+            localStorage.setItem(SYNCED_BOOKS_STORAGE_KEY, JSON.stringify(Array.from(set)));
+        } catch (_) {}
+    }
+
+    function clearBookDeletion(fileName, docKey) {
+        const map = getDeletedBooksMap();
+        let changed = false;
+        if (fileName && map[fileName.toLowerCase()]) {
+            delete map[fileName.toLowerCase()];
+            changed = true;
+        }
+        if (docKey && map[docKey]) {
+            delete map[docKey];
+            changed = true;
+        }
+        if (changed) saveDeletedBooksMap(map);
+    }
+
+    async function deleteBookFromDropbox(fileName) {
+        if (!isConnected || !fileName) return;
+        try {
+            const resp = await fetch('/api/dropbox/delete-book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: fileName })
+            });
+            const data = await resp.json();
+            console.log(`[LexiSync] Delete from Dropbox (${fileName}):`, data);
+        } catch (err) {
+            console.warn(`[LexiSync] Failed to delete "${fileName}" from Dropbox:`, err);
+        }
+    }
+
     function updateUI(state = 'idle') {
         const headerBtn = $('headerCloudSyncBtn');
         const headerIcon = $('headerCloudIcon');
@@ -258,12 +326,194 @@ const LexiSync = (() => {
 
         return {
             syncState: {
-                version: 1,
+                version: 2,
                 lastSync: Date.now(),
-                documents: docsMap
+                documents: docsMap,
+                deletedDocuments: getDeletedBooksMap()
             },
             savedVocabulary: vocab
         };
+    }
+
+    async function applySyncStateChanges(remoteSyncState) {
+        if (!remoteSyncState || !window.LexiDB) return false;
+        let updatedAny = false;
+
+        // 1. Merge remote tombstones into local storage
+        const localDeleted = getDeletedBooksMap();
+        if (remoteSyncState.deletedDocuments && typeof remoteSyncState.deletedDocuments === 'object') {
+            for (const [k, item] of Object.entries(remoteSyncState.deletedDocuments)) {
+                const itemTime = item?.deletedAt || 0;
+                const locItem = localDeleted[k];
+                const locTime = locItem?.deletedAt || 0;
+                if (itemTime > locTime) {
+                    localDeleted[k] = item;
+                }
+            }
+            saveDeletedBooksMap(localDeleted);
+        }
+
+        // 2. Check local documents against tombstones
+        try {
+            const localDocs = await LexiDB.getAllDocuments();
+            for (const doc of localDocs) {
+                const delByName = localDeleted[(doc.name || '').toLowerCase()];
+                const delByKey = localDeleted[doc.docKey];
+                const delTime = Math.max(delByName?.deletedAt || 0, delByKey?.deletedAt || 0);
+
+                if (delTime && delTime >= (doc.lastReadAt || 0)) {
+                    console.log(`[LexiSync] Deleting local document "${doc.name}" due to remote deletion timestamp.`);
+                    await LexiDB.deleteDocument(doc.docKey);
+                    updatedAny = true;
+                }
+            }
+        } catch (e) {
+            console.warn('[LexiSync] Error verifying deleted documents:', e);
+        }
+
+        // 3. Update reading progress for surviving documents
+        if (remoteSyncState.documents) {
+            for (const [docKey, rem] of Object.entries(remoteSyncState.documents)) {
+                const del = localDeleted[docKey] || localDeleted[(rem.name || '').toLowerCase()];
+                if (del && del.deletedAt >= (rem.lastReadAt || 0)) continue;
+
+                const loc = await LexiDB.getDocument(docKey);
+                if (loc && (rem.lastReadAt || 0) > (loc.lastReadAt || 0)) {
+                    await LexiDB.updateDocumentProgress(docKey, rem.lastPage, rem.scrollTop, rem.pageCount);
+                    if (rem.customTitle && !loc.customTitle) {
+                        await LexiDB.updateDocumentTitle(docKey, rem.customTitle);
+                    }
+                    updatedAny = true;
+                }
+            }
+        }
+
+        return updatedAny;
+    }
+
+    async function downloadAndImportBook(bookPath, bookName, docMeta = null) {
+        if (!bookPath || !bookName || !window.LexiDB) return false;
+        try {
+            const resp = await fetch('/api/dropbox/download-book?path=' + encodeURIComponent(bookPath));
+            if (!resp.ok) return false;
+            const blob = await resp.blob();
+            const ext = typeof normalizeExt === 'function' ? normalizeExt(bookName) : (bookName.split('.').pop() || '').toLowerCase();
+            if (!['pdf', 'docx', 'txt'].includes(ext)) return false;
+
+            const file = new File([blob], bookName, { type: blob.type || 'application/octet-stream' });
+            const docKey = bookName + '_' + (blob.size || 0);
+
+            let pageCount = docMeta?.pageCount || 1;
+            let coverData = null;
+
+            if (ext === 'pdf' && window.pdfjsLib) {
+                try {
+                    const buf = await blob.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+                    pageCount = pdf.numPages || 1;
+                    try {
+                        const p1 = await pdf.getPage(1);
+                        const vp = p1.getViewport({ scale: 0.3 });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = vp.width;
+                        canvas.height = vp.height;
+                        const ctx = canvas.getContext('2d');
+                        await p1.render({ canvasContext: ctx, viewport: vp }).promise;
+                        coverData = canvas.toDataURL('image/jpeg', 0.7);
+                    } catch (_) {}
+                } catch (pe) {
+                    console.warn('[LexiSync] PDF page count extraction warning:', pe);
+                }
+            }
+
+            const newDoc = {
+                docKey: docKey,
+                name: bookName,
+                size: blob.size || 0,
+                ext: ext,
+                blob: file,
+                coverData: coverData,
+                pageCount: pageCount,
+                lastPage: docMeta?.lastPage || 1,
+                scrollTop: docMeta?.scrollTop || 0,
+                progressPercent: docMeta?.progressPercent || (pageCount > 1 ? Math.min(100, Math.max(1, Math.round(((docMeta?.lastPage || 1) / pageCount) * 100))) : 1),
+                srcLang: docMeta?.srcLang || (typeof currentSrc !== 'undefined' ? currentSrc : 'en'),
+                tgtLang: docMeta?.tgtLang || (typeof currentTgt !== 'undefined' ? currentTgt : 'tr'),
+                customTitle: docMeta?.customTitle || '',
+                lastReadAt: docMeta?.lastReadAt || Date.now()
+            };
+
+            await LexiDB.saveDocument(newDoc);
+            recordBookAsSynced(docKey);
+            recordBookAsSynced(bookName);
+            console.log(`[LexiSync] Auto-imported book from Dropbox: ${bookName}`);
+            return true;
+        } catch (err) {
+            console.warn(`[LexiSync] Error importing "${bookName}":`, err);
+            return false;
+        }
+    }
+
+    let isSyncingBooks = false;
+
+    async function syncBooksWithDropbox(remoteSyncState) {
+        if (!isConnected || isSyncingBooks || !window.LexiDB) return;
+        isSyncingBooks = true;
+
+        try {
+            const remoteBooks = await fetchRemoteBooks();
+            const localDeleted = getDeletedBooksMap();
+            const localDocs = await LexiDB.getAllDocuments();
+            const localDocsByName = new Map();
+            for (const d of localDocs) {
+                localDocsByName.set((d.name || '').toLowerCase(), d);
+            }
+
+            let importedAny = false;
+
+            for (const rem of remoteBooks) {
+                const remNameLower = (rem.name || '').toLowerCase();
+                const remModifiedMs = rem.modified_ms || (rem.modified ? new Date(rem.modified).getTime() : 0);
+
+                // Check tombstone
+                const delItem = localDeleted[remNameLower];
+                const delTime = delItem?.deletedAt || 0;
+
+                if (delTime && delTime >= remModifiedMs) {
+                    // Deletion was performed after upload -> delete from Dropbox!
+                    console.log(`[LexiSync] Deleting "${rem.name}" from Dropbox (deletedAt ${delTime} >= mod ${remModifiedMs})`);
+                    await deleteBookFromDropbox(rem.name);
+                    continue;
+                }
+
+                // If file on Dropbox is newer than deletion, clear old tombstone
+                if (delTime && remModifiedMs > delTime) {
+                    clearBookDeletion(rem.name);
+                }
+
+                // If local app doesn't have this book, import it into app!
+                if (!localDocsByName.has(remNameLower)) {
+                    let docMeta = null;
+                    const stateDocs = (remoteSyncState && remoteSyncState.documents) || {};
+                    for (const [k, d] of Object.entries(stateDocs)) {
+                        if ((d.name || '').toLowerCase() === remNameLower) {
+                            docMeta = d;
+                            break;
+                        }
+                    }
+                    const ok = await downloadAndImportBook(rem.path, rem.name, docMeta);
+                    if (ok) importedAny = true;
+                }
+            }
+
+            if (importedAny && typeof renderLibrary === 'function') {
+                renderLibrary();
+            }
+        } catch (err) {
+            console.warn('[LexiSync] syncBooksWithDropbox error:', err);
+        } finally {
+            isSyncingBooks = false;
+        }
     }
 
     async function syncPushImmediate(isUserInitiated = false) {
@@ -292,22 +542,11 @@ const LexiSync = (() => {
                     }
                 }
 
-                // 2. Update local documents reading progress if remote had newer progress
-                if (data.syncState && data.syncState.documents && window.LexiDB) {
-                    for (const [docKey, remoteDoc] of Object.entries(data.syncState.documents)) {
-                        const localDoc = await LexiDB.getDocument(docKey);
-                        if (localDoc && remoteDoc.lastReadAt > (localDoc.lastReadAt || 0)) {
-                            await LexiDB.updateDocumentProgress(
-                                docKey,
-                                remoteDoc.lastPage,
-                                remoteDoc.scrollTop,
-                                remoteDoc.pageCount
-                            );
-                            if (remoteDoc.customTitle && !localDoc.customTitle) {
-                                await LexiDB.updateDocumentTitle(docKey, remoteDoc.customTitle);
-                            }
-                        }
-                    }
+                // 2. Update local documents & tombstone deletions
+                if (data.syncState) {
+                    await applySyncStateChanges(data.syncState);
+                    // Background sync of books (delete / import)
+                    syncBooksWithDropbox(data.syncState);
                 }
 
                 updateUI('idle');
@@ -370,15 +609,11 @@ const LexiSync = (() => {
                 }
             }
 
-            // Merge reading progress
-            if (data.syncState && data.syncState.documents && window.LexiDB) {
-                for (const [docKey, rem] of Object.entries(data.syncState.documents)) {
-                    const loc = await LexiDB.getDocument(docKey);
-                    if (loc && rem.lastReadAt > (loc.lastReadAt || 0)) {
-                        await LexiDB.updateDocumentProgress(docKey, rem.lastPage, rem.scrollTop, rem.pageCount);
-                        updatedAny = true;
-                    }
-                }
+            // Merge reading progress and sync tombstones
+            if (data.syncState) {
+                const changed = await applySyncStateChanges(data.syncState);
+                if (changed) updatedAny = true;
+                syncBooksWithDropbox(data.syncState);
             }
 
             lastSyncTimestamp = Date.now();
@@ -642,6 +877,12 @@ const LexiSync = (() => {
         handleNewDocumentOpened,
         fetchRemoteBooks,
         downloadAndOpenBook,
+        downloadAndImportBook,
+        recordBookDeletion,
+        clearBookDeletion,
+        getDeletedBooksMap,
+        deleteBookFromDropbox,
+        syncBooksWithDropbox,
         get isConnected() { return isConnected; }
     };
 })();

@@ -115,19 +115,71 @@ function checkAndShowResumeBanner(docKey, parsed) {
     } catch (_) {}
 }
 
+let pageStaySyncTimer = null;
+let lastStayPageIdentifier = null;
+
+function getCurrentPdfPageNumber() {
+    if (navCurPage && Number(navCurPage.textContent) > 0) {
+        const pNum = Number(navCurPage.textContent);
+        if (pNum >= 1) return pNum;
+    }
+    const pages = document.querySelectorAll('.pdf-page');
+    if (!pages.length) return 1;
+    const midY = window.innerHeight * 0.35;
+    for (const p of pages) {
+        const rect = p.getBoundingClientRect();
+        if (rect.top <= midY && rect.bottom >= midY) {
+            return Number(p.dataset.page) || 1;
+        } else if (rect.top > midY) {
+            return Number(p.dataset.page) || 1;
+        }
+    }
+    return 1;
+}
+
+function notifyPageActive(pageIdentifier) {
+    if (!currentDocKey || !pageIdentifier) return;
+    if (pageIdentifier === lastStayPageIdentifier && pageStaySyncTimer) {
+        return;
+    }
+
+    lastStayPageIdentifier = pageIdentifier;
+    if (pageStaySyncTimer) {
+        clearTimeout(pageStaySyncTimer);
+        pageStaySyncTimer = null;
+    }
+
+    // Auto-sync after staying on the same page for 10 seconds
+    pageStaySyncTimer = setTimeout(() => {
+        if (!currentDocKey || (reader && reader.classList.contains('hidden'))) return;
+        saveCurrentProgress();
+        if (window.LexiSync && LexiSync.isConnected) {
+            console.log(`[LexiRead] 10s page duration reached on ${pageIdentifier}. Syncing reading position...`);
+            LexiSync.triggerImmediateSync(false);
+        }
+    }, 10000);
+}
+
 function saveCurrentProgress() {
     if (!currentDocKey) return;
     try {
         let pageNum = 1;
         let totalPages = 1;
-        if (currentDocKind === 'pdf' && navCurPage) {
-            pageNum = Number(navCurPage.textContent) || 1;
+        if (currentDocKind === 'pdf') {
+            pageNum = getCurrentPdfPageNumber();
+            if (navCurPage && navCurPage.textContent !== String(pageNum)) {
+                navCurPage.textContent = String(pageNum);
+                if (mobileNavCurPage) mobileNavCurPage.textContent = String(pageNum);
+            }
             totalPages = currentParsedDoc?.pageCount || Number(navTotalPages?.textContent) || 1;
+            notifyPageActive('pdf_page_' + pageNum);
         } else if (currentParsedDoc) {
             const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
             const scrollPct = maxScroll > 0 ? Math.min(100, Math.round((window.scrollY / maxScroll) * 100)) : 100;
             totalPages = 100;
             pageNum = Math.max(1, scrollPct);
+            const scrollBlock = Math.floor(window.scrollY / Math.max(400, window.innerHeight * 0.7));
+            notifyPageActive('txt_block_' + scrollBlock);
         }
         const prog = {
             page: pageNum,
@@ -169,6 +221,20 @@ function showLoader(msg) {
     loader.classList.add('flex');
 }
 function showWelcomeState() {
+    if (pageStaySyncTimer) {
+        clearTimeout(pageStaySyncTimer);
+        pageStaySyncTimer = null;
+    }
+    lastStayPageIdentifier = null;
+
+    // 1. If currently in reader, save the exact page the user was on before closing
+    if (currentDocKey && reader && !reader.classList.contains('hidden')) {
+        saveCurrentProgress();
+        if (window.LexiSync && LexiSync.isConnected) {
+            LexiSync.triggerImmediateSync(false);
+        }
+    }
+
     if (mainContainer) mainContainer.classList.remove('pdf-layout-active');
     loader.classList.add('hidden'); loader.classList.remove('flex');
     reader.classList.add('hidden');
@@ -196,6 +262,10 @@ function showWelcomeState() {
     if (mobileTypoBtn) { mobileTypoBtn.classList.add('hidden'); }
     if (resumeBanner) { resumeBanner.classList.add('hidden'); resumeBanner.classList.remove('flex'); }
     hideTooltip();
+
+    // Immediately reveal home screen so there is never a blank screen
+    if (welcomeState) welcomeState.classList.remove('hidden');
+
     if (typeof renderLibrary === 'function') {
         renderLibrary();
     }
@@ -227,9 +297,14 @@ function showReaderState(mode = 'txt') {
     }
     reader.classList.remove('hidden');
     
-    // Always show typography & appearance button in reader mode
-    typographyBtn.classList.remove('hidden');
-    typographyBtn.classList.add('flex');
+    // Typography & layout settings only apply to TXT and DOCX; hide in PDF mode
+    if (mode === 'pdf') {
+        typographyBtn.classList.add('hidden');
+        typographyBtn.classList.remove('flex');
+    } else {
+        typographyBtn.classList.remove('hidden');
+        typographyBtn.classList.add('flex');
+    }
 
     const docSettings = $('typographyDocSettings');
     if (docSettings) {
@@ -886,18 +961,10 @@ async function renderLibrary() {
     if (!librarySection || !libraryGrid || !window.LexiDB) return;
     try {
         const docs = await LexiDB.getAllDocuments();
-        let remoteBooks = [];
-        if (window.LexiSync && LexiSync.isConnected) {
-            try {
-                remoteBooks = await LexiSync.fetchRemoteBooks();
-            } catch (_) {}
-        }
 
-        const localNames = new Set((docs || []).map(d => (d.name || '').toLowerCase()));
-        const unDownloadedRemoteBooks = remoteBooks.filter(r => !localNames.has((r.name || '').toLowerCase()));
-
-        const totalLibraryCount = (docs ? docs.length : 0) + unDownloadedRemoteBooks.length;
-        if (!totalLibraryCount) {
+        // 1. Immediately render local library and update view (instant response, never blocks on sync)
+        const localCount = docs ? docs.length : 0;
+        if (!localCount) {
             librarySection.classList.add('hidden');
             if (welcomeState) welcomeState.classList.remove('hidden');
             if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
@@ -905,19 +972,17 @@ async function renderLibrary() {
                 mobileUploadFab.classList.add('hidden');
                 mobileUploadFab.classList.remove('flex');
             }
-            return;
-        }
-
-        // Library has books -> show library and hide welcomeState & readerShell
-        librarySection.classList.remove('hidden');
-        if (welcomeState) welcomeState.classList.add('hidden');
-        if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
-        if (mobileUploadFab) {
-            mobileUploadFab.classList.remove('hidden');
-            mobileUploadFab.classList.add('flex');
-        }
-        if (libraryCountBadge) {
-            libraryCountBadge.textContent = t('libraryCount', { count: totalLibraryCount });
+        } else {
+            librarySection.classList.remove('hidden');
+            if (welcomeState) welcomeState.classList.add('hidden');
+            if (readerShell && reader.classList.contains('hidden')) readerShell.classList.add('hidden');
+            if (mobileUploadFab) {
+                mobileUploadFab.classList.remove('hidden');
+                mobileUploadFab.classList.add('flex');
+            }
+            if (libraryCountBadge) {
+                libraryCountBadge.textContent = t('libraryCount', { count: localCount });
+            }
         }
 
         libraryGrid.innerHTML = '';
@@ -1007,49 +1072,79 @@ async function renderLibrary() {
             libraryGrid.appendChild(card);
         }
 
-        // Render remote books available in Dropbox but not downloaded locally
-        for (const rem of unDownloadedRemoteBooks) {
-            const remCard = document.createElement('div');
-            remCard.className = 'library-card group relative p-1 rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] hover:border-indigo-400 hover:bg-indigo-500/[0.07] transition-all duration-300 shadow-lg cursor-pointer select-none';
-            const remExt = (rem.name.split('.').pop() || '').toLowerCase();
-            const badgeColor = remExt === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (remExt === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
+        // 2. Asynchronously query Dropbox remote books in background without blocking UI
+        if (window.LexiSync && LexiSync.isConnected) {
+            LexiSync.fetchRemoteBooks().then(remoteBooks => {
+                if (!Array.isArray(remoteBooks) || !remoteBooks.length) return;
+                const localNames = new Set((docs || []).map(d => (d.name || '').toLowerCase()));
+                const deletedMap = typeof LexiSync.getDeletedBooksMap === 'function' ? LexiSync.getDeletedBooksMap() : {};
 
-            remCard.innerHTML = `
-                <div class="rounded-[calc(1rem-2px)] sm:rounded-[calc(1.5rem-2px)] bg-slate-900/80 p-3 sm:p-3.5 flex items-center gap-3.5 border border-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] h-full w-full">
-                    <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-xl border border-dashed border-indigo-500/40 bg-indigo-950/30 flex flex-col items-center justify-center gap-1.5 shadow-md">
-                        <svg class="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                        <span class="text-[9px] font-mono uppercase font-bold px-2 py-0.2 rounded-full border ${badgeColor}">${remExt}</span>
-                    </div>
-                    <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
-                        <div>
-                            <div class="flex items-start justify-between gap-1.5">
-                                <h3 class="text-xs sm:text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-300 transition" title="${rem.name}">
-                                    ${rem.name}
-                                </h3>
-                                <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono shrink-0">
-                                    <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                                    <span>Dropbox</span>
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-2 mt-1.5">
-                                <span class="text-[10px] text-slate-400">${typeof t === 'function' ? t('cloudAvailableOnDropbox') : 'Available on Dropbox'}</span>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-400 group-hover:text-indigo-300">
-                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                                <span>${typeof t === 'function' ? t('cloudDownloadAndRead') : 'Download & Read'}</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            remCard.addEventListener('click', () => {
-                if (window.LexiSync) {
-                    LexiSync.downloadAndOpenBook(rem.path, rem.name);
+                const unDownloadedRemoteBooks = remoteBooks.filter(r => {
+                    const rName = (r.name || '').toLowerCase();
+                    if (localNames.has(rName)) return false;
+                    const del = deletedMap[rName];
+                    const modMs = r.modified_ms || (r.modified ? new Date(r.modified).getTime() : 0);
+                    if (del && del.deletedAt >= modMs) return false;
+                    return true;
+                });
+
+                if (!unDownloadedRemoteBooks.length) return;
+
+                const totalLibraryCount = (docs ? docs.length : 0) + unDownloadedRemoteBooks.length;
+                if (librarySection.classList.contains('hidden') && totalLibraryCount > 0) {
+                    librarySection.classList.remove('hidden');
+                    if (welcomeState) welcomeState.classList.add('hidden');
                 }
-            });
-            libraryGrid.appendChild(remCard);
+                if (libraryCountBadge) {
+                    libraryCountBadge.textContent = t('libraryCount', { count: totalLibraryCount });
+                }
+
+                for (const rem of unDownloadedRemoteBooks) {
+                    if (libraryGrid.querySelector(`[data-remotename="${rem.name}"]`)) continue;
+                    const remCard = document.createElement('div');
+                    remCard.dataset.remotename = rem.name;
+                    remCard.className = 'library-card group relative p-1 rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-indigo-500/[0.03] hover:border-indigo-400 hover:bg-indigo-500/[0.07] transition-all duration-300 shadow-lg cursor-pointer select-none';
+                    const remExt = (rem.name.split('.').pop() || '').toLowerCase();
+                    const badgeColor = remExt === 'pdf' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (remExt === 'docx' ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30');
+
+                    remCard.innerHTML = `
+                        <div class="rounded-[calc(1rem-2px)] sm:rounded-[calc(1.5rem-2px)] bg-slate-900/80 p-3 sm:p-3.5 flex items-center gap-3.5 border border-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] h-full w-full">
+                            <div class="w-13 h-18 sm:w-15 sm:h-21 shrink-0 rounded-xl border border-dashed border-indigo-500/40 bg-indigo-950/30 flex flex-col items-center justify-center gap-1.5 shadow-md">
+                                <svg class="w-5 h-5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                                <span class="text-[9px] font-mono uppercase font-bold px-2 py-0.2 rounded-full border ${badgeColor}">${remExt}</span>
+                            </div>
+                            <div class="min-w-0 flex-1 flex flex-col justify-between py-0.5 h-full">
+                                <div>
+                                    <div class="flex items-start justify-between gap-1.5">
+                                        <h3 class="text-xs sm:text-sm font-semibold text-slate-100 truncate group-hover:text-indigo-300 transition" title="${rem.name}">
+                                            ${rem.name}
+                                        </h3>
+                                        <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 font-mono shrink-0">
+                                            <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                                            <span>Dropbox</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-1.5">
+                                        <span class="text-[10px] text-slate-400">${typeof t === 'function' ? t('cloudAvailableOnDropbox') : 'Available on Dropbox'}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-indigo-400 group-hover:text-indigo-300">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                        <span>${typeof t === 'function' ? t('cloudDownloadAndRead') : 'Download & Read'}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    remCard.addEventListener('click', () => {
+                        if (window.LexiSync) {
+                            LexiSync.downloadAndOpenBook(rem.path, rem.name);
+                        }
+                    });
+                    libraryGrid.appendChild(remCard);
+                }
+            }).catch(() => {});
         }
     } catch (e) {
         console.error('[LexiRead] renderLibrary error:', e);
@@ -1135,7 +1230,18 @@ if (bookActionDeleteBtn) {
         const name = currentActionDoc.customTitle || currentActionDoc.name;
         const conf = confirm(t('deleteBookConfirm', { name }));
         if (conf) {
-            await LexiDB.deleteDocument(currentActionDoc.docKey);
+            const fileName = currentActionDoc.name;
+            const docKey = currentActionDoc.docKey;
+            if (window.LexiSync) {
+                LexiSync.recordBookDeletion(fileName, docKey);
+                LexiSync.deleteBookFromDropbox(fileName).catch(err => {
+                    console.warn('[LexiRead] Dropbox delete error:', err);
+                });
+            }
+            await LexiDB.deleteDocument(docKey);
+            if (window.LexiSync && LexiSync.isConnected) {
+                LexiSync.triggerImmediateSync(false);
+            }
             showToast(t('bookDeleted'), 'info', 2200);
             renderLibrary();
         }
@@ -1181,3 +1287,16 @@ async function openFromLibrary(docKey) {
     }
 }
 window.openFromLibrary = openFromLibrary;
+
+// Save exact page state if window/tab is closed
+window.addEventListener('beforeunload', () => {
+    if (currentDocKey && reader && !reader.classList.contains('hidden')) {
+        saveCurrentProgress();
+    }
+});
+
+window.addEventListener('pagehide', () => {
+    if (currentDocKey && reader && !reader.classList.contains('hidden')) {
+        saveCurrentProgress();
+    }
+});
