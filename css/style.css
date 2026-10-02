@@ -1,9 +1,17 @@
 /* =============================================================
-   LexiRead Stylesheet — Themes, Reader, Gestures & Modals
+   LexiRead Stylesheet - High-End Agency Visual Design System
+   Persona: Vanguard_UI_Architect (Awwwards-Tier Engineering)
    ============================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 :root {
-    --reader-font: Georgia, "Iowan Old Style", Palatino, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Newsreader', Georgia, 'Iowan Old Style', Palatino, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --reader-font: var(--font-serif);
+    --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- GUI SCALE SETTINGS ---------- */
@@ -12,51 +20,131 @@ html[data-gui-scale="100"] { font-size: 16px; }
 html[data-gui-scale="115"] { font-size: 18.4px; }
 html[data-gui-scale="130"] { font-size: 20.8px; }
 
+/* Active State for Choice Buttons */
 .gui-scale-btn.active,
 .font-choice-btn.active,
-.spacing-choice-btn.active {
+.spacing-choice-btn.active,
+.theme-choice-btn.active,
+.app-lang-choice-btn.active {
     border-color: #6366f1 !important;
-    background-color: rgba(99, 102, 241, 0.25) !important;
+    background-color: rgba(99, 102, 241, 0.2) !important;
     color: #ffffff !important;
+    box-shadow: 0 0 15px -3px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
 }
 
 html.sepia .gui-scale-btn.active,
 html.sepia .font-choice-btn.active,
-html.sepia .spacing-choice-btn.active {
+html.sepia .spacing-choice-btn.active,
+html.sepia .theme-choice-btn.active,
+html.sepia .app-lang-choice-btn.active {
     border-color: #d97706 !important;
-    background-color: rgba(217, 119, 6, 0.3) !important;
-    color: #fbf4eb !important;
+    background-color: rgba(217, 119, 6, 0.25) !important;
+    color: #fef3c7 !important;
+    box-shadow: 0 0 15px -3px rgba(217, 119, 6, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
 }
 
 html.light .gui-scale-btn.active,
 html.light .font-choice-btn.active,
-html.light .spacing-choice-btn.active {
+html.light .spacing-choice-btn.active,
+html.light .theme-choice-btn.active,
+html.light .app-lang-choice-btn.active {
     border-color: #4f46e5 !important;
     background-color: #e0e7ff !important;
     color: #3730a3 !important;
+    box-shadow: 0 0 15px -3px rgba(79, 70, 229, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
 }
 
+/* ---------- BASE & BODY ---------- */
 body {
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    padding-top: 3.5rem;
+    font-family: var(--font-sans);
+    padding-top: 5.25rem;
     touch-action: pan-x pan-y pinch-zoom;
-    transition: background-color .2s ease, color .2s ease;
+    background-color: #05070f;
+    color: #f1f5f9;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth);
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
+/* ---------- ETHEREAL AMBIENT SPATIAL GLOWS (Fixed Orbs) ---------- */
+.ambient-glows {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+.ambient-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(120px);
+    opacity: 0.65;
+    pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
+}
+.ambient-orb-1 {
+    top: -10%;
+    left: 15%;
+    width: 550px;
+    height: 550px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.16) 0%, rgba(99, 102, 241, 0) 70%);
+}
+.ambient-orb-2 {
+    top: 35%;
+    right: -8%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0) 70%);
+}
+.ambient-orb-3 {
+    bottom: 5%;
+    left: 5%;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(56, 189, 248, 0) 70%);
+}
+
+/* ---------- FLOATING ISLAND NAVIGATION HEADER ---------- */
 header {
     position: fixed !important;
-    top: 0;
+    top: 0.75rem;
     left: 0;
     right: 0;
     z-index: 40;
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, opacity 0.2s ease;
+    pointer-events: none !important;
+    transition: transform 0.38s var(--ease-spring), opacity 0.28s var(--ease-smooth);
+}
+header > div {
+    pointer-events: auto !important;
 }
 header.header-hidden {
-    transform: translateY(-100%);
+    transform: translateY(-160%);
+    opacity: 0;
 }
 
-/* Native selection disabled inside the reader: the custom drag
-   engine drives all word/phrase selection. */
+/* ---------- DOPPELRAND (DOUBLE-BEZEL) ARCHITECTURE ---------- */
+.doppelrand-shell {
+    padding: 0.375rem;
+    border-radius: 2rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: all 0.3s var(--ease-spring);
+}
+.doppelrand-core {
+    border-radius: calc(2rem - 0.375rem);
+    background-color: rgba(10, 15, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Native selection disabled inside the reader */
 #reader, #reader * {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -67,28 +155,44 @@ header.header-hidden {
 }
 
 /* ---------- WORD TOKEN ----------
-   text-transform:none is mandatory — no CSS may alter extracted
-   text casing, because DeepL is case-sensitive. */
+   text-transform:none is mandatory - no CSS may alter extracted
+   text casing, because translation APIs are case-sensitive. */
 .word {
     cursor: pointer;
-    border-radius: 3px;
-    padding: 0 1px;
-    transition: background-color 110ms ease, color 110ms ease;
+    border-radius: 4px;
+    padding: 1px 2px;
+    transition: background-color 140ms var(--ease-spring), color 140ms var(--ease-spring), box-shadow 140ms var(--ease-spring);
     text-transform: none !important;
 }
-.word:hover     { background-color: rgba(99, 102, 241, .28); }
-.word.selected  { background-color: rgba(251, 146, 60, .85); color: #1c1917; } /* orange box */
-.word.active    { background-color: rgba(99, 102, 241, .95); color: #fff; }
-.word.selected.active { background-color: #6366f1; color: #fff; }
-#reader.is-dragging       { cursor: grabbing; }
+.word:hover {
+    background-color: rgba(99, 102, 241, 0.28);
+    color: #ffffff;
+}
+.word.selected {
+    background-color: rgba(251, 146, 60, 0.88);
+    color: #0f172a;
+    font-weight: 500;
+}
+.word.active {
+    background-color: rgba(99, 102, 241, 0.95);
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(99, 102, 241, 0.6);
+}
+.word.selected.active {
+    background-color: #6366f1;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(99, 102, 241, 0.7);
+}
+#reader.is-dragging {
+    cursor: grabbing;
+    touch-action: none !important;
+}
 
-/* ---------- PDF ---------- */
-/* Expanded desktop canvas for PDFs: spreads horizontally to monitor edges while keeping left floating dock unhindered */
+/* ---------- PDF RENDERING & VIEWPORT ---------- */
 #mainContainer.pdf-layout-active {
     max-width: 100% !important;
     width: 100% !important;
 }
-
 @media (min-width: 768px) {
     #mainContainer.pdf-layout-active {
         padding-left: 5.5rem !important;
@@ -103,6 +207,7 @@ header.header-hidden {
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y;
+    transition: all 0.3s var(--ease-spring);
 }
 #reader.hidden {
     display: none !important;
@@ -117,15 +222,16 @@ header.header-hidden {
 }
 .pdf-page {
     position: relative;
-    margin: 0 auto 1.5rem;
-    background: #fff;
-    box-shadow: 0 10px 35px -10px rgba(0,0,0,.5);
-    border-radius: 4px;
+    margin: 0 auto 1.75rem;
+    background: #ffffff;
+    box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
     overflow: hidden;
     content-visibility: auto;
     contain-intrinsic-size: 800px 1100px;
     flex-shrink: 0;
     max-width: none !important;
+    transition: transform 0.2s var(--ease-spring);
 }
 .pdf-page canvas {
     display: block;
@@ -137,8 +243,6 @@ header.header-hidden {
 .pdf-page .textLayer > span {
     color: transparent;
 }
-/* Word tokens flow INLINE inside pdf.js-positioned spans so they
-   inherit exact left/top/font-size/scaleX. Casing untouched. */
 .pdf-page .textLayer span.word {
     position: static !important;
     display: inline;
@@ -146,44 +250,47 @@ header.header-hidden {
     color: transparent;
     cursor: pointer;
     padding: 0;
-    border-radius: 2px;
+    border-radius: 3px;
     white-space: pre;
     text-transform: none !important;
 }
 .pdf-page .textLayer span.word:hover {
-    background-color: rgba(99, 102, 241, .32);
+    background-color: rgba(99, 102, 241, 0.32);
 }
 .pdf-page .textLayer span.word.selected {
-    background-color: rgba(251, 146, 60, .55);
-    box-shadow: 0 0 0 1.5px rgba(234, 88, 12, .9);
+    background-color: rgba(251, 146, 60, 0.55);
+    box-shadow: 0 0 0 1.5px rgba(234, 88, 12, 0.9);
     color: transparent !important;
 }
 .pdf-page .textLayer span.word.active {
-    background-color: rgba(99, 102, 241, .45);
-    box-shadow: 0 0 0 1.5px rgba(79, 70, 229, .9);
+    background-color: rgba(99, 102, 241, 0.45);
+    box-shadow: 0 0 0 1.5px rgba(79, 70, 229, 0.9);
     color: transparent !important;
 }
 .pdf-page .textLayer span.word.selected.active {
-    background-color: rgba(251, 146, 60, .6);
+    background-color: rgba(251, 146, 60, 0.6);
     box-shadow: 0 0 0 1.5px rgba(234, 88, 12, 1);
 }
 .pdf-page .textLayer div.pdf-crop-excluded,
 .pdf-page .textLayer span.pdf-crop-excluded {
-    opacity: 0.25 !important;
+    opacity: 0.2 !important;
     pointer-events: none !important;
     user-select: none !important;
     cursor: default !important;
 }
 
-/* ---------- DOCX & TXT TYPOGRAPHY ---------- */
+/* ---------- DOCX & TXT TYPOGRAPHY (Editorial Luxury) ---------- */
 .reader-text,
 #reader.docx-mode,
 #reader.txt-mode {
     font-family: var(--reader-font) !important;
-    font-size: 1.15rem;
+    font-size: 1.18rem;
     line-height: 1.95;
-    letter-spacing: .01em;
-    color: #e6ecf5;
+    letter-spacing: 0.012em;
+    color: #e2e8f0;
+    max-width: 72ch;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #reader.docx-mode *,
@@ -191,420 +298,134 @@ header.header-hidden {
     font-family: var(--reader-font) !important;
 }
 
-/* Specific DOCX HTML tag styling */
 #reader.docx-mode h1, #reader.docx-mode h2, #reader.docx-mode h3, #reader.docx-mode h4 {
     color: #f8fafc;
     font-weight: 700;
-    margin: 1.6em 0 .6em;
+    margin: 1.8em 0 0.6em;
     line-height: 1.3;
     font-family: var(--reader-font) !important;
+    letter-spacing: -0.015em;
 }
-#reader.docx-mode h1 { font-size: 1.8rem; }
-#reader.docx-mode h2 { font-size: 1.5rem; }
-#reader.docx-mode h3 { font-size: 1.25rem; }
-#reader.docx-mode p  { margin: 0 0 1em; line-height: inherit; }
-#reader.docx-mode ul, #reader.docx-mode ol { margin: 0 0 1em 1.4em; }
-#reader.docx-mode li { margin-bottom: .35em; line-height: inherit; }
-#reader.docx-mode strong { color: #f1f5f9; }
-#reader.docx-mode em     { color: #cbd5e1; }
-#reader.docx-mode a      { color: #818cf8; text-decoration: underline; }
-#reader.docx-mode table  { border-collapse: collapse; width: 100%; margin: 1em 0; }
-#reader.docx-mode th, #reader.docx-mode td { border: 1px solid #334155; padding: .4em .6em; }
-#reader.docx-mode blockquote { border-left: 3px solid #475569; padding-left: 1em; color: #94a3b8; margin: 1em 0; }
-
+#reader.docx-mode h1 { font-size: 2.1rem; }
+#reader.docx-mode h2 { font-size: 1.65rem; }
+#reader.docx-mode h3 { font-size: 1.35rem; }
+#reader.docx-mode p { margin: 0 0 1.15em; line-height: inherit; }
+#reader.docx-mode ul, #reader.docx-mode ol { margin: 0 0 1.15em 1.5em; }
+#reader.docx-mode li { margin-bottom: 0.4em; line-height: inherit; }
+#reader.docx-mode strong { color: #ffffff; font-weight: 600; }
+#reader.docx-mode em { color: #cbd5e1; }
+#reader.docx-mode a { color: #818cf8; text-decoration: underline; text-underline-offset: 3px; }
+#reader.docx-mode table { border-collapse: collapse; width: 100%; margin: 1.25em 0; }
+#reader.docx-mode th, #reader.docx-mode td { border: 1px solid #334155; padding: 0.5em 0.75em; }
+#reader.docx-mode blockquote {
+    border-left: 3px solid #6366f1;
+    padding-left: 1.25em;
+    color: #94a3b8;
+    margin: 1.25em 0;
+    font-style: italic;
+}
 #reader.txt-mode { display: block; }
 
-html, body {
-    overflow-x: hidden;
-    max-width: 100vw;
-}
-
-/* ---------- TOOLTIP ---------- */
+/* ---------- TOOLTIP (Floating Ethereal Capsule) ---------- */
 #tooltip {
     position: absolute;
     z-index: 60;
-    min-width: 150px;
-    max-width: 340px;
+    min-width: 170px;
+    max-width: 380px;
     opacity: 0;
     pointer-events: none;
-    transform: translateY(4px);
-    transition: opacity 110ms ease, transform 110ms ease;
+    transform: translateY(8px) scale(0.96);
+    transition: opacity 160ms var(--ease-spring), transform 160ms var(--ease-spring);
+    border-radius: 1.25rem !important;
+    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    background-color: rgba(15, 23, 42, 0.96) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #f8fafc !important;
 }
-#tooltip.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-#tooltip::after { content: ""; position: absolute; left: 24px; border: 6px solid transparent; }
-#tooltip.below::after { top: -12px; border-bottom-color: #1e293b; }
-#tooltip.above::after { bottom: -12px; border-top-color: #1e293b; }
-
-/* ---------- MODALS / TOASTS ---------- */
-.modal-card { animation: modalIn 160ms ease-out; }
-@keyframes modalIn { from { opacity:0; transform:translateY(10px) scale(.98);} to { opacity:1; transform:none; } }
-@keyframes slideIn { from { opacity:0; transform:translateY(-8px);} to {opacity:1; transform:translateY(0);} }
-.toast { animation: slideIn 180ms ease-out; }
-@keyframes pulseSoft { 0%,100% { box-shadow:0 0 0 0 rgba(251,146,60,.5);} 50% { box-shadow:0 0 0 5px rgba(251,146,60,0);} }
-.attention { animation: pulseSoft 1.6s ease-in-out 3; }
-
-::-webkit-scrollbar { width:10px; height:10px; }
-::-webkit-scrollbar-track { background:#0f172a; }
-::-webkit-scrollbar-thumb { background:#334155; border-radius:5px; }
-::-webkit-scrollbar-thumb:hover { background:#475569; }
-
-input[type="range"].zoom-slider-vertical {
-    writing-mode: vertical-lr;
-    direction: rtl;
-    vertical-align: middle;
+#tooltip.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
 }
-
-/* ---------- UNIFIED WELCOME HERO CARD ---------- */
-#welcomeState {
-    transition: all 0.2s ease-in-out;
+#tooltip #tooltipBody {
+    color: #f8fafc !important;
 }
-#welcomeState:hover {
-    border-color: rgba(99, 102, 241, 0.4);
+#tooltip::after {
+    content: "";
+    position: absolute;
+    left: 24px;
+    border: 6px solid transparent;
+}
+#tooltip.below::after {
+    top: -12px;
+    border-bottom-color: rgba(15, 23, 42, 0.96);
+}
+#tooltip.above::after {
+    bottom: -12px;
+    border-top-color: rgba(15, 23, 42, 0.96);
 }
 
-/* Light Mode Welcome State */
-html.light #welcomeState {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07) !important;
+/* Bookmark Star Button in Tooltip */
+#tooltipSave {
+    cursor: pointer;
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: transform 0.2s var(--ease-spring), color 0.2s ease, background-color 0.2s ease;
 }
-html.light #welcomeState:hover {
-    border-color: #6366f1 !important;
+#tooltipSave:hover {
+    transform: scale(1.15);
 }
-
-/* Sepia Mode Welcome State */
-html.sepia #welcomeState {
-    background-color: #2a221b !important;
-    border-color: #45372d !important;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4) !important;
-}
-html.sepia #welcomeState:hover {
-    border-color: #d97706 !important;
+#tooltipSave:active {
+    transform: scale(0.92);
 }
 
-/* Light Mode Library Card */
-html.light .library-card {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
-}
-html.light .library-card:hover {
-    border-color: #6366f1 !important;
-    background-color: #f8fafc !important;
-}
-html.light .library-card h3 {
-    color: #0f172a !important;
-}
-
-/* Sepia Mode Library Card */
-html.sepia .library-card {
-    background-color: #2a221b !important;
-    border-color: #45372d !important;
-}
-html.sepia .library-card:hover {
-    border-color: #d97706 !important;
-    background-color: #332922 !important;
-}
-html.sepia .library-card h3 {
-    color: #fbf4eb !important;
-}
-
-/* ---------- LIGHT MODE THEME ---------- */
-html.light body {
-    background-color: #f8fafc;
-    color: #0f172a;
-}
-html.light header {
-    background-color: rgba(255, 255, 255, 0.95);
-    border-color: #e2e8f0;
-}
-html.light #readerShell {
-    background-color: #ffffff;
-    border-color: #e2e8f0;
-    box-shadow: 0 20px 50px -25px rgba(0, 0, 0, 0.08);
-    ring-color: rgba(0, 0, 0, 0.05);
-}
-html.light #dropZone {
-    border-color: #cbd5e1;
-    background-color: #f1f5f9;
-    color: #475569;
-}
-html.light #dropZone:hover {
-    border-color: #6366f1;
-    background-color: #eef2ff;
-    color: #4338ca;
-}
-html.light #dropZone p.text-slate-200 { color: #1e293b; }
-html.light #dropZone p.text-slate-400 { color: #64748b; }
-html.light #welcomeState h2 { color: #0f172a; }
-html.light #welcomeState p { color: #64748b; }
-html.light #reader.txt-mode .reader-text { color: #1e293b; }
-html.light #reader.docx-mode { color: #1e293b; }
-html.light #reader.docx-mode h1,
-html.light #reader.docx-mode h2,
-html.light #reader.docx-mode h3,
-html.light #reader.docx-mode h4 { color: #0f172a; }
-html.light #reader.docx-mode strong { color: #0f172a; }
-html.light #reader.docx-mode em { color: #334155; }
-html.light #reader.docx-mode blockquote { border-left-color: #cbd5e1; color: #475569; }
-html.light #headerUploadBtn,
-html.light #keyBtn,
-html.light #themeToggleBtn,
-html.light #appLangBtn {
-    background-color: #ffffff;
-    border-color: #cbd5e1;
-    color: #334155;
-}
-html.light #headerUploadBtn:hover,
-html.light #keyBtn:hover,
-html.light #themeToggleBtn:hover,
-html.light #appLangBtn:hover {
-    background-color: #f1f5f9;
-    color: #0f172a;
-}
-html.light #savedBtn {
-    background-color: #eef2ff;
-    border-color: #c7d2fe;
-    color: #4338ca;
-}
-html.light #savedBtn:hover {
-    background-color: #e0e7ff;
-}
-html.light #savedCount {
-    background-color: #c7d2fe;
-    color: #3730a3;
-}
-html.light #leftControlWidget {
-    background-color: rgba(255, 255, 255, 0.95);
-    border-color: #e2e8f0;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12);
-}
-html.light #leftControlWidget button {
-    background-color: #f1f5f9;
-    color: #334155;
-}
-html.light #leftControlWidget button:hover {
-    background-color: #6366f1;
-    color: #ffffff;
-}
-html.light #zoomSlider {
-    background-color: #e2e8f0;
-}
-html.light #zoomLabel,
-html.light #navCurPage {
-    color: #4f46e5;
-}
-html.light #tooltip {
-    background-color: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #0f172a;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
-}
-html.light #tooltip.below::after { border-bottom-color: #ffffff; }
-html.light #tooltip.above::after { border-top-color: #ffffff; }
-html.light #tooltipWord { color: #4f46e5; }
-html.light #tooltipTgt { color: #0f172a; }
-html.light #resumeBanner {
-    background-color: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #0f172a;
-}
-html.light .modal-card {
-    background-color: #ffffff;
-    border-color: #e2e8f0;
-    color: #0f172a;
-}
-html.light .modal-card h2,
-html.light .modal-card h3 {
-    color: #0f172a;
-}
-html.light .modal-card p,
-html.light .modal-card label span {
-    color: #475569;
-}
-html.light .modal-card select,
-html.light .modal-card input[type="text"],
-html.light .modal-card input[type="password"] {
-    background-color: #f8fafc;
-    border-color: #cbd5e1;
-    color: #0f172a;
-}
-html.light .modal-card select option {
-    background-color: #ffffff;
-    color: #0f172a;
-}
-html.light #cropPreviewOuter {
-    background-color: #e2e8f0;
-}
-html.light #savedModal .modal-card,
-html.light #keyModal .modal-card,
-html.light #langModal .modal-card,
-html.light #pdfCropModal .modal-card,
-html.light #outlineModal .modal-card,
-html.light #typographyModal .modal-card {
-    background-color: #ffffff;
-    border-color: #e2e8f0;
-}
-html.light .border-slate-800,
-html.light .border-slate-700 {
-    border-color: #e2e8f0;
-}
-html.light ::-webkit-scrollbar-track { background:#f1f5f9; }
-html.light ::-webkit-scrollbar-thumb { background:#cbd5e1; }
-html.light ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
-
-/* ---------- DARK WARM SEPIA THEME (Rich Coffee / Cocoa Parchment) ---------- */
-html.sepia body {
-    background-color: #1f1915;
-    color: #ebdccb;
-}
-html.sepia header {
-    background-color: rgba(38, 30, 24, 0.95);
-    border-color: #45372d;
-}
-html.sepia #readerShell {
-    background-color: #29211b;
-    border-color: #45372d;
-    box-shadow: 0 20px 50px -25px rgba(0, 0, 0, 0.5);
-    ring-color: rgba(217, 119, 6, 0.1);
-}
-html.sepia #dropZone {
-    border-color: #45372d;
-    background-color: #29211b;
-    color: #cbb59f;
-}
-html.sepia #dropZone:hover {
-    border-color: #d97706;
-    background-color: #332922;
-    color: #f59e0b;
-}
-html.sepia #dropZone p.text-slate-200 { color: #ebdccb; }
-html.sepia #dropZone p.text-slate-400 { color: #b8a38e; }
-html.sepia #welcomeState h2 { color: #fbf4eb; }
-html.sepia #welcomeState p { color: #b8a38e; }
-html.sepia #reader.txt-mode .reader-text { color: #f1e5d8; }
-html.sepia #reader.docx-mode { color: #f1e5d8; }
-html.sepia #reader.docx-mode h1,
-html.sepia #reader.docx-mode h2,
-html.sepia #reader.docx-mode h3,
-html.sepia #reader.docx-mode h4 { color: #fbf4eb; }
-html.sepia #reader.docx-mode strong { color: #fbf4eb; }
-html.sepia #reader.docx-mode em { color: #e2d1c0; }
-html.sepia #reader.docx-mode blockquote { border-left-color: #45372d; color: #b8a38e; }
-html.sepia #headerUploadBtn,
-html.sepia #keyBtn,
-html.sepia #themeToggleBtn,
-html.sepia #appLangBtn {
-    background-color: #2d241d;
-    border-color: #45372d;
-    color: #ebdccb;
-}
-html.sepia #headerUploadBtn:hover,
-html.sepia #keyBtn:hover,
-html.sepia #themeToggleBtn:hover,
-html.sepia #appLangBtn:hover {
-    background-color: #3d3128;
-    color: #ffffff;
-}
-html.sepia #savedBtn {
-    background-color: rgba(217, 119, 6, 0.18);
-    border-color: rgba(217, 119, 6, 0.45);
-    color: #fcd34d;
-}
-html.sepia #savedBtn:hover {
-    background-color: rgba(217, 119, 6, 0.28);
-}
-html.sepia #savedCount {
-    background-color: #d97706;
-    color: #ffffff;
-}
-html.sepia #leftControlWidget {
-    background-color: rgba(38, 30, 24, 0.95);
-    border-color: #45372d;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
-}
-html.sepia #leftControlWidget button {
-    background-color: #2d241d;
-    color: #ebdccb;
-}
-html.sepia #leftControlWidget button:hover {
-    background-color: #d97706;
-    color: #ffffff;
-}
-html.sepia #zoomSlider {
-    background-color: #45372d;
-}
-html.sepia #zoomLabel,
-html.sepia #navCurPage {
-    color: #f59e0b;
-}
-html.sepia #tooltip {
-    background-color: #2a221b;
-    border: 1px solid #45372d;
-    color: #ebdccb;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65);
-}
-html.sepia #tooltip.below::after { border-bottom-color: #2a221b; }
-html.sepia #tooltip.above::after { border-top-color: #2a221b; }
-html.sepia #tooltipWord { color: #f59e0b; }
-html.sepia #tooltipTgt { color: #fbf4eb; }
-html.sepia #resumeBanner {
-    background-color: #2d241d;
-    border-color: #45372d;
-    color: #ebdccb;
-}
-html.sepia .modal-card {
-    background-color: #2a221b;
-    border-color: #45372d;
-    color: #ebdccb;
-}
-html.sepia .modal-card h2,
-html.sepia .modal-card h3 {
-    color: #fbf4eb;
-}
-html.sepia .modal-card p,
-html.sepia .modal-card label span {
-    color: #b8a38e;
-}
-html.sepia .modal-card select,
-html.sepia .modal-card input[type="text"],
-html.sepia .modal-card input[type="password"] {
-    background-color: #201a15;
-    border-color: #45372d;
-    color: #ebdccb;
-}
-html.sepia .modal-card select option {
-    background-color: #2a221b;
-    color: #ebdccb;
-}
-html.sepia #cropPreviewOuter {
-    background-color: #1f1915;
-}
-html.sepia #savedModal .modal-card,
-html.sepia #keyModal .modal-card,
-html.sepia #langModal .modal-card,
-html.sepia #pdfCropModal .modal-card,
-html.sepia #outlineModal .modal-card,
-html.sepia #typographyModal .modal-card,
-html.sepia #settingsModal .modal-card,
-html.sepia #mobileMoreSheet .modal-card {
-    background-color: #2a221b;
-    border-color: #45372d;
-}
-
-/* Modals Stacking Context, Flex Layout & Safe Height Constraints */
+/* ---------- MODALS (Doppelrand Windows) ---------- */
 .modal-card {
     position: relative;
     z-index: 50 !important;
     pointer-events: auto !important;
     display: flex !important;
     flex-direction: column !important;
-    max-height: calc(100vh - 3.5rem) !important;
-    max-height: calc(100dvh - 3.5rem) !important;
+    max-height: calc(100vh - 4rem) !important;
+    max-height: calc(100dvh - 4rem) !important;
     overflow: hidden !important;
+    animation: modalIn 220ms var(--ease-spring) !important;
+    box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
 }
 
-.modal-card-header,
-.modal-card > div:first-child:has(button) {
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.toast {
+    animation: slideIn 220ms var(--ease-spring);
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.modal-card-header {
     flex-shrink: 0 !important;
     position: sticky !important;
     top: 0 !important;
@@ -620,36 +441,30 @@ html.sepia #mobileMoreSheet .modal-card {
     overscroll-behavior: contain !important;
 }
 
-/* Custom Sleek Scrollbar for Modal Scroll Areas */
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
 .modal-scroll-area::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar,
 .modal-card::-webkit-scrollbar {
     width: 6px;
-}
-.modal-scroll-area::-webkit-scrollbar-track,
-.modal-body::-webkit-scrollbar-track,
-.modal-card::-webkit-scrollbar-track {
-    background: transparent;
-}
-.modal-scroll-area::-webkit-scrollbar-thumb,
-.modal-body::-webkit-scrollbar-thumb,
-.modal-card::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.25);
-    border-radius: 9999px;
-}
-.modal-scroll-area::-webkit-scrollbar-thumb:hover,
-.modal-body::-webkit-scrollbar-thumb:hover,
-.modal-card::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.45);
-}
-
-html.light .modal-card-header {
-    background-color: #ffffff !important;
-    border-color: #e2e8f0 !important;
-}
-html.sepia .modal-card-header {
-    background-color: #2a221b !important;
-    border-color: #45372d !important;
 }
 
 body.modal-open {
@@ -660,6 +475,9 @@ body.modal-open {
     inset: 0;
     z-index: 10 !important;
     pointer-events: auto !important;
+    background-color: rgba(2, 6, 18, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
 }
 
 /* ---------- ZEN / FOCUS READING MODE ---------- */
@@ -675,48 +493,269 @@ html.zen-mode #zenExitBar {
     display: flex !important;
 }
 
-/* Choice button active state styling */
-.theme-choice-btn.active,
-.app-lang-choice-btn.active {
-    border-color: #6366f1 !important;
-    background-color: rgba(99, 102, 241, 0.25) !important;
-    color: #ffffff !important;
+/* ---------- DARK WARM SEPIA THEME (Rich Espresso / Dark Roast Parchment) ---------- */
+html.sepia body {
+    background-color: #17120e;
+    color: #ebdccb;
 }
-
-html.sepia .theme-choice-btn.active,
-html.sepia .app-lang-choice-btn.active {
-    border-color: #d97706 !important;
-    background-color: rgba(217, 119, 6, 0.3) !important;
+html.sepia .ambient-orb-1 {
+    background: radial-gradient(circle, rgba(217, 119, 6, 0.16) 0%, rgba(217, 119, 6, 0) 70%);
+}
+html.sepia .ambient-orb-2 {
+    background: radial-gradient(circle, rgba(180, 83, 9, 0.12) 0%, rgba(180, 83, 9, 0) 70%);
+}
+html.sepia .ambient-orb-3 {
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0) 70%);
+}
+html.sepia header > div {
+    background-color: rgba(38, 29, 23, 0.8) !important;
+    border-color: rgba(217, 119, 6, 0.2) !important;
+}
+html.sepia header > div > div {
+    background-color: rgba(26, 20, 16, 0.85) !important;
+}
+html.sepia #welcomeState {
+    background: linear-gradient(180deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.02) 100%) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+}
+html.sepia #welcomeState > div:first-child {
+    background-color: rgba(26, 20, 16, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.15) !important;
+}
+html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
+    background-color: rgba(38, 29, 23, 0.6) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+}
+html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
+    background-color: rgba(38, 29, 23, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.45) !important;
+}
+html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span {
+    color: #f1e5d8 !important;
+}
+html.sepia #readerShell {
+    background: linear-gradient(180deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.02) 100%) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+}
+html.sepia #readerShell > div:last-child {
+    background-color: rgba(26, 20, 16, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.15) !important;
+}
+html.sepia #reader.txt-mode .reader-text,
+html.sepia #reader.docx-mode {
+    color: #f1e5d8 !important;
+}
+html.sepia #reader.docx-mode h1,
+html.sepia #reader.docx-mode h2,
+html.sepia #reader.docx-mode h3,
+html.sepia #reader.docx-mode h4,
+html.sepia #reader.docx-mode strong {
     color: #fbf4eb !important;
 }
+html.sepia #leftControlWidget {
+    background: rgba(38, 29, 23, 0.8) !important;
+    border-color: rgba(217, 119, 6, 0.2) !important;
+}
+html.sepia #leftControlWidget > div {
+    background-color: rgba(26, 20, 16, 0.85) !important;
+}
+html.sepia #leftControlWidget button {
+    color: #ebdccb !important;
+}
+html.sepia #leftControlWidget button:hover {
+    background-color: #d97706 !important;
+    color: #ffffff !important;
+}
+html.sepia #tooltip {
+    background-color: rgba(38, 29, 23, 0.96) !important;
+    border: 1px solid rgba(217, 119, 6, 0.28) !important;
+    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5) !important;
+    color: #ebdccb !important;
+}
+html.sepia #tooltip #tooltipBody {
+    color: #ebdccb !important;
+}
+html.sepia #tooltip.below::after {
+    border-bottom-color: rgba(38, 29, 23, 0.96);
+}
+html.sepia #tooltip.above::after {
+    border-top-color: rgba(38, 29, 23, 0.96);
+}
+html.sepia .modal-card {
+    background-color: rgba(26, 20, 16, 0.96) !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #ebdccb !important;
+}
+html.sepia .modal-card-header {
+    background-color: rgba(38, 29, 23, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.2) !important;
+}
+html.sepia .modal-card input[type="text"],
+html.sepia .modal-card input[type="password"],
+html.sepia .modal-card select {
+    background-color: #1f1813 !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #ebdccb !important;
+}
+html.sepia .library-card > div {
+    background-color: rgba(26, 20, 16, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.2) !important;
+}
 
-html.light .theme-choice-btn.active,
-html.light .app-lang-choice-btn.active {
-    border-color: #4f46e5 !important;
-    background-color: #e0e7ff !important;
-    color: #3730a3 !important;
+/* ---------- LIGHT MODE THEME (Porcelain Gallery & Aluminum) ---------- */
+html.light body {
+    background-color: #f8fafc;
+    color: #0f172a;
 }
-html.sepia .border-slate-800,
-html.sepia .border-slate-700 {
-    border-color: #45372d;
+html.light .ambient-orb-1 {
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.07) 0%, rgba(99, 102, 241, 0) 70%);
 }
-html.sepia .bg-slate-900,
-html.sepia .bg-slate-800,
-html.sepia .bg-slate-800\/80,
-html.sepia .bg-slate-800\/90 {
-    background-color: #2d241d;
+html.light .ambient-orb-2 {
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 70%);
 }
-html.sepia .bg-slate-950,
-html.sepia .bg-slate-950\/85,
-html.sepia .bg-slate-950\/95 {
-    background-color: #1f1915;
+html.light .ambient-orb-3 {
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, rgba(56, 189, 248, 0) 70%);
 }
-html.sepia ::-webkit-scrollbar-track { background:#1f1915; }
-html.sepia ::-webkit-scrollbar-thumb { background:#45372d; }
-html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
+html.light header > div {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+html.light header > div > div {
+    background-color: rgba(248, 250, 252, 0.85) !important;
+}
+html.light header span.font-bold {
+    color: #0f172a !important;
+}
+html.light #welcomeState {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+}
+html.light #welcomeState > div:first-child {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
+    background-color: #f1f5f9 !important;
+    border-color: #6366f1 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span {
+    color: #334155 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span.font-mono {
+    color: #64748b !important;
+}
+html.light #welcomeState h2 {
+    color: #0f172a !important;
+}
+html.light #welcomeState p {
+    color: #475569 !important;
+}
+html.light #readerShell {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.08) !important;
+}
+html.light #readerShell > div:last-child {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #reader.txt-mode .reader-text,
+html.light #reader.docx-mode {
+    color: #1e293b !important;
+}
+html.light #reader.docx-mode h1,
+html.light #reader.docx-mode h2,
+html.light #reader.docx-mode h3,
+html.light #reader.docx-mode h4,
+html.light #reader.docx-mode strong {
+    color: #0f172a !important;
+}
+html.light #leftControlWidget {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.1) !important;
+}
+html.light #leftControlWidget > div {
+    background-color: #f8fafc !important;
+}
+html.light #leftControlWidget button {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+html.light #leftControlWidget button:hover {
+    background-color: #6366f1 !important;
+    color: #ffffff !important;
+    border-color: #6366f1 !important;
+}
+html.light #tooltip {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.12) !important;
+}
+html.light #tooltip #tooltipBody {
+    color: #0f172a !important;
+}
+html.light #tooltipSave,
+html.light #tooltipClose {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #475569 !important;
+}
+html.light #tooltipSave:hover {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    color: #d97706 !important;
+}
+html.light #tooltipClose:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #0f172a !important;
+}
+html.light #tooltip.below::after {
+    border-bottom-color: #ffffff;
+}
+html.light #tooltip.above::after {
+    border-top-color: #ffffff;
+}
+html.light .modal-card {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12) !important;
+}
+html.light .modal-card-header {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+html.light .modal-card input[type="text"],
+html.light .modal-card input[type="password"],
+html.light .modal-card select {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+html.light .library-card > div {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light .library-card:hover > div {
+    border-color: #818cf8 !important;
+}
+html.light .library-card h3 {
+    color: #0f172a !important;
+}
 
 /* ---------- MOBILE RESPONSIVE ADAPTATIONS (<768px) ---------- */
 @media (max-width: 768px) {
+    body {
+        padding-top: 4.8rem;
+    }
+
     #leftControlWidget {
         display: none !important;
     }
@@ -730,16 +769,16 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
     }
 
     .pdf-page {
-        margin: 0 auto 1rem;
-        border-radius: 3px;
-        box-shadow: 0 4px 15px -4px rgba(0, 0, 0, 0.4);
+        margin: 0 auto 1.25rem;
+        border-radius: 6px;
+        box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5);
     }
 
     /* Bottom-sheet mobile presentation for all modals */
     .modal-card {
         width: 100% !important;
         max-width: 100% !important;
-        border-radius: 1.25rem 1.25rem 0 0 !important;
+        border-radius: 1.75rem 1.75rem 0 0 !important;
         border-bottom: none !important;
         position: fixed !important;
         bottom: 0 !important;
@@ -753,10 +792,10 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
-        animation: mobileSheetIn 240ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+        animation: mobileSheetIn 280ms var(--ease-spring) !important;
     }
 
-    /* Elegant Mobile Handle Bar Indicator at the top of bottom sheets */
+    /* Elegant Mobile Handle Bar Indicator */
     .modal-card::before {
         content: '';
         display: block;
@@ -764,7 +803,7 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
         height: 0.25rem;
         border-radius: 9999px;
         background-color: rgba(148, 163, 184, 0.4);
-        margin: 0.6rem auto 0.35rem auto;
+        margin: 0.65rem auto 0.35rem auto;
         flex-shrink: 0;
     }
 
@@ -809,20 +848,20 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
         position: fixed !important;
         left: 12px !important;
         right: 12px !important;
-        bottom: 70px !important;
+        bottom: 76px !important;
         top: auto !important;
         width: auto !important;
         max-width: none !important;
         min-width: 0 !important;
-        transform: translateY(120%) !important;
-        transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease !important;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.25) !important;
-        border-radius: 1rem !important;
+        transform: translateY(140%) scale(0.95) !important;
+        transition: transform 260ms var(--ease-spring), opacity 200ms ease !important;
+        box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.25) !important;
+        border-radius: 1.25rem !important;
         z-index: 60 !important;
     }
     #tooltip.visible {
         opacity: 1 !important;
-        transform: translateY(0) !important;
+        transform: translateY(0) scale(1) !important;
     }
     #tooltip::after {
         display: none !important;
@@ -833,85 +872,67 @@ html.sepia ::-webkit-scrollbar-thumb:hover { background:#614d3f; }
     touch-action: manipulation;
 }
 
-/* ---------- MOBILE LANDSCAPE SIDE-PANEL (<580px Height) ---------- */
-@media (orientation: landscape) and (max-height: 580px) {
-    body {
-        padding-top: 2.8rem;
-    }
-    #readerShell {
-        padding-bottom: 1.5rem !important;
-        padding-left: 3.25rem !important;
-    }
-    #bottomMobileBar {
-        top: 50% !important;
-        bottom: auto !important;
-        left: 0.35rem !important;
-        right: auto !important;
-        transform: translateY(-50%) !important;
-        width: auto !important;
-        max-width: 46px !important;
-        padding: 0.35rem 0.2rem !important;
-        border-radius: 0.85rem !important;
-        border: 1px solid rgba(51, 65, 85, 0.8) !important;
-    }
-    #bottomMobileBar > div {
-        flex-direction: column !important;
-        gap: 0.25rem !important;
-        align-items: center !important;
-    }
-    #bottomMobileBar #mobilePdfNav,
-    #bottomMobileBar .flex.items-center.gap-0\.5,
-    #bottomMobileBar .flex.items-center.gap-1 {
-        flex-direction: column !important;
-        gap: 0.15rem !important;
-    }
-    #bottomMobileBar #mobilePdfNav span {
-        display: none !important;
-    }
-    #tooltip {
-        bottom: 12px !important;
-        left: 3.8rem !important;
-        right: 12px !important;
-    }
-    .modal-card {
-        max-height: 94vh !important;
-        overflow-y: auto !important;
-    }
+/* ---------- MOBILE FLOATING BOTTOM BAR ---------- */
+#bottomMobileBar {
+    transition: transform 0.35s var(--ease-spring), opacity 0.25s ease;
 }
 
 /* Light Theme overrides for Mobile Bar */
-html.light #bottomMobileBar {
-    background-color: rgba(255, 255, 255, 0.94);
-    border-color: #e2e8f0;
-    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.08);
+html.light #bottomMobileBar > div {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+html.light #bottomMobileBar > div > div {
+    background-color: #f8fafc !important;
 }
 html.light #bottomMobileBar button {
-    background-color: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #334155;
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
 }
 html.light #bottomMobileBar button:hover {
-    background-color: #6366f1;
-    color: #ffffff;
+    background-color: #6366f1 !important;
+    color: #ffffff !important;
 }
 
 /* Sepia Theme overrides for Mobile Bar */
-html.sepia #bottomMobileBar {
-    background-color: rgba(38, 30, 24, 0.96);
-    border-color: #45372d;
-    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
+html.sepia #bottomMobileBar > div {
+    background-color: rgba(38, 29, 23, 0.9) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+html.sepia #bottomMobileBar > div > div {
+    background-color: rgba(26, 20, 16, 0.95) !important;
 }
 html.sepia #bottomMobileBar button {
-    background-color: #2d241d;
-    border-color: #45372d;
-    color: #ebdccb;
+    background-color: #2d241d !important;
+    border-color: rgba(217, 119, 6, 0.25) !important;
+    color: #ebdccb !important;
 }
 html.sepia #bottomMobileBar button:hover {
-    background-color: #d97706;
-    color: #ffffff;
+    background-color: #d97706 !important;
+    color: #ffffff !important;
 }
-html.sepia #bottomMobileBar #mobilePdfNav,
-html.sepia #bottomMobileBar .bg-slate-900\/90 {
-    background-color: #231c17;
-    border-color: #45372d;
+
+/* ---------- ACCESSIBILITY: REDUCED MOTION SUPPORT (Section 6.B) ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .ambient-orb {
+        display: none !important;
+    }
+    .modal-card {
+        animation: none !important;
+    }
+    #tooltip {
+        transition: none !important;
+    }
+    header, #bottomMobileBar, #leftControlWidget {
+        transition: none !important;
+    }
 }
