@@ -232,7 +232,7 @@ function showToast(message, type = 'error', lifeMs) {
         success: '<svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
     };
     const el = document.createElement('div');
-    el.className = `toast flex items-center gap-2.5 rounded-full border backdrop-blur-xl px-4 py-2.5 text-xs font-medium shadow-2xl pointer-events-auto transition-all ${palette[type] || palette.info}`;
+    el.className = `toast toast-${type} flex items-center gap-2.5 rounded-full border backdrop-blur-xl px-4 py-2.5 text-xs font-medium shadow-2xl pointer-events-auto transition-all ${palette[type] || palette.info}`;
     el.setAttribute('role', 'status');
 
     const iconSpan = document.createElement('span');

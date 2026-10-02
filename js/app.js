@@ -295,21 +295,23 @@ document.addEventListener('keydown', e => {
     if (e.key === 't' || e.key === 'T') {
         e.preventDefault();
         const cur = localStorage.getItem(THEME_KEY) || 'dark';
-        const next = cur === 'dark' ? 'light' : (cur === 'light' ? 'sepia' : 'dark');
+        const next = cur === 'dark' ? 'light' : 'dark';
         applyTheme(next);
         updateSettingsModalUI();
         return;
     }
 });
 
-// 5. THEME CONTROLLER (3-Way Theme Cycle: Dark / Light / Sepia)
+// 5. THEME CONTROLLER (2-Way Theme Toggle: Dark / Light)
 function applyTheme(theme) {
-    document.documentElement.classList.remove('dark', 'light', 'sepia');
-    document.documentElement.classList.add(theme);
-    localStorage.setItem(THEME_KEY, theme);
+    const validTheme = (theme === 'light') ? 'light' : 'dark';
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(validTheme);
+    localStorage.setItem(THEME_KEY, validTheme);
 }
 
-const initialTheme = localStorage.getItem(THEME_KEY) || 'dark';
+const rawTheme = localStorage.getItem(THEME_KEY);
+const initialTheme = (rawTheme === 'light') ? 'light' : 'dark';
 applyTheme(initialTheme);
 
 // 6. UNIFIED SETTINGS CONTROLLER

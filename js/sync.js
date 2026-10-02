@@ -190,15 +190,25 @@ const LexiSync = (() => {
             if (!resp.ok) throw new Error('Status request failed');
             const data = await resp.json();
             isConnected = Boolean(data.connected);
-            hasAppKey = Boolean(data.has_app_key);
+
+            // Filter out access tokens mistakenly stored as app keys
+            let serverKey = (data.app_key || '').trim();
+            if (serverKey && (serverKey.startsWith('sl.') || serverKey.length > 50)) {
+                serverKey = '';
+            }
+            hasAppKey = Boolean(data.has_app_key && serverKey);
 
             // 1. Remember and auto-fill App Key
-            const savedLocalKey = localStorage.getItem('lexi.dropboxAppKey') || '';
+            let savedLocalKey = localStorage.getItem('lexi.dropboxAppKey') || '';
+            if (savedLocalKey && (savedLocalKey.startsWith('sl.') || savedLocalKey.length > 50)) {
+                try { localStorage.removeItem('lexi.dropboxAppKey'); } catch (_) {}
+                savedLocalKey = '';
+            }
             const appKeyInput = $('settingsCloudAppKeyInput');
-            if (data.app_key) {
-                try { localStorage.setItem('lexi.dropboxAppKey', data.app_key); } catch (_) {}
+            if (serverKey) {
+                try { localStorage.setItem('lexi.dropboxAppKey', serverKey); } catch (_) {}
                 if (appKeyInput && !appKeyInput.value) {
-                    appKeyInput.value = data.app_key;
+                    appKeyInput.value = serverKey;
                 }
             } else if (savedLocalKey) {
                 if (appKeyInput && !appKeyInput.value) {
@@ -809,6 +819,16 @@ const LexiSync = (() => {
                 const s = appSecretInput ? (appSecretInput.value || '').trim() : '';
                 if (!k) {
                     showToast('App Key cannot be empty', 'warn');
+                    return;
+                }
+                if (k.startsWith('sl.') || k.length > 50) {
+                    showToast(
+                        typeof t === 'function' ? t('cloudAppKeyIsTokenError') : 'Girdiğiniz değer bir App Key değil, kısa ömürlü bir Access Token\'dır. Lütfen bunu aşağıdaki "Doğrudan Erişim Belirteci (Token)" alanına yapıştırın.',
+                        'error',
+                        6000
+                    );
+                    const tokenInput = $('settingsCloudTokenInput');
+                    if (tokenInput && !tokenInput.value) tokenInput.value = k;
                     return;
                 }
                 try {

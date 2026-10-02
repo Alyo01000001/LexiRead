@@ -3,15 +3,78 @@
    Persona: Vanguard_UI_Architect (Awwwards-Tier Engineering)
    ============================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap');
 
 :root {
-    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
     --font-serif: 'Newsreader', Georgia, 'Iowan Old Style', Palatino, serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --font-dyslexic: 'Atkinson Hyperlegible', sans-serif;
     --reader-font: var(--font-serif);
-    --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- TYPOGRAPHIC SCALE & HIERARCHY ---------- */
+h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+}
+h2 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+h3 {
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+}
+
+/* ---------- BROWSER SURFACES & REFINEMENTS ---------- */
+::selection {
+    background-color: rgba(99, 102, 241, 0.35);
+    color: #f4f4f5;
+}
+html.light ::selection {
+    background-color: rgba(245, 158, 11, 0.35);
+    color: #000000;
+}
+
+a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+html.light * {
+    scrollbar-color: rgba(15, 23, 42, 0.2) transparent;
+}
+
+input, textarea {
+    caret-color: #6366f1;
+}
+html.light input, html.light textarea {
+    caret-color: #d97706;
+}
+
+:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.65);
+    outline-offset: 2px;
+}
+html.light :focus-visible {
+    outline-color: #f59e0b;
+}
+
+.font-mono, [data-tabular], .tabular-nums, #navCurPage, #navTotalPages, #savedCount, #libraryCountBadge, .page-number, [id*="Count"], [id*="LastSync"] {
+    font-variant-numeric: tabular-nums lining-nums;
 }
 
 /* ---------- GUI SCALE SETTINGS ---------- */
@@ -27,31 +90,21 @@ html[data-gui-scale="130"] { font-size: 20.8px; }
 .theme-choice-btn.active,
 .app-lang-choice-btn.active {
     border-color: #6366f1 !important;
-    background-color: rgba(99, 102, 241, 0.2) !important;
+    background-color: rgba(99, 102, 241, 0.16) !important;
     color: #ffffff !important;
-    box-shadow: 0 0 15px -3px rgba(99, 102, 241, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
-html.sepia .gui-scale-btn.active,
-html.sepia .font-choice-btn.active,
-html.sepia .spacing-choice-btn.active,
-html.sepia .theme-choice-btn.active,
-html.sepia .app-lang-choice-btn.active {
-    border-color: #d97706 !important;
-    background-color: rgba(217, 119, 6, 0.25) !important;
-    color: #fef3c7 !important;
-    box-shadow: 0 0 15px -3px rgba(217, 119, 6, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
-}
 
 html.light .gui-scale-btn.active,
 html.light .font-choice-btn.active,
 html.light .spacing-choice-btn.active,
 html.light .theme-choice-btn.active,
 html.light .app-lang-choice-btn.active {
-    border-color: #4f46e5 !important;
-    background-color: #e0e7ff !important;
-    color: #3730a3 !important;
-    box-shadow: 0 0 15px -3px rgba(79, 70, 229, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+    border-color: #f59e0b !important;
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 /* ---------- BASE & BODY ---------- */
@@ -59,53 +112,14 @@ body {
     font-family: var(--font-sans);
     padding-top: 5.25rem;
     touch-action: pan-x pan-y pinch-zoom;
-    background-color: #05070f;
-    color: #f1f5f9;
+    background-color: #09090b;
+    color: #f4f4f5;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s var(--ease-smooth), color 0.3s var(--ease-smooth);
     min-height: 100vh;
     min-height: 100dvh;
-}
-
-/* ---------- ETHEREAL AMBIENT SPATIAL GLOWS (Fixed Orbs) ---------- */
-.ambient-glows {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-.ambient-orb {
-    position: absolute;
-    border-radius: 9999px;
-    filter: blur(120px);
-    opacity: 0.65;
-    pointer-events: none;
-    transform: translateZ(0);
-    will-change: transform;
-}
-.ambient-orb-1 {
-    top: -10%;
-    left: 15%;
-    width: 550px;
-    height: 550px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.16) 0%, rgba(99, 102, 241, 0) 70%);
-}
-.ambient-orb-2 {
-    top: 35%;
-    right: -8%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0) 70%);
-}
-.ambient-orb-3 {
-    bottom: 5%;
-    left: 5%;
-    width: 480px;
-    height: 480px;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(56, 189, 248, 0) 70%);
 }
 
 /* ---------- FLOATING ISLAND NAVIGATION HEADER ---------- */
@@ -124,6 +138,13 @@ header > div {
 header.header-hidden {
     transform: translateY(-160%);
     opacity: 0;
+}
+header button,
+#leftControlWidget button,
+#bottomMobileBar button {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* ---------- DOPPELRAND (DOUBLE-BEZEL) ARCHITECTURE ---------- */
@@ -174,14 +195,30 @@ header.header-hidden {
     font-weight: 500;
 }
 .word.active {
-    background-color: rgba(99, 102, 241, 0.95);
+    background-color: #4f46e5;
     color: #ffffff;
-    box-shadow: 0 0 14px rgba(99, 102, 241, 0.6);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .word.selected.active {
-    background-color: #6366f1;
+    background-color: #4338ca;
     color: #ffffff;
-    box-shadow: 0 0 14px rgba(99, 102, 241, 0.7);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+html.light .word:hover {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #000000;
+}
+html.light .word.active {
+    background-color: #f59e0b !important;
+    color: #000000 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+html.light .word.selected.active {
+    background-color: #d97706 !important;
+    color: #000000 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 #reader.is-dragging {
     cursor: grabbing;
@@ -271,6 +308,14 @@ header.header-hidden {
     background-color: rgba(251, 146, 60, 0.6);
     box-shadow: 0 0 0 1.5px rgba(234, 88, 12, 1);
 }
+html.light .pdf-page .textLayer span.word:hover {
+    background-color: rgba(245, 158, 11, 0.25);
+}
+html.light .pdf-page .textLayer span.word.active {
+    background-color: rgba(245, 158, 11, 0.45);
+    box-shadow: 0 0 0 1.5px rgba(217, 119, 6, 0.95);
+    color: transparent !important;
+}
 .pdf-page .textLayer div.pdf-crop-excluded,
 .pdf-page .textLayer span.pdf-crop-excluded {
     opacity: 0.2 !important;
@@ -318,7 +363,7 @@ header.header-hidden {
 #reader.docx-mode table { border-collapse: collapse; width: 100%; margin: 1.25em 0; }
 #reader.docx-mode th, #reader.docx-mode td { border: 1px solid #334155; padding: 0.5em 0.75em; }
 #reader.docx-mode blockquote {
-    border-left: 3px solid #6366f1;
+    border-left: 1px solid rgba(99, 102, 241, 0.6);
     padding-left: 1.25em;
     color: #94a3b8;
     margin: 1.25em 0;
@@ -391,7 +436,7 @@ header.header-hidden {
     max-height: calc(100vh - 4rem) !important;
     max-height: calc(100dvh - 4rem) !important;
     overflow: hidden !important;
-    animation: modalIn 220ms var(--ease-spring) !important;
+    animation: modalIn 220ms var(--ease-out) !important;
     box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(28px) !important;
@@ -419,7 +464,7 @@ header.header-hidden {
     }
 }
 .toast {
-    animation: slideIn 220ms var(--ease-spring);
+    animation: slideIn 220ms var(--ease-out);
     box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
@@ -430,6 +475,7 @@ header.header-hidden {
     position: sticky !important;
     top: 0 !important;
     z-index: 20 !important;
+    padding: 1.25rem 1.5rem !important;
 }
 
 .modal-scroll-area,
@@ -493,169 +539,348 @@ html.zen-mode #zenExitBar {
     display: flex !important;
 }
 
-/* ---------- DARK WARM SEPIA THEME (Rich Espresso / Dark Roast Parchment) ---------- */
-html.sepia body {
-    background-color: #17120e;
-    color: #ebdccb;
-}
-html.sepia .ambient-orb-1 {
-    background: radial-gradient(circle, rgba(217, 119, 6, 0.16) 0%, rgba(217, 119, 6, 0) 70%);
-}
-html.sepia .ambient-orb-2 {
-    background: radial-gradient(circle, rgba(180, 83, 9, 0.12) 0%, rgba(180, 83, 9, 0) 70%);
-}
-html.sepia .ambient-orb-3 {
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0) 70%);
-}
-html.sepia header > div {
-    background-color: rgba(38, 29, 23, 0.8) !important;
-    border-color: rgba(217, 119, 6, 0.2) !important;
-}
-html.sepia header > div > div {
-    background-color: rgba(26, 20, 16, 0.85) !important;
-}
-html.sepia #welcomeState {
-    background: linear-gradient(180deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.02) 100%) !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-}
-html.sepia #welcomeState > div:first-child {
-    background-color: rgba(26, 20, 16, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.15) !important;
-}
-html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
-    background-color: rgba(38, 29, 23, 0.6) !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-}
-html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
-    background-color: rgba(38, 29, 23, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.45) !important;
-}
-html.sepia #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span {
-    color: #f1e5d8 !important;
-}
-html.sepia #readerShell {
-    background: linear-gradient(180deg, rgba(217, 119, 6, 0.08) 0%, rgba(217, 119, 6, 0.02) 100%) !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-}
-html.sepia #readerShell > div:last-child {
-    background-color: rgba(26, 20, 16, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.15) !important;
-}
-html.sepia #reader.txt-mode .reader-text,
-html.sepia #reader.docx-mode {
-    color: #f1e5d8 !important;
-}
-html.sepia #reader.docx-mode h1,
-html.sepia #reader.docx-mode h2,
-html.sepia #reader.docx-mode h3,
-html.sepia #reader.docx-mode h4,
-html.sepia #reader.docx-mode strong {
-    color: #fbf4eb !important;
-}
-html.sepia #leftControlWidget {
-    background: rgba(38, 29, 23, 0.8) !important;
-    border-color: rgba(217, 119, 6, 0.2) !important;
-}
-html.sepia #leftControlWidget > div {
-    background-color: rgba(26, 20, 16, 0.85) !important;
-}
-html.sepia #leftControlWidget button {
-    color: #ebdccb !important;
-}
-html.sepia #leftControlWidget button:hover {
-    background-color: #d97706 !important;
-    color: #ffffff !important;
-}
-html.sepia #tooltip {
-    background-color: rgba(38, 29, 23, 0.96) !important;
-    border: 1px solid rgba(217, 119, 6, 0.28) !important;
-    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5) !important;
-    color: #ebdccb !important;
-}
-html.sepia #tooltip #tooltipBody {
-    color: #ebdccb !important;
-}
-html.sepia #tooltip.below::after {
-    border-bottom-color: rgba(38, 29, 23, 0.96);
-}
-html.sepia #tooltip.above::after {
-    border-top-color: rgba(38, 29, 23, 0.96);
-}
-html.sepia .modal-card {
-    background-color: rgba(26, 20, 16, 0.96) !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-    color: #ebdccb !important;
-}
-html.sepia .modal-card-header {
-    background-color: rgba(38, 29, 23, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.2) !important;
-}
-html.sepia .modal-card input[type="text"],
-html.sepia .modal-card input[type="password"],
-html.sepia .modal-card select {
-    background-color: #1f1813 !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-    color: #ebdccb !important;
-}
-html.sepia .library-card > div {
-    background-color: rgba(26, 20, 16, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.2) !important;
+/* =============================================================
+   PURE AMOLED BLACK THEME (Zero Navy / Slate, Pure #000000 Base)
+   ============================================================= */
+html:not(.light) body,
+html.dark body {
+    background-color: #000000 !important;
+    color: #ededed !important;
 }
 
-/* ---------- LIGHT MODE THEME (Porcelain Gallery & Aluminum) ---------- */
+html:not(.light) .ambient-orb,
+html.dark .ambient-orb {
+    display: none !important;
+}
+
+html:not(.light) .keyBack,
+html:not(.light) .langBack,
+html:not(.light) .settingsBack,
+html:not(.light) .savedBack,
+html:not(.light) .outlineBack,
+html:not(.light) .typographyBack,
+html:not(.light) .cropBack,
+html:not(.light) .mobileMoreBack,
+html:not(.light) .bookActionBack,
+html:not(.light) .bookRenameBack,
+html.dark .keyBack,
+html.dark .langBack,
+html.dark .settingsBack,
+html.dark .savedBack,
+html.dark .outlineBack,
+html.dark .typographyBack,
+html.dark .cropBack,
+html.dark .mobileMoreBack,
+html.dark .bookActionBack,
+html.dark .bookRenameBack {
+    background-color: rgba(0, 0, 0, 0.82) !important;
+}
+
+/* Modals & Surfaces in AMOLED Black */
+html:not(.light) .modal-card,
+html.dark .modal-card {
+    background-color: #0a0a0a !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.95) !important;
+}
+
+html:not(.light) .modal-card-header,
+html.dark .modal-card-header {
+    background-color: #0f0f0f !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html:not(.light) .modal-card input[type="text"],
+html:not(.light) .modal-card input[type="password"],
+html:not(.light) .modal-card select,
+html.dark .modal-card input[type="text"],
+html.dark .modal-card input[type="password"],
+html.dark .modal-card select {
+    background-color: #000000 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ededed !important;
+}
+
+/* Library Cards */
+html:not(.light) .library-card,
+html.dark .library-card {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.light) .library-card > div,
+html.dark .library-card > div {
+    background-color: #0a0a0a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+html:not(.light) .library-card:hover,
+html.dark .library-card:hover {
+    border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+/* Hero / Welcome State in AMOLED Black */
+html:not(.light) #welcomeState,
+html.dark #welcomeState {
+    background: #0a0a0a !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.95) !important;
+}
+html:not(.light) #welcomeState > div:first-child,
+html.dark #welcomeState > div:first-child {
+    background-color: #0a0a0a !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+html:not(.light) #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn),
+html.dark #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
+    background-color: #050505 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.light) #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover,
+html.dark #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
+    background-color: #121212 !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+/* Reader Shell (Antrasit Sayfa Kutusu) */
+html:not(.light) #readerShell,
+html.dark #readerShell {
+    background: #0a0a0a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.95) !important;
+}
+html:not(.light) #readerShell > div:last-child,
+html.dark #readerShell > div:last-child {
+    background-color: #0a0a0a !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+html:not(.light) #reader.txt-mode .reader-text,
+html:not(.light) #reader.docx-mode,
+html.dark #reader.txt-mode .reader-text,
+html.dark #reader.docx-mode {
+    color: #ededed !important;
+}
+html:not(.light) #reader.docx-mode strong,
+html.dark #reader.docx-mode strong {
+    color: #ffffff !important;
+}
+
+/* Tooltip in Pure AMOLED Black */
+html:not(.light) #tooltip,
+html.dark #tooltip {
+    background-color: rgba(14, 14, 14, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9) !important;
+    color: #ededed !important;
+}
+html:not(.light) #tooltip #tooltipBody,
+html.dark #tooltip #tooltipBody {
+    color: #ededed !important;
+}
+html:not(.light) #tooltip.below::after,
+html.dark #tooltip.below::after {
+    border-bottom-color: rgba(14, 14, 14, 0.98);
+}
+html:not(.light) #tooltip.above::after,
+html.dark #tooltip.above::after {
+    border-top-color: rgba(14, 14, 14, 0.98);
+}
+
+/* Floating Bars in AMOLED Black */
+html:not(.light) header > div,
+html.dark header > div {
+    background-color: rgba(10, 10, 10, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.light) #leftControlWidget,
+html.dark #leftControlWidget {
+    background-color: rgba(10, 10, 10, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+html:not(.light) #bottomMobileBar > div,
+html.dark #bottomMobileBar > div {
+    background-color: rgba(10, 10, 10, 0.92) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+
+
+
+/* ---------- LIGHT MODE THEME (Porcelain White & School Bus Yellow) ---------- */
 html.light body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #f8fafc !important;
+    color: #09090b !important;
 }
-html.light .ambient-orb-1 {
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.07) 0%, rgba(99, 102, 241, 0) 70%);
-}
-html.light .ambient-orb-2 {
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0) 70%);
-}
-html.light .ambient-orb-3 {
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, rgba(56, 189, 248, 0) 70%);
-}
+
+/* Floating Island Header in Light */
 html.light header > div {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    border-color: rgba(226, 232, 240, 0.9) !important;
-    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
-}
-html.light header > div > div {
-    background-color: rgba(248, 250, 252, 0.85) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08) !important;
 }
 html.light header span.font-bold {
-    color: #0f172a !important;
+    color: #000000 !important;
 }
+html.light header a#logoBtn span span {
+    color: #d97706 !important;
+}
+
+/* Header Action & Utility Buttons in Light Mode */
+html.light #headerUploadBtn,
+html.light #zenModeBtn,
+html.light #headerCloudSyncBtn,
+html.light #savedBtn,
+html.light #settingsBtn {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #headerUploadBtn svg,
+html.light #zenModeBtn svg,
+html.light #headerCloudSyncBtn svg,
+html.light #headerCloudIcon svg,
+html.light #savedBtn svg,
+html.light #settingsBtn svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #headerCloudText,
+html.light #savedBtn span {
+    color: #000000 !important;
+}
+html.light #savedCount {
+    background-color: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #000000 !important;
+}
+html.light #headerUploadBtn:hover,
+html.light #zenModeBtn:hover,
+html.light #headerCloudSyncBtn:hover,
+html.light #savedBtn:hover,
+html.light #settingsBtn:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light #headerUploadBtn:hover svg,
+html.light #zenModeBtn:hover svg,
+html.light #headerCloudSyncBtn:hover svg,
+html.light #headerCloudSyncBtn:hover #headerCloudText,
+html.light #savedBtn:hover svg,
+html.light #savedBtn:hover span,
+html.light #settingsBtn:hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+
+/* Welcome & Hero State in Light */
 html.light #welcomeState {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.7) 100%) !important;
+    background: #ffffff !important;
     border-color: #e2e8f0 !important;
-    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.06) !important;
 }
 html.light #welcomeState > div:first-child {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
 }
-html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
-    background-color: #f8fafc !important;
-    border-color: #cbd5e1 !important;
-}
-html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
-    background-color: #f1f5f9 !important;
-    border-color: #6366f1 !important;
-}
-html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span {
-    color: #334155 !important;
-}
-html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span.font-mono {
-    color: #64748b !important;
-}
 html.light #welcomeState h2 {
-    color: #0f172a !important;
+    color: #000000 !important;
 }
 html.light #welcomeState p {
     color: #475569 !important;
 }
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn):hover {
+    background-color: #fefce8 !important;
+    border-color: #f59e0b !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) .w-14.h-14 {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #000000 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) .w-14.h-14 svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span {
+    color: #000000 !important;
+}
+html.light #welcomeState label[for="fileInput"]:not(#welcomeChooseFileBtn) span.font-mono {
+    color: #64748b !important;
+}
+html.light #welcomeState .mt-5 span,
+html.light #welcomeState .mt-5 svg {
+    color: #64748b !important;
+    stroke: #64748b !important;
+}
+
+/* Primary Action Buttons in Light Mode (American School Bus Yellow #f59e0b with Black Text) */
+html.light #welcomeChooseFileBtn,
+html.light #libraryUploadBtn,
+html.light #mobileUploadFab,
+html.light #resumeJumpBtn,
+html.light #keySave,
+html.light #langConfirm,
+html.light #cropConfirmBtn,
+html.light #savedSyncCardlyo,
+html.light #bookRenameSaveBtn,
+html.light #settingsCloudOAuthBtn,
+html.light #settingsCloudSaveAppKeyBtn,
+html.light #settingsCloudCopyUriBtn {
+    background: #f59e0b !important;
+    background-color: #f59e0b !important;
+    color: #000000 !important;
+    border: 1px solid #d97706 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+html.light #welcomeChooseFileBtn svg,
+html.light #libraryUploadBtn svg,
+html.light #mobileUploadFab svg,
+html.light #resumeJumpBtn svg,
+html.light #keySave svg,
+html.light #langConfirm svg,
+html.light #cropConfirmBtn svg,
+html.light #savedSyncCardlyo svg,
+html.light #bookRenameSaveBtn svg,
+html.light #settingsCloudOAuthBtn svg,
+html.light #settingsCloudSaveAppKeyBtn svg,
+html.light #settingsCloudCopyUriBtn svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #welcomeChooseFileBtn span,
+html.light #libraryUploadBtn span,
+html.light #resumeJumpBtn span,
+html.light #keySave span,
+html.light #langConfirm span,
+html.light #cropConfirmBtn span,
+html.light #savedSyncCardlyo span,
+html.light #bookRenameSaveBtn span,
+html.light #settingsCloudOAuthBtn span {
+    color: #000000 !important;
+}
+html.light #welcomeChooseFileBtn:hover,
+html.light #libraryUploadBtn:hover,
+html.light #mobileUploadFab:hover,
+html.light #resumeJumpBtn:hover,
+html.light #keySave:hover,
+html.light #langConfirm:hover,
+html.light #cropConfirmBtn:hover,
+html.light #savedSyncCardlyo:hover,
+html.light #bookRenameSaveBtn:hover,
+html.light #settingsCloudOAuthBtn:hover,
+html.light #settingsCloudSaveAppKeyBtn:hover,
+html.light #settingsCloudCopyUriBtn:hover {
+    background: #d97706 !important;
+    background-color: #d97706 !important;
+    color: #000000 !important;
+    border-color: #b45309 !important;
+}
+
+/* Reader Shell & Prose in Light */
 html.light #readerShell {
     background: #ffffff !important;
     border-color: #e2e8f0 !important;
@@ -667,54 +892,137 @@ html.light #readerShell > div:last-child {
 }
 html.light #reader.txt-mode .reader-text,
 html.light #reader.docx-mode {
-    color: #1e293b !important;
+    color: #000000 !important;
 }
 html.light #reader.docx-mode h1,
 html.light #reader.docx-mode h2,
 html.light #reader.docx-mode h3,
 html.light #reader.docx-mode h4,
 html.light #reader.docx-mode strong {
-    color: #0f172a !important;
+    color: #000000 !important;
 }
-html.light #leftControlWidget {
-    background-color: rgba(255, 255, 255, 0.85) !important;
+html.light .word:hover,
+html.light .word.touch-active {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light .word-saved {
+    border-bottom: 2px solid #f59e0b !important;
+    background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Zen Exit Bar & Resume Banner in Light */
+html.light #zenExitBar {
+    background-color: rgba(255, 255, 255, 0.95) !important;
     border-color: #e2e8f0 !important;
-    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    color: #000000 !important;
 }
-html.light #leftControlWidget > div {
-    background-color: #f8fafc !important;
+html.light #zenExitBar span {
+    color: #000000 !important;
+}
+html.light #zenExitBar span.bg-indigo-400 {
+    background-color: #f59e0b !important;
+}
+html.light #zenExitBtn {
+    color: #000000 !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #zenExitBtn svg {
+    stroke: #000000 !important;
+}
+html.light #zenExitBtn:hover {
+    color: #000000 !important;
+}
+html.light #resumeBanner {
+    background-color: #ffffff !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+html.light #resumeBanner span,
+html.light #resumeBanner strong {
+    color: #000000 !important;
+}
+html.light #resumeBanner svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #resumeDismissBtn {
+    color: #000000 !important;
+}
+html.light #resumeDismissBtn svg {
+    stroke: #000000 !important;
+}
+
+/* Left Control Widget in Light */
+html.light #leftControlWidget {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08) !important;
 }
 html.light #leftControlWidget button {
     background-color: #ffffff !important;
-    color: #334155 !important;
+    color: #000000 !important;
     border: 1px solid #e2e8f0 !important;
 }
-html.light #leftControlWidget button:hover {
-    background-color: #6366f1 !important;
-    color: #ffffff !important;
-    border-color: #6366f1 !important;
+html.light #leftControlWidget button svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
 }
+html.light #leftControlWidget button:hover {
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+    border-color: #f59e0b !important;
+}
+html.light #leftControlWidget button:hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #zoomLabel,
+html.light #navCurPage,
+html.light #navTotalPages {
+    color: #000000 !important;
+}
+html.light #pdfNavSection {
+    border-color: #e2e8f0 !important;
+}
+
+/* Tooltip in Light Mode */
 html.light #tooltip {
     background-color: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.12) !important;
 }
 html.light #tooltip #tooltipBody {
-    color: #0f172a !important;
+    color: #000000 !important;
 }
-html.light #tooltipSave,
-html.light #tooltipClose {
-    background-color: rgba(0, 0, 0, 0.05) !important;
-    color: #475569 !important;
+html.light #tooltipSave {
+    background-color: #fef3c7 !important;
+    border: 1px solid #fde68a !important;
+    color: #000000 !important;
+}
+html.light #tooltipSave svg {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
 }
 html.light #tooltipSave:hover {
-    background-color: rgba(0, 0, 0, 0.08) !important;
-    color: #d97706 !important;
+    background-color: #f59e0b !important;
+    border-color: #d97706 !important;
+    color: #000000 !important;
+}
+html.light #tooltipClose {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #000000 !important;
+}
+html.light #tooltipClose svg {
+    stroke: #000000 !important;
 }
 html.light #tooltipClose:hover {
     background-color: rgba(0, 0, 0, 0.1) !important;
-    color: #0f172a !important;
+    color: #000000 !important;
 }
 html.light #tooltip.below::after {
     border-bottom-color: #ffffff;
@@ -722,32 +1030,580 @@ html.light #tooltip.below::after {
 html.light #tooltip.above::after {
     border-top-color: #ffffff;
 }
+
+/* Modals in Light Mode */
 html.light .modal-card {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.12) !important;
 }
 html.light .modal-card-header {
     background-color: #f8fafc !important;
     border-color: #e2e8f0 !important;
 }
+html.light .modal-card-header h2 {
+    color: #000000 !important;
+}
+html.light .modal-card-header .w-8.h-8,
+html.light .modal-card-header > div > div.w-8.h-8 {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #000000 !important;
+}
+html.light .modal-card-header .w-8.h-8 svg,
+html.light .modal-card-header > div > div.w-8.h-8 svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #activeProviderBadge {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #000000 !important;
+}
+html.light .modal-card label,
+html.light .modal-card span.text-slate-400,
+html.light .modal-card p.text-slate-400 {
+    color: #475569 !important;
+}
 html.light .modal-card input[type="text"],
 html.light .modal-card input[type="password"],
 html.light .modal-card select {
-    background-color: #f8fafc !important;
+    background-color: #ffffff !important;
     border-color: #cbd5e1 !important;
-    color: #0f172a !important;
+    color: #000000 !important;
+}
+html.light .modal-card input:focus,
+html.light .modal-card select:focus {
+    border-color: #f59e0b !important;
+}
+html.light .modal-card-header button,
+html.light #settingsClose,
+html.light #savedClose,
+html.light #typographyClose,
+html.light #outlineClose,
+html.light #keyCloseBtn,
+html.light #langCloseBtn,
+html.light #cropCloseBtn,
+html.light #bookActionClose,
+html.light #bookRenameCloseBtn {
+    color: #000000 !important;
+}
+html.light .modal-card-header button svg,
+html.light #settingsClose svg,
+html.light #savedClose svg,
+html.light #typographyClose svg,
+html.light #outlineClose svg,
+html.light #keyCloseBtn svg,
+html.light #langCloseBtn svg,
+html.light #cropCloseBtn svg,
+html.light #bookActionClose svg,
+html.light #bookRenameCloseBtn svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light .modal-card-header button:hover,
+html.light #settingsClose:hover,
+html.light #savedClose:hover,
+html.light #typographyClose:hover,
+html.light #outlineClose:hover,
+html.light #keyCloseBtn:hover,
+html.light #langCloseBtn:hover,
+html.light #cropCloseBtn:hover,
+html.light #bookActionClose:hover,
+html.light #bookRenameCloseBtn:hover {
+    color: #000000 !important;
+    background-color: #f1f5f9 !important;
+}
+
+/* Modal Choice & Option Buttons in Light (non-active default) */
+html.light .gui-scale-btn:not(.active),
+html.light .font-choice-btn:not(.active),
+html.light .spacing-choice-btn:not(.active),
+html.light .theme-choice-btn:not(.active),
+html.light .app-lang-choice-btn:not(.active) {
+    border-color: #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    color: #000000 !important;
+}
+html.light .gui-scale-btn:not(.active) svg,
+html.light .font-choice-btn:not(.active) svg,
+html.light .spacing-choice-btn:not(.active) svg,
+html.light .theme-choice-btn:not(.active) svg,
+html.light .app-lang-choice-btn:not(.active) svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light .gui-scale-btn:not(.active):hover,
+html.light .font-choice-btn:not(.active):hover,
+html.light .spacing-choice-btn:not(.active):hover,
+html.light .theme-choice-btn:not(.active):hover,
+html.light .app-lang-choice-btn:not(.active):hover {
+    border-color: #cbd5e1 !important;
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+}
+html.light .gui-scale-btn.active,
+html.light .font-choice-btn.active,
+html.light .spacing-choice-btn.active,
+html.light .theme-choice-btn.active,
+html.light .app-lang-choice-btn.active {
+    border-color: #f59e0b !important;
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+}
+html.light .gui-scale-btn.active svg,
+html.light .font-choice-btn.active svg,
+html.light .spacing-choice-btn.active svg,
+html.light .theme-choice-btn.active svg,
+html.light .app-lang-choice-btn.active svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light .app-lang-choice-btn span.font-mono {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #000000 !important;
+}
+html.light .app-lang-choice-btn.active span.font-mono {
+    background-color: #f59e0b !important;
+    border-color: #d97706 !important;
+    color: #000000 !important;
+}
+
+/* Modal Secondary & Utility Buttons in Light */
+html.light #keyCancel,
+html.light #langCancel,
+html.light #cropBackBtn,
+html.light #cropSkipBtn,
+html.light #bookRenameCancelBtn,
+html.light #bookActionRenameBtn,
+html.light #bookActionResetBtn,
+html.light #langSwap {
+    border-color: #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+html.light #keyCancel svg,
+html.light #langCancel svg,
+html.light #cropBackBtn svg,
+html.light #cropSkipBtn svg,
+html.light #bookRenameCancelBtn svg,
+html.light #bookActionRenameBtn svg,
+html.light #bookActionResetBtn svg,
+html.light #langSwap svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #keyCancel:hover,
+html.light #langCancel:hover,
+html.light #cropBackBtn:hover,
+html.light #cropSkipBtn:hover,
+html.light #bookRenameCancelBtn:hover,
+html.light #bookActionRenameBtn:hover,
+html.light #bookActionResetBtn:hover,
+html.light #langSwap:hover {
+    border-color: #f59e0b !important;
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+}
+html.light #keyCancel:hover svg,
+html.light #langCancel:hover svg,
+html.light #cropBackBtn:hover svg,
+html.light #cropSkipBtn:hover svg,
+html.light #bookRenameCancelBtn:hover svg,
+html.light #bookActionRenameBtn:hover svg,
+html.light #bookActionResetBtn:hover svg,
+html.light #langSwap:hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #bookActionDeleteBtn {
+    border-color: #fecaca !important;
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+html.light #bookActionDeleteBtn svg {
+    color: #dc2626 !important;
+    stroke: #dc2626 !important;
+}
+html.light #bookActionDeleteBtn:hover {
+    background-color: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+}
+
+/* Language Selection Modal Controls in Light */
+html.light #langFileName {
+    color: #475569 !important;
+}
+html.light #langModal label span {
+    color: #000000 !important;
+}
+html.light #langSrc,
+html.light #langTgt {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+
+/* Settings Modal Cloud Sync & API Key in Light */
+html.light #settingsModal .border-t span.text-white,
+html.light #settingsModal [data-i18n="cloudSyncTitle"],
+html.light #settingsModal [data-i18n="apiKeyModalTitle"] {
+    color: #000000 !important;
+}
+html.light #settingsModal svg.text-indigo-400 {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #settingsCloudStatus,
+html.light #settingsKeyStatus {
+    color: #475569 !important;
+}
+html.light #settingsCloudConnectSection {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #settingsCloudConnectSection p {
+    color: #475569 !important;
+}
+html.light #settingsCloudAdvancedDetails summary {
+    color: #000000 !important;
+}
+html.light #settingsCloudAdvancedDetails summary:hover {
+    color: #d97706 !important;
+}
+html.light #settingsCloudAdvancedDetails .bg-indigo-950\/40 {
+    background-color: #fefce8 !important;
+    border-color: #fef08a !important;
+}
+html.light #settingsCloudAdvancedDetails .bg-indigo-950\/40 span {
+    color: #000000 !important;
+}
+html.light #settingsCloudAdvancedDetails .bg-indigo-950\/40 svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #settingsCloudRedirectUri {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudAdvancedDetails .bg-slate-900\/60 {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #settingsCloudAdvancedDetails .bg-slate-900\/60 span.text-slate-300 {
+    color: #000000 !important;
+}
+html.light #settingsCloudAppKeyInput,
+html.light #settingsCloudAppSecretInput,
+html.light #settingsCloudTokenInput {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudTokenSubmit {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudTokenSubmit:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudConnectedSection {
+    background-color: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+}
+html.light #settingsCloudAccount {
+    color: #166534 !important;
+}
+html.light #settingsCloudManualSyncBtn {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudManualSyncBtn svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #settingsCloudManualSyncBtn:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light #settingsCloudDisconnectBtn {
+    background-color: #fef2f2 !important;
+    border-color: #fecaca !important;
+    color: #dc2626 !important;
+}
+html.light #settingsCloudDisconnectBtn:hover {
+    background-color: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+}
+html.light #settingsOpenKeyBtn {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #settingsOpenKeyBtn:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+
+/* Key Modal Tabs & Descriptions in Light */
+html.light #tabGemini,
+html.light #tabDeepl {
+    color: #475569 !important;
+}
+html.light #tabGemini.border-indigo-500,
+html.light #tabDeepl.border-indigo-500 {
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+    background-color: #fef3c7 !important;
+}
+html.light #geminiDescBlock p,
+html.light #deeplDescBlock p {
+    color: #475569 !important;
+}
+html.light #geminiDescBlock strong,
+html.light #deeplDescBlock strong {
+    color: #000000 !important;
+}
+html.light #geminiDescBlock a,
+html.light #deeplDescBlock a {
+    color: #d97706 !important;
+}
+html.light #keyModal span.font-mono {
+    color: #64748b !important;
+}
+
+/* Outline List in Light */
+html.light #outlineList > div {
+    color: #000000 !important;
+}
+html.light #outlineList > div:hover {
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+}
+
+/* Saved Words Modal in Light */
+html.light #savedModal > div > div:nth-child(2),
+html.light #savedModal > div > div:last-child {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #savedSearchInput {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #savedModal .relative > span svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #savedExport {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #000000 !important;
+}
+html.light #savedExport svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #savedExport:hover {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light .saved-item {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+html.light .saved-item p.font-semibold {
+    color: #000000 !important;
+}
+html.light .saved-item p.text-indigo-300 {
+    color: #000000 !important;
+}
+html.light .saved-item span.bg-indigo-500\/15 {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
+}
+html.light .saved-item span.font-mono,
+html.light .saved-item p.font-mono {
+    color: #64748b !important;
+}
+html.light .saved-item button {
+    border-color: #fecaca !important;
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+html.light .saved-item button:hover {
+    background-color: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+}
+html.light #savedClear {
+    border-color: #fecaca !important;
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+html.light #savedClear:hover {
+    background-color: #fee2e2 !important;
+    border-color: #fca5a5 !important;
+}
+
+/* PDF Crop Controls in Light */
+html.light #cropPreviewOuter {
+    background-color: #f1f5f9 !important;
+}
+html.light #pdfCropModal .border-b,
+html.light #pdfCropModal .border-t {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+html.light #cropPrevPage,
+html.light #cropNextPage {
+    color: #000000 !important;
+}
+html.light #cropPrevPage svg,
+html.light #cropNextPage svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #cropPageIndicator,
+html.light #cropTopVal,
+html.light #cropBottomVal {
+    color: #000000 !important;
+}
+html.light #pdfCropModal p.text-slate-400 {
+    color: #475569 !important;
+}
+
+/* Library Section in Light Mode */
+html.light #librarySection .w-8.h-8,
+html.light #librarySection .flex.items-center.gap-2\.5 > div.w-8.h-8 {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #000000 !important;
+}
+html.light #librarySection .w-8.h-8 svg,
+html.light #librarySection .flex.items-center.gap-2\.5 > div.w-8.h-8 svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+}
+html.light #librarySection h2,
+html.light #librarySection h2 span {
+    color: #000000 !important;
+}
+html.light #libraryCountBadge {
+    background-color: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+}
+html.light .library-card {
+    background-color: transparent !important;
+    border-color: transparent !important;
 }
 html.light .library-card > div {
     background-color: #ffffff !important;
     border-color: #e2e8f0 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 4px 10px -2px rgba(0, 0, 0, 0.04) !important;
 }
 html.light .library-card:hover > div {
-    border-color: #818cf8 !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.12), 0 6px 15px -2px rgba(0, 0, 0, 0.06) !important;
 }
-html.light .library-card h3 {
-    color: #0f172a !important;
+html.light .library-card h3,
+html.light .library-card:hover h3 {
+    color: #000000 !important;
+}
+html.light .library-card p,
+html.light .library-card span.text-slate-400 {
+    color: #475569 !important;
+}
+html.light .library-card .lib-action-btn {
+    color: #000000 !important;
+}
+html.light .library-card .lib-action-btn svg {
+    stroke: #000000 !important;
+}
+html.light .library-card .lib-action-btn:hover {
+    color: #000000 !important;
+    background-color: #f1f5f9 !important;
+}
+html.light .library-card span.font-mono {
+    background-color: #fef3c7 !important;
+    border-color: #fde68a !important;
+    color: #92400e !important;
+}
+html.light .library-card .w-13.h-18,
+html.light .library-card .sm\:w-15.sm\:h-21 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+html.light .library-card .bg-slate-800\/80 {
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+}
+html.light .library-card .bg-gradient-to-r {
+    background: #f59e0b !important;
+    box-shadow: none !important;
+}
+
+/* Toast Notifications in Light Mode */
+html.light .toast {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.12) !important;
+}
+html.light .toast span {
+    color: #000000 !important;
+}
+html.light .toast.toast-error {
+    border-color: #fca5a5 !important;
+}
+html.light .toast.toast-error span.leading-snug {
+    color: #991b1b !important;
+}
+html.light .toast.toast-error svg {
+    color: #dc2626 !important;
+    stroke: #dc2626 !important;
+}
+html.light .toast.toast-warn {
+    border-color: #fde68a !important;
+}
+html.light .toast.toast-warn span.leading-snug {
+    color: #92400e !important;
+}
+html.light .toast.toast-warn svg {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+}
+html.light .toast.toast-info {
+    border-color: #fde68a !important;
+}
+html.light .toast.toast-info span.leading-snug {
+    color: #000000 !important;
+}
+html.light .toast.toast-info svg {
+    color: #d97706 !important;
+    stroke: #d97706 !important;
+}
+html.light .toast.toast-success {
+    border-color: #a7f3d0 !important;
+}
+html.light .toast.toast-success span.leading-snug {
+    color: #065f46 !important;
+}
+html.light .toast.toast-success svg {
+    color: #059669 !important;
+    stroke: #059669 !important;
 }
 
 /* ---------- MOBILE RESPONSIVE ADAPTATIONS (<768px) ---------- */
@@ -792,7 +1648,7 @@ html.light .library-card h3 {
         display: flex !important;
         flex-direction: column !important;
         overflow: hidden !important;
-        animation: mobileSheetIn 280ms var(--ease-spring) !important;
+        animation: mobileSheetIn 280ms var(--ease-out) !important;
     }
 
     /* Elegant Mobile Handle Bar Indicator */
@@ -811,9 +1667,6 @@ html.light .library-card h3 {
         display: none !important;
     }
 
-    html.sepia .modal-card::before {
-        background-color: rgba(184, 163, 142, 0.5);
-    }
     html.light .modal-card::before {
         background-color: rgba(100, 116, 139, 0.35);
     }
@@ -854,8 +1707,8 @@ html.light .library-card h3 {
         max-width: none !important;
         min-width: 0 !important;
         transform: translateY(140%) scale(0.95) !important;
-        transition: transform 260ms var(--ease-spring), opacity 200ms ease !important;
-        box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.25) !important;
+        transition: transform 260ms var(--ease-out), opacity 200ms ease !important;
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
         border-radius: 1.25rem !important;
         z-index: 60 !important;
     }
@@ -874,45 +1727,44 @@ html.light .library-card h3 {
 
 /* ---------- MOBILE FLOATING BOTTOM BAR ---------- */
 #bottomMobileBar {
-    transition: transform 0.35s var(--ease-spring), opacity 0.25s ease;
+    transition: transform 0.35s var(--ease-out), opacity 0.25s ease;
 }
 
 /* Light Theme overrides for Mobile Bar */
 html.light #bottomMobileBar > div {
-    background-color: rgba(255, 255, 255, 0.88) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
     border-color: #e2e8f0 !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
-}
-html.light #bottomMobileBar > div > div {
-    background-color: #f8fafc !important;
 }
 html.light #bottomMobileBar button {
     background-color: #ffffff !important;
     border-color: #cbd5e1 !important;
-    color: #334155 !important;
+    color: #000000 !important;
+}
+html.light #bottomMobileBar button svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
 }
 html.light #bottomMobileBar button:hover {
-    background-color: #6366f1 !important;
-    color: #ffffff !important;
+    background-color: #fef3c7 !important;
+    color: #000000 !important;
+    border-color: #f59e0b !important;
 }
-
-/* Sepia Theme overrides for Mobile Bar */
-html.sepia #bottomMobileBar > div {
-    background-color: rgba(38, 29, 23, 0.9) !important;
-    border-color: rgba(217, 119, 6, 0.3) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+html.light #bottomMobileBar button:hover svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
 }
-html.sepia #bottomMobileBar > div > div {
-    background-color: rgba(26, 20, 16, 0.95) !important;
+html.light #mobilePdfNav,
+html.light #bottomMobileBar .flex.items-center.gap-0\.5 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
 }
-html.sepia #bottomMobileBar button {
-    background-color: #2d241d !important;
-    border-color: rgba(217, 119, 6, 0.25) !important;
-    color: #ebdccb !important;
+html.light #mobileNavCurPage {
+    color: #d97706 !important;
 }
-html.sepia #bottomMobileBar button:hover {
-    background-color: #d97706 !important;
-    color: #ffffff !important;
+html.light #mobileNavTotalPages,
+html.light #mobileZoomLabel {
+    color: #000000 !important;
 }
 
 /* ---------- ACCESSIBILITY: REDUCED MOTION SUPPORT (Section 6.B) ---------- */

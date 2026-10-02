@@ -6,10 +6,10 @@
     <title>LexiRead - Reader &amp; Translator</title>
     <link rel="icon" type="image/png" href="LexiReadIcon.png" />
 
-    <!-- Google Fonts: Plus Jakarta Sans, Newsreader, JetBrains Mono -->
+    <!-- Google Fonts: Figtree, Newsreader, JetBrains Mono, Atkinson Hyperlegible -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
 
     <!-- External Core Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -24,173 +24,158 @@
     <link rel="stylesheet" href="css/style.css?v=2.4" />
 </head>
 
-<body class="bg-[#05070f] text-slate-100 min-h-[100dvh] relative selection:bg-indigo-500/30 selection:text-indigo-200">
-
-    <!-- Ambient Spatial Glows (Ethereal Background Orbs) -->
-    <div class="ambient-glows pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-        <div class="ambient-orb ambient-orb-1"></div>
-        <div class="ambient-orb ambient-orb-2"></div>
-        <div class="ambient-orb ambient-orb-3"></div>
-    </div>
+<body class="bg-[#09090b] text-[#f4f4f5] min-h-[100dvh] relative selection:bg-indigo-500/30 selection:text-indigo-200">
 
     <!-- ================= FLOATING ISLAND HEADER (Doppelrand) ================= -->
-    <header class="fixed top-2.5 sm:top-4 left-0 right-0 z-40 flex justify-center px-3 sm:px-6 pointer-events-none transition-all duration-300">
-        <div class="pointer-events-auto w-full max-w-5xl rounded-2xl sm:rounded-full p-1 bg-white/[0.05] border border-white/10 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.12)] backdrop-blur-2xl transition-all duration-300">
-            <div class="rounded-[calc(1rem-2px)] sm:rounded-full px-3 sm:px-5 py-1.5 sm:py-2 flex items-center justify-between gap-2 sm:gap-4 bg-slate-950/75 border border-white/[0.04]">
-                
-                <!-- Modern Logo with LexiReadIcon.png and reload action -->
-                <div class="flex items-center gap-2">
-                    <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none shrink-0">
-                        <div class="relative flex items-center justify-center p-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shadow-sm shadow-indigo-500/20 group-hover:scale-105 group-hover:border-indigo-500/40 transition-all duration-300">
-                            <img src="LexiReadIcon.png" alt="LexiRead" class="h-6 w-6 sm:h-7 sm:w-7 object-contain rounded-lg" />
-                        </div>
-                        <span class="font-bold tracking-tight text-base sm:text-lg text-white">
-                            Lexi<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Read</span>
-                        </span>
-                    </a>
-                </div>
+    <header class="fixed top-2.5 sm:top-4 left-0 right-0 z-40 flex justify-center px-3 sm:px-6 pointer-events-none">
+        <div class="pointer-events-auto w-full max-w-5xl rounded-2xl sm:rounded-full px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 bg-slate-950/90 border border-white/[0.08] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+            <!-- Modern Logo with LexiReadIcon.png and reload action -->
+            <div class="flex items-center gap-2">
+                <a href="javascript:void(0)" id="logoBtn" data-i18n-title="logoReloadTitle" title="Reload &amp; Return Home" class="flex items-center gap-2 sm:gap-2.5 group cursor-pointer select-none shrink-0">
+                    <div class="relative flex items-center justify-center p-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shadow-sm group-hover:scale-105 group-hover:border-indigo-500/40 transition-transform duration-200">
+                        <img src="LexiReadIcon.png" alt="LexiRead" class="h-6 w-6 sm:h-7 sm:w-7 object-contain rounded-lg" />
+                    </div>
+                    <span class="font-bold tracking-tight text-base sm:text-lg text-white">
+                        Lexi<span class="text-indigo-400 font-semibold">Read</span>
+                    </span>
+                </a>
+            </div>
 
-                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <!-- Dynamic Header Upload Button (Appears when reading a document on desktop) -->
-                    <button id="headerUploadBtn"
-                            class="hidden md:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-300 active:scale-95 shadow-sm cursor-pointer whitespace-nowrap shrink-0">
-                        <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
-                        <span data-i18n="openDocument">Open Document</span>
-                    </button>
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <!-- Dynamic Header Upload Button (Appears when reading a document on desktop) -->
+                <button id="headerUploadBtn"
+                        class="hidden md:inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 hover:text-white hover:border-white/20 transition-colors duration-150 shadow-sm cursor-pointer whitespace-nowrap shrink-0">
+                    <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+                    <span data-i18n="openDocument">Open Document</span>
+                </button>
 
-                    <!-- Zen / Focus Reading Mode Toggle -->
-                    <button id="zenModeBtn" data-i18n-title="zenModeTitle" title="Zen Mode / Focus Mode (Z)"
-                            class="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/10 hover:text-indigo-300 hover:border-indigo-500/30 transition-all duration-300 active:scale-95 shadow-sm cursor-pointer shrink-0">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
-                    </button>
+                <!-- Zen / Focus Reading Mode Toggle -->
+                <button id="zenModeBtn" data-i18n-title="zenModeTitle" title="Zen Mode / Focus Mode (Z)"
+                        class="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/10 hover:text-indigo-300 hover:border-indigo-500/30 transition-colors duration-150 shadow-sm cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/></svg>
+                </button>
 
-                    <!-- Cloud Sync Status / Trigger Button -->
-                    <button id="headerCloudSyncBtn" data-i18n-title="cloudSyncTitle" title="Cloud Sync (Dropbox)"
-                            class="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-300 active:scale-95 shadow-sm cursor-pointer whitespace-nowrap shrink-0">
-                        <span id="headerCloudIcon" class="inline-flex items-center justify-center transition-transform duration-300">
-                            <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                        </span>
-                        <span id="headerCloudText" class="hidden md:inline text-[11px] text-slate-400 font-mono">Sync</span>
-                    </button>
+                <!-- Cloud Sync Status / Trigger Button -->
+                <button id="headerCloudSyncBtn" data-i18n-title="cloudSyncTitle" title="Cloud Sync (Dropbox)"
+                        class="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2.5 sm:px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white hover:border-white/20 transition-colors duration-150 shadow-sm cursor-pointer whitespace-nowrap shrink-0">
+                    <span id="headerCloudIcon" class="inline-flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    </span>
+                    <span id="headerCloudText" class="hidden md:inline text-[11px] text-slate-400 font-mono">Sync</span>
+                </button>
 
-                    <!-- Refined Saved-items manager -->
-                    <button id="savedBtn"
-                            class="flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-indigo-200 hover:bg-indigo-500/20 hover:border-indigo-500/50 shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)] transition-all duration-300 active:scale-95 cursor-pointer whitespace-nowrap shrink-0">
-                        <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-                        <span class="hidden sm:inline" data-i18n="savedWords">Saved</span>
-                        <span id="savedCount" class="rounded-full bg-indigo-500/30 px-2 py-0.2 text-[10px] tabular-nums font-mono text-indigo-200">0</span>
-                    </button>
+                <!-- Refined Saved-items manager -->
+                <button id="savedBtn"
+                        class="flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-indigo-200 hover:bg-indigo-500/20 hover:border-indigo-500/50 shadow-sm transition-colors duration-150 cursor-pointer whitespace-nowrap shrink-0">
+                    <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                    <span class="hidden sm:inline" data-i18n="savedWords">Saved</span>
+                    <span id="savedCount" class="rounded-full bg-indigo-500/30 px-2 py-0.2 text-[10px] tabular-nums font-mono text-indigo-200">0</span>
+                </button>
 
-                    <!-- Unified Settings Button -->
-                    <button id="settingsBtn" data-i18n-title="settingsTitle" title="Settings &amp; Preferences"
-                            class="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-300 active:scale-95 shadow-sm cursor-pointer">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </button>
-                </div>
+                <!-- Unified Settings Button -->
+                <button id="settingsBtn" data-i18n-title="settingsTitle" title="Settings &amp; Preferences"
+                        class="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 hover:bg-white/10 hover:text-white hover:border-white/20 transition-colors duration-150 shadow-sm cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
             </div>
         </div>
     </header>
 
     <!-- Zen Mode Exit Floating Pill -->
     <div id="zenExitBar" class="hidden fixed top-4 right-5 z-50 items-center gap-2.5 bg-slate-900/90 backdrop-blur-xl border border-white/15 px-4 py-2 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-all select-none">
-        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
         <span class="text-xs font-semibold text-indigo-200" data-i18n="zenActive">Zen Mode Active</span>
         <button id="zenExitBtn" data-i18n-title="exitZenTitle" title="Exit Zen Mode (Z / Esc)" class="text-slate-400 hover:text-white flex items-center justify-center pl-1.5 border-l border-white/10 transition cursor-pointer">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
     </div>
 
-    <!-- ============ FLOATING LEFT CONTROL WIDGET (Doppelrand Island Dock) ============ -->
-    <aside id="leftControlWidget" class="hidden fixed left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 flex-col items-center p-1.5 rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.12)] transition-all duration-300 select-none hover:border-indigo-500/30">
-        <div class="flex flex-col items-center gap-1.5 p-1 rounded-[calc(1.5rem-2px)] bg-slate-950/70 border border-white/[0.04]">
-            <!-- Zoom In -->
-            <button id="zoomInBtn" data-i18n-title="zoomIn" title="Zoom In (+)" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md hover:shadow-indigo-500/30 transition-all duration-200 active:scale-90 cursor-pointer">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    <!-- ============ FLOATING LEFT CONTROL WIDGET (Single Clean Capsule) ============ -->
+    <aside id="leftControlWidget" class="hidden fixed left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1.5 p-1.5 rounded-2xl border border-white/[0.08] bg-slate-950/90 backdrop-blur-2xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] select-none">
+        <!-- Zoom In -->
+        <button id="zoomInBtn" data-i18n-title="zoomIn" title="Zoom In (+)" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md transition active:scale-95 cursor-pointer">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        </button>
+
+        <button id="zoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom (100%)" class="px-1 py-0.5 text-[10px] font-mono font-semibold text-slate-300 hover:text-indigo-300 transition cursor-pointer">
+            <span id="zoomLabel">100%</span>
+        </button>
+
+        <!-- Zoom Out -->
+        <button id="zoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out (−)" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md transition active:scale-95 cursor-pointer">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+        </button>
+
+        <div class="w-4 border-t border-white/10 my-0.5"></div>
+
+        <!-- Translation Languages Switcher Button -->
+        <button id="langChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md transition active:scale-95 cursor-pointer">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        </button>
+
+        <!-- Typography & Appearance -->
+        <button id="typographyBtn" data-i18n-title="typography" title="Typography &amp; Appearance" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md transition active:scale-95 cursor-pointer">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
+        </button>
+
+        <!-- PDF Table of Contents Button -->
+        <button id="navOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 hover:shadow-md transition active:scale-95 cursor-pointer">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+        </button>
+
+        <!-- PDF Page Navigator (visible for PDF) -->
+        <div id="pdfNavSection" class="hidden flex-col items-center gap-1 pt-1 border-t border-white/10 w-full">
+            <button id="navPrevPage" data-i18n-title="prevPage" title="Previous Page (K / ▲)" class="w-8 h-6 rounded-lg bg-white/[0.04] hover:bg-indigo-600 hover:text-white text-slate-300 flex items-center justify-center transition disabled:opacity-30 active:scale-95 cursor-pointer">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
             </button>
-
-            <button id="zoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom (100%)" class="px-1 py-0.5 text-[10px] font-mono font-semibold text-slate-300 hover:text-indigo-300 transition-colors cursor-pointer">
-                <span id="zoomLabel">100%</span>
-            </button>
-
-            <!-- Zoom Out -->
-            <button id="zoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out (−)" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md hover:shadow-indigo-500/30 transition-all duration-200 active:scale-90 cursor-pointer">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
-            </button>
-
-            <div class="w-4 border-t border-white/10 my-0.5"></div>
-
-            <!-- Translation Languages Switcher Button -->
-            <button id="langChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md hover:shadow-indigo-500/30 transition-all duration-200 active:scale-90 cursor-pointer">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-            </button>
-
-            <!-- Typography & Appearance -->
-            <button id="typographyBtn" data-i18n-title="typography" title="Typography &amp; Appearance" class="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white flex items-center justify-center text-slate-300 hover:shadow-md hover:shadow-indigo-500/30 transition-all duration-200 active:scale-90 cursor-pointer">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
-            </button>
-
-            <!-- PDF Table of Contents Button -->
-            <button id="navOutlineBtn" data-i18n-title="tableOfContents" title="Table of Contents / Chapters" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-indigo-600 hover:text-white items-center justify-center text-slate-300 hover:shadow-md hover:shadow-indigo-500/30 transition-all duration-200 active:scale-90 cursor-pointer">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-            </button>
-
-            <!-- PDF Page Navigator (visible for PDF) -->
-            <div id="pdfNavSection" class="hidden flex-col items-center gap-1 pt-1 border-t border-white/10 w-full">
-                <button id="navPrevPage" data-i18n-title="prevPage" title="Previous Page (K / ▲)" class="w-8 h-6 rounded-lg bg-white/[0.04] hover:bg-indigo-600 hover:text-white text-slate-300 flex items-center justify-center transition-all duration-200 disabled:opacity-30 active:scale-90 cursor-pointer">
-                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-                </button>
-                <div class="text-center font-mono text-[10px] text-slate-300 py-0.5">
-                    <span id="navCurPage" class="text-indigo-400 font-bold">1</span>/<span id="navTotalPages">1</span>
-                </div>
-                <button id="navNextPage" data-i18n-title="nextPage" title="Next Page (J / ▼)" class="w-8 h-6 rounded-lg bg-white/[0.04] hover:bg-indigo-600 hover:text-white text-slate-300 flex items-center justify-center transition-all duration-200 disabled:opacity-30 active:scale-90 cursor-pointer">
-                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
+            <div class="text-center font-mono text-[10px] text-slate-300 py-0.5">
+                <span id="navCurPage" class="text-indigo-400 font-bold">1</span>/<span id="navTotalPages">1</span>
             </div>
+            <button id="navNextPage" data-i18n-title="nextPage" title="Next Page (J / ▼)" class="w-8 h-6 rounded-lg bg-white/[0.04] hover:bg-indigo-600 hover:text-white text-slate-300 flex items-center justify-center transition disabled:opacity-30 active:scale-95 cursor-pointer">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
         </div>
     </aside>
 
-    <!-- ============ MOBILE BOTTOM ACTION BAR (Floating Glass Island) ============ -->
+    <!-- ============ MOBILE BOTTOM ACTION BAR (Single Clean Capsule) ============ -->
     <nav id="bottomMobileBar" class="hidden fixed bottom-3 left-3 right-3 z-50 md:hidden select-none pointer-events-none transition-transform duration-300">
-        <div class="pointer-events-auto max-w-md mx-auto p-1 rounded-2xl bg-white/[0.07] border border-white/10 backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.12)]">
-            <div class="rounded-[calc(1rem-2px)] px-3 py-1.5 flex items-center justify-between gap-2 bg-slate-950/85 border border-white/[0.04] text-xs">
-                
-                <!-- Mobile PDF Page Indicator -->
-                <div id="mobilePdfNav" class="hidden items-center bg-white/[0.04] border border-white/10 rounded-xl px-2.5 py-1 shrink-0 select-none">
-                    <span class="font-mono text-xs text-slate-200">
-                        <strong id="mobileNavCurPage" class="text-indigo-400">1</strong> / <span id="mobileNavTotalPages" class="text-slate-400">1</span>
-                    </span>
-                </div>
+        <div class="pointer-events-auto max-w-md mx-auto rounded-2xl px-4 py-2.5 flex items-center justify-between gap-2 bg-slate-950/90 border border-white/[0.08] backdrop-blur-2xl shadow-[0_15px_40px_rgba(0,0,0,0.8)] text-xs">
+            <!-- Mobile PDF Page Indicator -->
+            <div id="mobilePdfNav" class="hidden items-center bg-white/[0.04] border border-white/10 rounded-xl px-2.5 py-1 shrink-0 select-none">
+                <span class="font-mono text-xs text-slate-200">
+                    <strong id="mobileNavCurPage" class="text-indigo-400">1</strong> / <span id="mobileNavTotalPages" class="text-slate-400">1</span>
+                </span>
+            </div>
 
-                <!-- Mobile Zoom Controller -->
-                <div class="flex items-center gap-0.5 bg-white/[0.04] border border-white/10 rounded-xl px-1 py-0.5 shrink-0">
-                    <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-7 h-7 rounded-lg bg-transparent text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-90 cursor-pointer">
-                        −
-                    </button>
-                    <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1.5 text-[11px] font-mono font-semibold text-slate-200 hover:text-indigo-300 transition cursor-pointer">
-                        <span id="mobileZoomLabel">100%</span>
-                    </button>
-                    <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-7 h-7 rounded-lg bg-transparent text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-90 cursor-pointer">
-                        +
-                    </button>
-                </div>
+            <!-- Mobile Zoom Controller -->
+            <div class="flex items-center gap-0.5 bg-white/[0.04] border border-white/10 rounded-xl px-1 py-0.5 shrink-0">
+                <button id="mobileZoomOutBtn" data-i18n-title="zoomOut" title="Zoom Out" class="w-7 h-7 rounded-lg bg-transparent text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-90 cursor-pointer">
+                    −
+                </button>
+                <button id="mobileZoomResetBtn" data-i18n-title="zoomReset" title="Reset Zoom" class="px-1.5 text-[11px] font-mono font-semibold text-slate-200 hover:text-indigo-300 transition cursor-pointer">
+                    <span id="mobileZoomLabel">100%</span>
+                </button>
+                <button id="mobileZoomInBtn" data-i18n-title="zoomIn" title="Zoom In" class="w-7 h-7 rounded-lg bg-transparent text-slate-300 hover:bg-indigo-600 hover:text-white flex items-center justify-center font-bold text-xs transition active:scale-90 cursor-pointer">
+                    +
+                </button>
+            </div>
 
-                <!-- Mobile Action Cluster -->
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <!-- Mobile Translation Languages Button -->
-                    <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-                    </button>
+            <!-- Mobile Action Cluster -->
+            <div class="flex items-center gap-1.5 shrink-0">
+                <!-- Mobile Translation Languages Button -->
+                <button id="mobileLangChangeBtn" data-i18n-title="changeLangBtn" title="Change Translation Languages" class="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                </button>
 
-                    <!-- Mobile Outline / Table of Contents Button (Directly visible for PDF) -->
-                    <button id="mobileOutlineBtn" data-i18n-title="outlineTitle" title="Table of Contents" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-                    </button>
+                <!-- Mobile Outline / Table of Contents Button (Directly visible for PDF) -->
+                <button id="mobileOutlineBtn" data-i18n-title="outlineTitle" title="Table of Contents" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                </button>
 
-                    <!-- Mobile Typography / Appearance Button (Directly visible for TXT / DOCX) -->
-                    <button id="mobileTypoBtn" data-i18n-title="typographyTitle" title="Appearance" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
-                    </button>
-                </div>
+                <!-- Mobile Typography / Appearance Button (Directly visible for TXT / DOCX) -->
+                <button id="mobileTypoBtn" data-i18n-title="typographyTitle" title="Appearance" class="hidden w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 hover:bg-indigo-600 hover:text-white text-slate-200 flex items-center justify-center text-xs shadow-sm transition active:scale-90 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
+                </button>
             </div>
         </div>
     </nav>
@@ -207,13 +192,13 @@
                     <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
                     </div>
-                    <h2 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
                         <span data-i18n="myLibrary">My Library</span>
                     </h2>
                     <span id="libraryCountBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 font-mono font-medium">0</span>
                 </div>
                 <!-- Sleek Header Upload Button -->
-                <button id="libraryUploadBtn" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all duration-300 active:scale-95 cursor-pointer whitespace-nowrap shrink-0">
+                <button id="libraryUploadBtn" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm transition-all duration-150 active:scale-95 cursor-pointer whitespace-nowrap shrink-0">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     <span data-i18n="openNewDocument">Open Document</span>
                 </button>
@@ -227,39 +212,28 @@
         <div id="welcomeState"
              class="doppelrand-shell p-2 sm:p-2.5 rounded-[2.5rem] bg-gradient-to-b from-white/[0.08] via-white/[0.02] to-transparent border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl transition-all duration-300">
             <div class="rounded-[calc(2.5rem-0.625rem)] bg-slate-950/70 border border-white/[0.06] p-6 sm:p-10 lg:p-12 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)] relative overflow-hidden group">
-                
-                <!-- Radiant Subtle Ambient Glow -->
-                <div class="absolute -top-24 right-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
                     
                     <!-- Left Column: Value Prop & Primary Action (col-span-7) -->
                     <div class="md:col-span-7 flex flex-col items-start text-left">
                         
-                        <!-- Eyebrow: Hero brand strip / badge -->
-                        <div class="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/25 bg-indigo-500/10 text-indigo-300 text-xs font-medium shadow-sm">
-                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-                            <span class="tracking-wide">LexiRead Workspace</span>
-                        </div>
-
                         <!-- Headline (max 2 lines) -->
-                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight" data-i18n="welcomeHeroTitle">
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15]" data-i18n="welcomeHeroTitle">
                             Okuyun &amp; Kelime Dağarcığınızı Geliştirin
                         </h2>
 
                         <!-- Subtext (<= 20 words, <= 4 lines) -->
-                        <p class="mt-3 text-xs sm:text-sm leading-relaxed text-slate-400 max-w-lg" data-i18n="welcomeHeroDesc">
+                        <p class="mt-3 text-sm sm:text-base leading-relaxed text-slate-300 max-w-lg" data-i18n="welcomeHeroDesc">
                             PDF, DOCX ve TXT belgelerinizi okurken anında çeviri yapın, kelimeleri hafızanıza kaydedin.
                         </p>
 
-                        <!-- Nested CTA Button Architecture ("Button-in-Button" Trailing Icon) -->
+                        <!-- Primary CTA Button -->
                         <div class="mt-6 flex flex-wrap items-center gap-3 w-full sm:w-auto">
                             <label for="fileInput" id="welcomeChooseFileBtn" role="button" tabindex="0"
-                                   class="group inline-flex items-center justify-between gap-4 pl-5 pr-2 py-2 rounded-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs sm:text-sm shadow-[0_15px_30px_-5px_rgba(99,102,241,0.4)] transition-all duration-300 active:scale-[0.98] cursor-pointer select-none ring-1 ring-white/20 whitespace-nowrap shrink-0">
+                                   class="group inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-md transition-all duration-200 active:scale-[0.98] cursor-pointer select-none ring-1 ring-white/20 whitespace-nowrap shrink-0">
                                 <span class="font-medium tracking-wide" data-i18n="chooseDocumentBtn">Belge Seç</span>
-                                <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 shadow-sm shrink-0">
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                                </span>
+                                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                             </label>
                         </div>
 
@@ -274,7 +248,7 @@
                     <div class="md:col-span-5 w-full">
                         <label for="fileInput"
                                class="group flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl border border-dashed border-white/20 hover:border-indigo-500/50 bg-white/[0.02] hover:bg-white/[0.05] transition-all duration-300 cursor-pointer text-center relative overflow-hidden shadow-inner">
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-3.5 group-hover:scale-105 group-hover:bg-indigo-500/20 transition-all duration-300 shadow-md shadow-indigo-500/10">
+                            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-3.5 group-hover:scale-105 group-hover:bg-indigo-500/20 transition-all duration-300 shadow-md">
                                 <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                             </div>
                             <span class="text-xs sm:text-sm font-semibold text-slate-200 group-hover:text-white transition-colors" data-i18n="orDragDesktop">
@@ -326,7 +300,7 @@
 
     <!-- Mobile Floating Action Button (FAB) for Library Screen -->
     <button id="mobileUploadFab" data-i18n-title="uploadFabTitle" title="Open Document"
-            class="hidden fixed bottom-6 right-5 z-40 h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 text-white shadow-2xl shadow-indigo-500/40 ring-2 ring-white/20 transition active:scale-90 md:hidden cursor-pointer">
+            class="hidden fixed bottom-6 right-5 z-40 h-14 w-14 items-center justify-center rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl ring-1 ring-white/20 transition active:scale-95 md:hidden cursor-pointer">
         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
     </button>
 
@@ -358,7 +332,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
                     </div>
-                    <h2 class="text-sm sm:text-base font-bold text-white tracking-tight" data-i18n="apiKeyModalTitle">Translation API Key</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="apiKeyModalTitle">Translation API Key</h2>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="activeProviderBadge" class="rounded-full bg-indigo-500/15 border border-indigo-500/25 px-2.5 py-0.5 text-[11px] font-medium text-indigo-300 font-mono">Active: Gemini</span>
@@ -404,7 +378,7 @@
                     <span class="text-[11px] text-slate-500 font-mono" data-i18n="keysCachedLocally">Keys are cached locally</span>
                     <div class="flex items-center gap-2">
                         <button id="keyCancel" type="button" onclick="closeKeyModal(event)" class="rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 hover:border-white/20 hover:text-white transition cursor-pointer select-none active:scale-95 whitespace-nowrap shrink-0" data-i18n="closeBtn">Close</button>
-                        <button id="keySave" type="button" onclick="saveKeyModal(event)" class="rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-2 text-xs font-semibold text-white hover:from-indigo-500 hover:to-indigo-400 shadow-md shadow-indigo-500/30 transition cursor-pointer select-none active:scale-95 whitespace-nowrap shrink-0" data-i18n="saveActivateBtn">Save &amp; Activate</button>
+                        <button id="keySave" type="button" onclick="saveKeyModal(event)" class="rounded-full bg-indigo-600 px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-500 shadow-sm transition-colors duration-150 cursor-pointer select-none active:scale-95 whitespace-nowrap shrink-0" data-i18n="saveActivateBtn">Save &amp; Activate</button>
                     </div>
                 </div>
             </div>
@@ -420,7 +394,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                     </div>
-                    <h2 class="text-sm sm:text-base font-bold text-white tracking-tight" data-i18n="langModalTitle">Select Source and Target Language</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="langModalTitle">Select Source and Target Language</h2>
                 </div>
                 <button id="langCloseBtn" type="button" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -446,7 +420,7 @@
 
                 <div class="mt-6 flex items-center justify-end gap-2">
                     <button id="langCancel" class="rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-300 hover:border-white/20 hover:text-white transition cursor-pointer" data-i18n="cancelBtn">Cancel</button>
-                    <button id="langConfirm" class="rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-2 text-xs font-semibold text-white hover:from-indigo-500 hover:to-indigo-400 shadow-md shadow-indigo-500/30 transition cursor-pointer" data-i18n="confirmBtn">Confirm</button>
+                    <button id="langConfirm" class="rounded-full bg-indigo-600 px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-500 shadow-sm transition-colors duration-150 cursor-pointer active:scale-95" data-i18n="confirmBtn">Confirm</button>
                 </div>
             </div>
         </div>
@@ -463,7 +437,7 @@
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" x2="8.12" y1="4" y2="15.88"/><line x1="14.47" x2="20" y1="14.48" y2="20"/><line x1="8.12" x2="12" y1="8.12" y2="12"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-sm sm:text-base font-bold text-white tracking-tight" data-i18n="pdfCropTitle">PDF Reading Area &amp; Margins</h2>
+                        <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="pdfCropTitle">PDF Reading Area &amp; Margins</h2>
                         <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5" data-i18n="pdfCropDesc">
                             Drag the top and bottom red exclusion lines directly on the page to exclude headers and footers.
                         </p>
@@ -519,7 +493,7 @@
                     <button id="cropSkipBtn" class="rounded-full border border-white/10 px-4 py-2 text-xs font-medium text-slate-400 hover:border-white/20 hover:text-white transition active:scale-95 cursor-pointer" data-i18n="noCropBtn">
                         No Crop (0%)
                     </button>
-                    <button id="cropConfirmBtn" class="rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 px-5 py-2 text-xs font-semibold text-white hover:from-indigo-500 hover:to-indigo-400 shadow-md shadow-indigo-500/30 transition active:scale-95 cursor-pointer" data-i18n="applyOpenBtn">
+                    <button id="cropConfirmBtn" class="rounded-full bg-indigo-600 px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-500 shadow-sm transition-colors duration-150 active:scale-95 cursor-pointer" data-i18n="applyOpenBtn">
                         Apply &amp; Open Document
                     </button>
                 </div>
@@ -536,7 +510,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
                     </div>
-                    <h2 class="text-sm sm:text-base font-bold text-white tracking-tight" data-i18n="outlineTitle">Table of Contents</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="outlineTitle">Table of Contents</h2>
                 </div>
                 <button id="outlineClose" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -555,7 +529,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
                     </div>
-                    <h2 class="text-sm font-bold text-white tracking-tight" data-i18n="typographyTitle">Appearance &amp; Layout</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="typographyTitle">Appearance &amp; Layout</h2>
                 </div>
                 <button id="typographyClose" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -568,9 +542,9 @@
                         <span class="block text-xs text-slate-400 mb-2 font-medium" data-i18n="fontFamilyLabel">Font Family (TXT / DOCX)</span>
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 font-serif text-slate-200 transition active:scale-95 cursor-pointer" data-font="var(--font-serif)" data-i18n="fontSerif">Newsreader Serif</button>
-                            <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 font-sans text-slate-200 transition active:scale-95 cursor-pointer" data-font="var(--font-sans)" data-i18n="fontSans">Plus Jakarta Sans</button>
+                            <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 font-sans text-slate-200 transition active:scale-95 cursor-pointer" data-font="var(--font-sans)" data-i18n="fontSans">Figtree Sans</button>
                             <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 font-mono text-slate-200 transition active:scale-95 cursor-pointer" data-font="var(--font-mono)" data-i18n="fontMono">JetBrains Mono</button>
-                            <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 text-slate-200 transition active:scale-95 cursor-pointer" style="font-family: 'Comic Sans MS', cursive, sans-serif;" data-font="'Comic Sans MS', cursive, sans-serif" data-i18n="fontDyslexic">Dyslexic Friendly</button>
+                            <button class="font-choice-btn rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left hover:border-indigo-500 text-slate-200 transition active:scale-95 cursor-pointer" style="font-family: var(--font-dyslexic);" data-font="var(--font-dyslexic)" data-i18n="fontDyslexic">Atkinson Hyperlegible</button>
                         </div>
                     </div>
                     <div>
@@ -595,7 +569,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
                     </div>
-                    <h2 class="text-sm sm:text-base font-bold text-white tracking-tight" data-i18n="savedModalTitle">Saved Words &amp; Phrases</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="savedModalTitle">Saved Words &amp; Phrases</h2>
                 </div>
                 <button id="savedClose" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -618,11 +592,11 @@
             <div class="flex items-center justify-between gap-2 border-t border-white/10 px-6 py-4 shrink-0 bg-slate-950/80">
                 <button id="savedClear" class="rounded-full border border-red-500/20 px-3.5 py-1.5 text-xs font-medium text-red-400 hover:bg-red-950/30 transition cursor-pointer active:scale-95" data-i18n="deleteAllBtn">Delete all</button>
                 <div class="flex items-center gap-2">
-                    <button id="savedSyncCardlyo" data-i18n-title="copyCardlyoBtn" title="Copy flashcard deck to clipboard to paste (Ctrl+V) in Cardlyo" class="rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-2 text-xs font-semibold hover:from-indigo-500 hover:to-indigo-400 text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/25 transition cursor-pointer active:scale-95">
+                    <button id="savedSyncCardlyo" data-i18n-title="copyCardlyoBtn" title="Copy flashcard deck to clipboard to paste (Ctrl+V) in Cardlyo" class="rounded-full bg-indigo-600 hover:bg-indigo-500 px-4 py-2 text-xs font-semibold text-white flex items-center gap-1.5 shadow-sm transition-colors duration-150 cursor-pointer active:scale-95">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                         <span data-i18n="copyCardlyoBtn">Copy for Cardlyo</span>
                     </button>
-                    <button id="savedExport" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-md shadow-emerald-500/25 transition cursor-pointer active:scale-95" data-i18n="exportJsonBtn">
+                    <button id="savedExport" class="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold hover:bg-emerald-500 text-white flex items-center gap-1.5 shadow-md transition cursor-pointer active:scale-95" data-i18n="exportJsonBtn">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                         <span>Export JSON</span>
                     </button>
@@ -640,7 +614,7 @@
                     <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     </div>
-                    <h2 class="text-sm font-bold text-white tracking-tight" data-i18n="settingsTitle">Settings &amp; Preferences</h2>
+                    <h2 class="text-base sm:text-lg font-bold text-white tracking-tight" data-i18n="settingsTitle">Settings &amp; Preferences</h2>
                 </div>
                 <button id="settingsClose" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -651,7 +625,7 @@
                 <!-- Section: Theme -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-2" data-i18n="themeLabel">Theme</label>
-                    <div class="grid grid-cols-3 gap-2.5 text-xs font-medium">
+                    <div class="grid grid-cols-2 gap-2.5 text-xs font-medium">
                         <button class="theme-choice-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-slate-200 hover:border-indigo-500 transition active:scale-95 cursor-pointer" data-theme="dark">
                             <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                             <span data-i18n="themeDark">Dark</span>
@@ -659,10 +633,6 @@
                         <button class="theme-choice-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-slate-200 hover:border-indigo-500 transition active:scale-95 cursor-pointer" data-theme="light">
                             <svg class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
                             <span data-i18n="themeLight">Light</span>
-                        </button>
-                        <button class="theme-choice-btn flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-slate-200 hover:border-indigo-500 transition active:scale-95 cursor-pointer" data-theme="sepia">
-                            <svg class="w-4 h-4 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-                            <span data-i18n="themeSepia">Sepia</span>
                         </button>
                     </div>
                 </div>
@@ -711,7 +681,7 @@
 
                         <!-- Primary 1-Click OAuth Button -->
                         <a id="settingsCloudOAuthBtn" href="/oauth/dropbox/login"
-                           class="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 py-2.5 px-4 text-xs font-semibold text-white transition shadow-md shadow-indigo-600/25 active:scale-[0.98]">
+                           class="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 py-2.5 px-4 text-xs font-semibold text-white transition shadow-md active:scale-[0.98]">
                             <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12.89 1.45 8 4A2 2 0 0 1 22 7.24v9.53a2 2 0 0 1-1.11 1.79l-8 4a2 2 0 0 1-1.78 0l-8-4A2 2 0 0 1 2 16.77V7.24a2 2 0 0 1 1.11-1.79l8-4a2 2 0 0 1 1.78 0Z"/><path d="m2.32 6.16 9.68 4.84 9.68-4.84"/><path d="M12 22.76V11"/></svg>
                             <span data-i18n="cloudConnectDropboxBtn">Dropbox ile Giriş Yap &amp; Bağlan</span>
                         </a>
@@ -780,7 +750,7 @@
                         <div class="flex items-center justify-between text-xs">
                             <div>
                                 <span class="font-medium text-emerald-300 flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                                     <span id="settingsCloudAccount">User</span>
                                 </span>
                                 <span id="settingsCloudEmail" class="block text-[10px] text-slate-400 mt-0.5 font-mono"></span>
@@ -819,8 +789,8 @@
         <div class="modal-card relative w-full max-w-sm flex flex-col rounded-t-3xl sm:rounded-3xl border-t sm:border border-white/10 bg-slate-900/95 shadow-2xl overflow-hidden select-none backdrop-blur-2xl">
             <div class="modal-card-header flex items-center justify-between p-5 border-b border-white/10 bg-slate-950/70 shrink-0">
                 <div class="min-w-0 flex-1 pr-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono" data-i18n="bookActionsTitle">Book Options</span>
-                    <h3 id="bookActionDocName" class="text-sm font-semibold text-white truncate mt-0.5"></h3>
+                    <h2 id="bookActionDocName" class="text-base font-bold text-white truncate"></h2>
+                    <span class="text-[11px] text-slate-400 font-medium" data-i18n="bookActionsTitle">Book Options</span>
                 </div>
                 <button id="bookActionClose" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -851,10 +821,10 @@
         <div class="bookRenameBack absolute inset-0 bg-black/75 backdrop-blur-md"></div>
         <div class="modal-card relative w-full max-w-sm flex flex-col rounded-3xl border border-white/10 bg-slate-900/95 shadow-2xl overflow-hidden select-none backdrop-blur-2xl">
             <div class="modal-card-header flex items-center justify-between p-5 border-b border-white/10 bg-slate-950/70 shrink-0">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                     <svg class="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
                     <span data-i18n="renameTitle">Rename Display Title</span>
-                </h3>
+                </h2>
                 <button id="bookRenameCloseBtn" class="w-7 h-7 rounded-full text-slate-400 hover:bg-white/10 hover:text-white flex items-center justify-center transition cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
@@ -865,7 +835,7 @@
                        class="w-full rounded-xl border border-white/10 bg-slate-950/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-500 focus:outline-none transition shadow-inner" />
                 <div class="flex items-center justify-end gap-2 mt-5">
                     <button id="bookRenameCancelBtn" class="px-4 py-2 rounded-full text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer" data-i18n="renameCancelBtn">Cancel</button>
-                    <button id="bookRenameSaveBtn" class="px-5 py-2 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white transition shadow-md shadow-indigo-600/30 active:scale-95 cursor-pointer" data-i18n="renameSaveBtn">Save</button>
+                    <button id="bookRenameSaveBtn" class="px-5 py-2 rounded-full text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors duration-150 shadow-sm active:scale-95 cursor-pointer" data-i18n="renameSaveBtn">Save</button>
                 </div>
             </div>
         </div>
@@ -874,10 +844,10 @@
     <!-- Global Full-Window Drag & Drop Overlay (Desktop) -->
     <div id="globalDragOverlay" class="hidden fixed inset-0 z-[100] flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-xl transition-all duration-300 pointer-events-none select-none">
         <div class="flex flex-col items-center justify-center p-14 max-w-md w-full rounded-3xl border-2 border-dashed border-indigo-500/80 bg-indigo-950/60 shadow-2xl text-center backdrop-blur-2xl">
-            <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 mb-4 shadow-lg shadow-indigo-500/20 animate-bounce">
+            <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 mb-4 shadow-lg">
                 <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><polyline points="12 11 12 17 9 14"/></svg>
             </div>
-            <h3 class="text-xl font-bold text-white mb-1.5" data-i18n="dropHereTitle">Drop your document here</h3>
+            <h2 class="text-xl sm:text-2xl font-bold text-white mb-1.5" data-i18n="dropHereTitle">Drop your document here</h2>
             <p class="text-xs text-indigo-300 font-mono tracking-wider">.pdf, .txt, .docx</p>
         </div>
     </div>
