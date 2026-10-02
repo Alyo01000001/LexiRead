@@ -331,20 +331,18 @@
     </button>
 
     <!-- TOOLTIP: Translated text only + bookmark (Floating Glass Capsule) -->
-    <div id="tooltip" class="p-1 rounded-2xl bg-white/10 border border-white/15 shadow-[0_25px_60px_-10px_rgba(0,0,0,0.85),0_0_25px_rgba(99,102,241,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)] backdrop-blur-2xl">
-        <div class="rounded-[calc(1rem-2px)] p-3.5 bg-slate-950/90 border border-white/[0.05]">
-            <div class="flex items-start gap-3">
-                <div id="tooltipBody" class="min-w-0 flex-1 break-words text-lg font-semibold leading-snug text-slate-50"></div>
-                <div class="flex shrink-0 items-center gap-1.5">
-                    <button id="tooltipSave" data-i18n-title="saveBookmark" title="Save to Saved Words &amp; Phrases"
-                            class="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-amber-400 flex items-center justify-center transition shadow-sm select-none active:scale-90 cursor-pointer">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    </button>
-                    <button id="tooltipClose" data-i18n-title="closeBtn" title="Close"
-                            class="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm select-none active:scale-90 cursor-pointer">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
+    <div id="tooltip" class="rounded-2xl p-3.5 backdrop-blur-2xl">
+        <div class="flex items-start gap-3">
+            <div id="tooltipBody" class="min-w-0 flex-1 break-words text-base sm:text-lg font-semibold leading-snug"></div>
+            <div class="flex shrink-0 items-center gap-1.5">
+                <button id="tooltipSave" data-i18n-title="saveBookmark" title="Save to Saved Words &amp; Phrases"
+                        class="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-white/10 text-slate-400 hover:text-amber-400 flex items-center justify-center transition shadow-sm select-none active:scale-90 cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </button>
+                <button id="tooltipClose" data-i18n-title="closeBtn" title="Close"
+                        class="w-8 h-8 rounded-xl bg-white/[0.06] hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm select-none active:scale-90 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
             </div>
         </div>
     </div>

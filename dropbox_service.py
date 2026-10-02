@@ -384,3 +384,35 @@ class DropboxService:
             return {"success": False, "error": e.read().decode('utf-8', errors='ignore')}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def delete_file(self, path):
+        token = self.get_valid_token()
+        if not token:
+            return {"success": False, "error": "Not connected to Dropbox"}
+
+        if not path.startswith('/'):
+            path = '/' + path
+
+        payload = {"path": path}
+        req = urllib.request.Request(
+            "https://api.dropboxapi.com/2/files/delete_v2",
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                return {"success": True, "metadata": data}
+        except urllib.error.HTTPError as e:
+            if e.code == 409:
+                # File already deleted or not found
+                return {"success": True, "not_found": True}
+            err_msg = e.read().decode('utf-8', errors='ignore')
+            return {"success": False, "error": f"Delete failed ({e.code}): {err_msg}"}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+

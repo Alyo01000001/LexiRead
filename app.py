@@ -63,30 +63,57 @@ def merge_vocabularies(local_items, remote_items):
 
 def merge_states(local_state, remote_state):
     """
-    Merge reading progress per document.
-    Last-Write-Wins based on lastReadAt timestamp.
+    Merge reading progress per document with tombstone-based deletion sync.
+    Last-Write-Wins based on timestamps:
+    If deletion timestamp >= doc activity/timestamp, document is removed.
     """
-    local_docs = (local_state or {}).get('documents', {})
-    remote_docs = (remote_state or {}).get('documents', {})
-    all_keys = set(local_docs.keys()) | set(remote_docs.keys())
+    local_state = local_state or {}
+    remote_state = remote_state or {}
 
+    local_docs = local_state.get('documents', {})
+    remote_docs = remote_state.get('documents', {})
+
+    local_deleted = local_state.get('deletedDocuments', {})
+    remote_deleted = remote_state.get('deletedDocuments', {})
+    merged_deleted = {}
+
+    for k in set(local_deleted.keys()) | set(remote_deleted.keys()):
+        ld = local_deleted.get(k, {})
+        rd = remote_deleted.get(k, {})
+        lt = ld.get('deletedAt', 0) if isinstance(ld, dict) else (ld or 0)
+        rt = rd.get('deletedAt', 0) if isinstance(rd, dict) else (rd or 0)
+        winner = ld if lt >= rt else rd
+        if winner:
+            merged_deleted[k] = winner if isinstance(winner, dict) else {'deletedAt': max(lt, rt), 'name': k}
+
+    all_keys = set(local_docs.keys()) | set(remote_docs.keys())
     merged_docs = {}
     for k in all_keys:
         loc = local_docs.get(k)
         rem = remote_docs.get(k)
+
+        doc_name = (loc.get('name') if loc else None) or (rem.get('name') if rem else None) or k.split('_')[0]
+        tombstone = merged_deleted.get(k) or merged_deleted.get(doc_name)
+        deleted_at = tombstone.get('deletedAt', 0) if isinstance(tombstone, dict) else 0
+
+        loc_time = loc.get('lastReadAt', 0) if loc else 0
+        rem_time = rem.get('lastReadAt', 0) if rem else 0
+        latest_doc_time = max(loc_time, rem_time)
+
+        if deleted_at and deleted_at >= latest_doc_time:
+            # Document was deleted more recently than any reading activity
+            continue
+
         if loc and rem:
-            loc_time = loc.get('lastReadAt', 0) or 0
-            rem_time = rem.get('lastReadAt', 0) or 0
             if rem_time > loc_time:
                 winner = dict(rem)
-                # Keep local custom title or languages if remote lacks them
-                for attr in ('customTitle', 'srcLang', 'tgtLang', 'name'):
+                for attr in ('customTitle', 'srcLang', 'tgtLang', 'name', 'size', 'ext'):
                     if not winner.get(attr) and loc.get(attr):
                         winner[attr] = loc[attr]
                 merged_docs[k] = winner
             else:
                 winner = dict(loc)
-                for attr in ('customTitle', 'srcLang', 'tgtLang', 'name'):
+                for attr in ('customTitle', 'srcLang', 'tgtLang', 'name', 'size', 'ext'):
                     if not winner.get(attr) and rem.get(attr):
                         winner[attr] = rem[attr]
                 merged_docs[k] = winner
@@ -96,9 +123,10 @@ def merge_states(local_state, remote_state):
             merged_docs[k] = rem
 
     return {
-        "version": 1,
+        "version": 2,
         "lastSync": int(time_now_ms()),
-        "documents": merged_docs
+        "documents": merged_docs,
+        "deletedDocuments": merged_deleted
     }
 
 def time_now_ms():
@@ -160,6 +188,8 @@ class LexiReadHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_dropbox_sync_push()
         elif self.path == '/api/dropbox/upload-book':
             self.handle_dropbox_upload_book()
+        elif self.path == '/api/dropbox/delete-book':
+            self.handle_dropbox_delete_book()
         elif self.path == '/api/dropbox/config':
             self.handle_dropbox_save_config()
         else:
@@ -454,13 +484,51 @@ class LexiReadHandler(http.server.SimpleHTTPRequestHandler):
                 name = entry.get('name', '')
                 ext = name.split('.')[-1].lower() if '.' in name else ''
                 if ext in ('pdf', 'docx', 'txt', 'epub'):
+                    mod_str = entry.get('server_modified') or entry.get('client_modified') or ''
+                    mod_ms = 0
+                    if mod_str:
+                        try:
+                            import datetime
+                            dt = datetime.datetime.fromisoformat(mod_str.replace('Z', '+00:00'))
+                            mod_ms = int(dt.timestamp() * 1000)
+                        except Exception:
+                            mod_ms = 0
                     books.append({
                         "name": name,
                         "path": entry.get('path_display', f"/Books/{name}"),
                         "size": entry.get('size', 0),
-                        "modified": entry.get('client_modified', '')
+                        "modified": mod_str,
+                        "modified_ms": mod_ms
                     })
         self.send_json({"success": True, "books": books})
+
+    def handle_dropbox_delete_book(self):
+        if not dropbox_service.is_connected():
+            self.send_json({"success": False, "error": "Not connected to Dropbox"}, status=400)
+            return
+
+        length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(length)
+        try:
+            payload = json.loads(body.decode('utf-8'))
+        except Exception:
+            payload = {}
+
+        book_path = payload.get('path', '')
+        book_name = payload.get('name', '')
+        if not book_path and book_name:
+            safe_name = os.path.basename(book_name).replace('/', '_').replace('\\', '_')
+            book_path = f"/Books/{safe_name}"
+
+        if not book_path:
+            self.send_json({"success": False, "error": "Missing book path or name"}, status=400)
+            return
+
+        res = dropbox_service.delete_file(book_path)
+        if res.get('success'):
+            self.send_json({"success": True, "path": book_path, "not_found": res.get('not_found', False)})
+        else:
+            self.send_json({"success": False, "error": res.get('error')}, status=500)
 
     def handle_dropbox_download_book(self, query):
         if not dropbox_service.is_connected():
@@ -489,9 +557,10 @@ class LexiReadHandler(http.server.SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     print(f"[LexiRead] Starting local backend on http://localhost:{PORT}")
     print("[LexiRead] Proxies: DeepL, Gemini API, and Dropbox Cloud Sync.")
-    with socketserver.TCPServer(("", PORT), LexiReadHandler) as httpd:
+    with http.server.ThreadingHTTPServer(("", PORT), LexiReadHandler) as httpd:
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("\nShutting down...")
             sys.exit(0)
+
